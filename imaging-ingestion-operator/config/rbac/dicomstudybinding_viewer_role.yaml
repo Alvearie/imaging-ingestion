@@ -1,0 +1,20 @@
+# permissions for end users to view dicomstudybindings.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: dicomstudybinding-viewer-role
+rules:
+- apiGroups:
+  - imaging-ingestion.alvearie.org
+  resources:
+  - dicomstudybindings
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - imaging-ingestion.alvearie.org
+  resources:
+  - dicomstudybindings/status
+  verbs:
+  - get

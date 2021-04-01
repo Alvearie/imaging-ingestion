@@ -1,0 +1,11 @@
+apiVersion: imaging-ingestion.alvearie.org/v1alpha1
+kind: DicomEventDrivenIngestion
+metadata:
+  name: core
+spec:
+  databaseConfigName: db-config
+  databaseSecretName: db-secret
+  eventProcessor:
+    concurrency: 0
+    maxReplicas: 3
+    minReplicas: 0

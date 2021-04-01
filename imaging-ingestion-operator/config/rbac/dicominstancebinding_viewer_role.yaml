@@ -1,0 +1,20 @@
+# permissions for end users to view dicominstancebindings.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: dicominstancebinding-viewer-role
+rules:
+- apiGroups:
+  - imaging-ingestion.alvearie.org
+  resources:
+  - dicominstancebindings
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - imaging-ingestion.alvearie.org
+  resources:
+  - dicominstancebindings/status
+  verbs:
+  - get

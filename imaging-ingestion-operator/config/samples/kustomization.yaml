@@ -1,0 +1,9 @@
+## Append samples you want in your CSV to this file as resources ##
+resources:
+- imaging-ingestion_v1alpha1_dicomeventdriveningestion.yaml
+- imaging-ingestion_v1alpha1_dicomwebingestionservice.yaml
+- imaging-ingestion_v1alpha1_dicominstancebinding.yaml
+- imaging-ingestion_v1alpha1_dicomstudybinding.yaml
+- imaging-ingestion_v1alpha1_dimseingestionservice.yaml
+- imaging-ingestion_v1alpha1_dimseproxy.yaml
+#+kubebuilder:scaffold:manifestskustomizesamples

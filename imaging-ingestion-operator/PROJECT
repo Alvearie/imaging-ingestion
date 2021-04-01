@@ -1,0 +1,63 @@
+domain: alvearie.org
+layout: go.kubebuilder.io/v3
+plugins:
+  manifests.sdk.operatorframework.io/v2: {}
+  scorecard.sdk.operatorframework.io/v2: {}
+projectName: imaging-ingestion-operator
+repo: github.com/Alvearie/imaging-ingestion/imaging-ingestion-operator
+resources:
+- api:
+    crdVersion: v1
+    namespaced: true
+  controller: true
+  domain: alvearie.org
+  group: imaging-ingestion
+  kind: DicomEventDrivenIngestion
+  path: github.com/Alvearie/imaging-ingestion/imaging-ingestion-operator/api/v1alpha1
+  version: v1alpha1
+- api:
+    crdVersion: v1
+    namespaced: true
+  controller: true
+  domain: alvearie.org
+  group: imaging-ingestion
+  kind: DicomwebIngestionService
+  path: github.com/Alvearie/imaging-ingestion/imaging-ingestion-operator/api/v1alpha1
+  version: v1alpha1
+- api:
+    crdVersion: v1
+    namespaced: true
+  controller: true
+  domain: alvearie.org
+  group: imaging-ingestion
+  kind: DicomInstanceBinding
+  path: github.com/Alvearie/imaging-ingestion/imaging-ingestion-operator/api/v1alpha1
+  version: v1alpha1
+- api:
+    crdVersion: v1
+    namespaced: true
+  controller: true
+  domain: alvearie.org
+  group: imaging-ingestion
+  kind: DicomStudyBinding
+  path: github.com/Alvearie/imaging-ingestion/imaging-ingestion-operator/api/v1alpha1
+  version: v1alpha1
+- api:
+    crdVersion: v1
+    namespaced: true
+  controller: true
+  domain: alvearie.org
+  group: imaging-ingestion
+  kind: DimseIngestionService
+  path: github.com/Alvearie/imaging-ingestion/imaging-ingestion-operator/api/v1alpha1
+  version: v1alpha1
+- api:
+    crdVersion: v1
+    namespaced: true
+  controller: true
+  domain: alvearie.org
+  group: imaging-ingestion
+  kind: DimseProxy
+  path: github.com/Alvearie/imaging-ingestion/imaging-ingestion-operator/api/v1alpha1
+  version: v1alpha1
+version: "3"

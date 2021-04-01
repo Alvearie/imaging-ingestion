@@ -1,0 +1,8 @@
+/*
+ * (C) Copyright IBM Corp. 2021
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+plugins {
+    id 'org.alvearie.imaging.ingestion.golang-common-conventions'
+}

@@ -1,0 +1,5 @@
+^\W*$
+^\W*\(C\) Copyright .*$
+^\W*$
+^\W*SPDX-License-Identifier: Apache-2.0$
+^\W*$

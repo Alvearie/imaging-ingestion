@@ -1,0 +1,24 @@
+# permissions for end users to edit dicominstancebindings.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: dicominstancebinding-editor-role
+rules:
+- apiGroups:
+  - imaging-ingestion.alvearie.org
+  resources:
+  - dicominstancebindings
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - imaging-ingestion.alvearie.org
+  resources:
+  - dicominstancebindings/status
+  verbs:
+  - get

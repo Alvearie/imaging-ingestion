@@ -1,0 +1,24 @@
+# permissions for end users to edit dicomeventdriveningestions.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: dicomeventdriveningestion-editor-role
+rules:
+- apiGroups:
+  - imaging-ingestion.alvearie.org
+  resources:
+  - dicomeventdriveningestions
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - imaging-ingestion.alvearie.org
+  resources:
+  - dicomeventdriveningestions/status
+  verbs:
+  - get
