@@ -1,0 +1,13 @@
+apiVersion: imaging-ingestion.alvearie.org/v1alpha1
+kind: DimseProxy
+metadata:
+  name: ingestion
+spec:
+  applicationEntityTitle: DCM4CHEE
+  targetDimseHost: arc.dcm4chee.svc.cluster.local
+  targetDimsePort: 11112
+  natsUrl: 0a0527d6.nip.io:30732
+  natsSecure: true
+  # Future:  Not yet implemented
+  # natsTokenSecret: nats-dicom-ingest-token-lhllv
+  proxy: {}

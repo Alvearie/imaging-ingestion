@@ -1,0 +1,29 @@
+/*
+ * (C) Copyright IBM Corp. 2021
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+pluginManagement {
+    repositories {
+        mavenLocal()
+        mavenCentral()
+        gradlePluginPortal()
+    }
+
+    plugins {
+        id "${quarkusPluginId}" version "${quarkusPluginVersion}"
+    }
+}
+
+rootProject.name = 'imaging-ingestion'
+include 'cloud-events'
+include 'dicom-persistence-model'
+include 'dicomweb-common-service'
+include 'dicomweb-stow-service'
+include 'dicomweb-wado-service'
+include 'dicom-dimse-common'
+include 'dicom-dimse-service'
+include 'dicom-dimse-proxy'
+include 'dicom-event-driven-ingestion'
+include 'dicomweb-stow-binding'
+include 'dicomweb-fhir-binding'

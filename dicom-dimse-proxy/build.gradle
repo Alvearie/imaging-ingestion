@@ -1,0 +1,24 @@
+/*
+ * (C) Copyright IBM Corp. 2021
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+plugins {
+    id 'org.alvearie.imaging.ingestion.quarkus-common-conventions'
+    id 'io.quarkus'
+}
+
+dependencies {
+    implementation project(':dicom-dimse-common')
+
+    implementation enforcedPlatform("${quarkusPlatformGroupId}:${quarkusPlatformArtifactId}:${quarkusPlatformVersion}")
+    implementation 'io.quarkus:quarkus-container-image-docker'
+    implementation 'io.quarkus:quarkus-arc'
+    implementation 'io.quarkus:quarkus-smallrye-context-propagation'
+
+    implementation 'io.nats:jnats:2.8.0'
+    implementation "org.dcm4che:dcm4che-net:${dcm4cheVersion}"
+
+    testImplementation 'io.quarkus:quarkus-junit5'
+    testImplementation 'io.quarkus:quarkus-junit5-mockito'
+}

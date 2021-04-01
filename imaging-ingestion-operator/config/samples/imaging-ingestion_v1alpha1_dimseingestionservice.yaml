@@ -1,0 +1,15 @@
+apiVersion: imaging-ingestion.alvearie.org/v1alpha1
+kind: DimseIngestionService
+metadata:
+  name: ingestion
+spec:
+  bucketConfigName: imaging-ingestion
+  bucketSecretName: imaging-ingestion
+  applicationEntityTitle: DICOM-INGEST
+  natsUrl: 0a0527d6.nip.io:30732
+  natsSecure: true
+  # Future:  Not yet implemented
+  # natsTokenSecret: nats-dicom-ingest-token-lhllv
+  dicomEventDrivenIngestionName: core
+  providerName: provider
+  dimseService: {}

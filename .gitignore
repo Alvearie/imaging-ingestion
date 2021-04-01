@@ -1,0 +1,45 @@
+#-------------------------------------------------------------------------------
+# (C) Copyright IBM Corp. 2021
+#
+# SPDX-License-Identifier: Apache-2.0
+#-------------------------------------------------------------------------------
+# Gradle
+.gradle/
+build/
+.gradletasknamecache
+.gogradle
+
+# Eclipse
+.project
+.classpath
+.settings/
+bin/
+
+# IntelliJ
+.idea
+*.ipr
+*.iml
+*.iws
+
+# NetBeans
+nb-configuration.xml
+
+# Visual Studio Code
+.vscode
+.factorypath
+
+# OSX
+.DS_Store
+
+# Vim
+*.swp
+*.swo
+
+# patch
+*.orig
+*.rej
+
+# Local environment
+.env
+wicked_cli.log
+wicked

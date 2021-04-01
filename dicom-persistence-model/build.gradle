@@ -1,0 +1,13 @@
+/*
+ * (C) Copyright IBM Corp. 2021
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+plugins {
+    id 'org.alvearie.imaging.ingestion.java-library-conventions'
+}
+
+dependencies {
+    implementation "com.fasterxml.jackson.core:jackson-annotations:2.11.3"
+    implementation "io.quarkus:quarkus-hibernate-orm-panache:${quarkusPlatformVersion}"
+}

@@ -1,0 +1,24 @@
+# permissions for end users to edit dimseproxies.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: dimseproxy-editor-role
+rules:
+- apiGroups:
+  - imaging-ingestion.alvearie.org
+  resources:
+  - dimseproxies
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - imaging-ingestion.alvearie.org
+  resources:
+  - dimseproxies/status
+  verbs:
+  - get

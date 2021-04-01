@@ -1,0 +1,28 @@
+/*
+ * (C) Copyright IBM Corp. 2021
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+plugins {
+    id 'org.alvearie.imaging.ingestion.common-conventions'
+
+    // Apply the common convention plugin for shared build configuration between library and application projects.
+    id 'org.alvearie.imaging.ingestion.java-common-conventions'
+
+    // Apply the java-library plugin for API and implementation separation.
+    id 'java-library'
+}
+
+compileJava {
+    options.encoding = 'UTF-8'
+    options.compilerArgs << '-parameters'
+}
+
+compileTestJava {
+    options.encoding = 'UTF-8'
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
+}
