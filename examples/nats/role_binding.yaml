@@ -1,0 +1,28 @@
+piVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: nats-operator-binding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: nats-operator
+subjects:
+- kind: ServiceAccount
+  name: nats-operator
+  # Change to the name of the namespace where to install NATS Operator.
+  # Alternatively, change to "nats-io" to perform a cluster-scoped deployment in supported versions.
+  namespace: nats-pot
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: nats-server-binding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: nats-server
+subjects:
+- kind: ServiceAccount
+  name: nats-server
+  namespace: nats-pot

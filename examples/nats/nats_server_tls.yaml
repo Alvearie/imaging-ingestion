@@ -1,0 +1,28 @@
+# Create the TLS enabled NATS cluster
+apiVersion: "nats.io/v1alpha2"
+kind: "NatsCluster"
+metadata:
+  name: nats-secure
+  namespace: nats-pot
+spec:
+  # Number of nodes in the cluster
+  size: 3
+  version: "1.3.0"
+  pod:
+    # Ensure edited permissions are loaded
+    enableConfigReload: true
+  auth:
+    # Configure for service accounts
+    enableServiceAccounts: false
+  tls:
+    # Certificates to secure the NATS client connections:
+    serverSecret: "nats-secure-server-tls"
+    serverSecretCAFileName: "ca.crt"
+    serverSecretKeyFileName: "tls.key"
+    serverSecretCertFileName: "tls.crt"
+
+    # Certificates to secure the routes.
+    routesSecret: "nats-secure-routes-tls"
+    routesSecretCAFileName: "ca.crt"
+    routesSecretKeyFileName: "tls.key"
+    routesSecretCertFileName: "tls.crt"
