@@ -4,8 +4,8 @@ metadata:
   name: ingestion
 spec:
   applicationEntityTitle: DCM4CHEE
-  targetDimseHost: dcm4chee.0a0527d6.nip.io
-  targetDimsePort: 31285
+  targetDimseHost: arc.dcm4chee.svc.cluster.local
+  targetDimsePort: 11112
   natsUrl: 0a0527d6.nip.io:30732
   natsSecure: true
   # Future:  Not yet implemented

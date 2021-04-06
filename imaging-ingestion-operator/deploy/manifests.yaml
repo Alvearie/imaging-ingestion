@@ -1,0 +1,1111 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: imaging-ingestion
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.4.1
+  creationTimestamp: null
+  name: dicomeventdriveningestions.imaging-ingestion.alvearie.org
+spec:
+  group: imaging-ingestion.alvearie.org
+  names:
+    kind: DicomEventDrivenIngestion
+    listKind: DicomEventDrivenIngestionList
+    plural: dicomeventdriveningestions
+    singular: dicomeventdriveningestion
+  scope: Namespaced
+  versions:
+  - additionalPrinterColumns:
+    - jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
+    - jsonPath: .status.ready
+      name: Ready
+      type: string
+    name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: DicomEventDrivenIngestion is the Schema for the dicomeventdriveningestions API
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: DicomEventDrivenIngestionSpec defines the desired state of DicomEventDrivenIngestion
+            properties:
+              databaseConfigName:
+                description: Database Config Name
+                type: string
+              databaseSecretName:
+                description: Database Secret Name
+                type: string
+              eventProcessor:
+                description: Event Processor Spec
+                properties:
+                  concurrency:
+                    description: Container Concurrency
+                    format: int64
+                    type: integer
+                  image:
+                    description: Image
+                    type: string
+                  maxReplicas:
+                    description: Max Replicas
+                    format: int32
+                    type: integer
+                  minReplicas:
+                    description: Min Replicas
+                    format: int32
+                    type: integer
+                type: object
+              imagePullSecrets:
+                description: Image Pull Secrets
+                items:
+                  description: LocalObjectReference contains enough information to let you locate the referenced object inside the same namespace.
+                  properties:
+                    name:
+                      description: 'Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?'
+                      type: string
+                  type: object
+                type: array
+            type: object
+          status:
+            description: DicomEventDrivenIngestionStatus defines the observed state of DicomEventDrivenIngestion
+            properties:
+              brokerEndpoint:
+                description: Broker Endpoint
+                type: string
+              message:
+                description: Human-readable message indicating details about current operator phase or error.
+                type: string
+              phase:
+                description: Current phase of the operator.
+                type: string
+              ready:
+                description: True if all resources are in a ready state and all work is done.
+                type: boolean
+              secondaryResources:
+                additionalProperties:
+                  items:
+                    type: string
+                  type: array
+                description: 'A map of all the secondary resources types and names created for this CR. e.g "Deployment": [ "DeploymentName1", "DeploymentName2" ]'
+                type: object
+            required:
+            - message
+            - phase
+            - ready
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+status:
+  acceptedNames:
+    kind: ""
+    plural: ""
+  conditions: []
+  storedVersions: []
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.4.1
+  creationTimestamp: null
+  name: dicominstancebindings.imaging-ingestion.alvearie.org
+spec:
+  group: imaging-ingestion.alvearie.org
+  names:
+    kind: DicomInstanceBinding
+    listKind: DicomInstanceBindingList
+    plural: dicominstancebindings
+    singular: dicominstancebinding
+  scope: Namespaced
+  versions:
+  - additionalPrinterColumns:
+    - jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
+    - jsonPath: .status.ready
+      name: Ready
+      type: string
+    name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: DicomInstanceBinding is the Schema for the dicominstancebindings API
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: DicomInstanceBindingSpec defines the desired state of DicomInstanceBinding
+            properties:
+              bindingConfigName:
+                description: Binding Config Name
+                type: string
+              bindingSecretName:
+                description: Binding Secret Name
+                type: string
+              dicomEventDrivenIngestionName:
+                description: DICOM Event Driven Ingestion Name
+                type: string
+              imagePullSecrets:
+                description: Image Pull Secrets
+                items:
+                  description: LocalObjectReference contains enough information to let you locate the referenced object inside the same namespace.
+                  properties:
+                    name:
+                      description: 'Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?'
+                      type: string
+                  type: object
+                type: array
+              instanceBinding:
+                description: Instance Binding Spec
+                properties:
+                  concurrency:
+                    description: Container Concurrency
+                    format: int64
+                    type: integer
+                  image:
+                    description: Image
+                    type: string
+                  maxReplicas:
+                    description: Max Replicas
+                    format: int32
+                    type: integer
+                  minReplicas:
+                    description: Min Replicas
+                    format: int32
+                    type: integer
+                type: object
+            required:
+            - dicomEventDrivenIngestionName
+            type: object
+          status:
+            description: DicomInstanceBindingStatus defines the observed state of DicomInstanceBinding
+            properties:
+              message:
+                description: Human-readable message indicating details about current operator phase or error.
+                type: string
+              phase:
+                description: Current phase of the operator.
+                type: string
+              ready:
+                description: True if all resources are in a ready state and all work is done.
+                type: boolean
+              secondaryResources:
+                additionalProperties:
+                  items:
+                    type: string
+                  type: array
+                description: 'A map of all the secondary resources types and names created for this CR. e.g "Deployment": [ "DeploymentName1", "DeploymentName2" ]'
+                type: object
+            required:
+            - message
+            - phase
+            - ready
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+status:
+  acceptedNames:
+    kind: ""
+    plural: ""
+  conditions: []
+  storedVersions: []
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.4.1
+  creationTimestamp: null
+  name: dicomstudybindings.imaging-ingestion.alvearie.org
+spec:
+  group: imaging-ingestion.alvearie.org
+  names:
+    kind: DicomStudyBinding
+    listKind: DicomStudyBindingList
+    plural: dicomstudybindings
+    singular: dicomstudybinding
+  scope: Namespaced
+  versions:
+  - additionalPrinterColumns:
+    - jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
+    - jsonPath: .status.ready
+      name: Ready
+      type: string
+    name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: DicomStudyBinding is the Schema for the dicomstudybindings API
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: DicomStudyBindingSpec defines the desired state of DicomStudyBinding
+            properties:
+              bindingConfigName:
+                description: Binding Config Name
+                type: string
+              bindingSecretName:
+                description: Binding Secret Name
+                type: string
+              dicomEventDrivenIngestionName:
+                description: DICOM Event Driven Ingestion Name
+                type: string
+              imagePullSecrets:
+                description: Image Pull Secrets
+                items:
+                  description: LocalObjectReference contains enough information to let you locate the referenced object inside the same namespace.
+                  properties:
+                    name:
+                      description: 'Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?'
+                      type: string
+                  type: object
+                type: array
+              studyBinding:
+                description: Study Binding Spec
+                properties:
+                  concurrency:
+                    description: Container Concurrency
+                    format: int64
+                    type: integer
+                  image:
+                    description: Image
+                    type: string
+                  maxReplicas:
+                    description: Max Replicas
+                    format: int32
+                    type: integer
+                  minReplicas:
+                    description: Min Replicas
+                    format: int32
+                    type: integer
+                type: object
+            required:
+            - dicomEventDrivenIngestionName
+            type: object
+          status:
+            description: DicomStudyBindingStatus defines the observed state of DicomStudyBinding
+            properties:
+              message:
+                description: Human-readable message indicating details about current operator phase or error.
+                type: string
+              phase:
+                description: Current phase of the operator.
+                type: string
+              ready:
+                description: True if all resources are in a ready state and all work is done.
+                type: boolean
+              secondaryResources:
+                additionalProperties:
+                  items:
+                    type: string
+                  type: array
+                description: 'A map of all the secondary resources types and names created for this CR. e.g "Deployment": [ "DeploymentName1", "DeploymentName2" ]'
+                type: object
+            required:
+            - message
+            - phase
+            - ready
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+status:
+  acceptedNames:
+    kind: ""
+    plural: ""
+  conditions: []
+  storedVersions: []
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.4.1
+  creationTimestamp: null
+  name: dicomwebingestionservices.imaging-ingestion.alvearie.org
+spec:
+  group: imaging-ingestion.alvearie.org
+  names:
+    kind: DicomwebIngestionService
+    listKind: DicomwebIngestionServiceList
+    plural: dicomwebingestionservices
+    singular: dicomwebingestionservice
+  scope: Namespaced
+  versions:
+  - additionalPrinterColumns:
+    - jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
+    - jsonPath: .status.ready
+      name: Ready
+      type: string
+    name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: DicomwebIngestionService is the Schema for the dicomwebingestionservices API
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: DicomwebIngestionServiceSpec defines the desired state of DicomwebIngestionService
+            properties:
+              bucketConfigName:
+                description: Bucket Config Name
+                type: string
+              bucketSecretName:
+                description: Bucket Secret Name
+                type: string
+              dicomEventDrivenIngestionName:
+                description: DICOM Event Driven Ingestion Name
+                type: string
+              imagePullSecrets:
+                description: Image Pull Secrets
+                items:
+                  description: LocalObjectReference contains enough information to let you locate the referenced object inside the same namespace.
+                  properties:
+                    name:
+                      description: 'Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?'
+                      type: string
+                  type: object
+                type: array
+              providerName:
+                description: Provider Name
+                type: string
+              stowService:
+                description: STOW Service Spec
+                properties:
+                  concurrency:
+                    description: Container Concurrency
+                    format: int64
+                    type: integer
+                  image:
+                    description: Image
+                    type: string
+                  maxReplicas:
+                    description: Max Replicas
+                    format: int32
+                    type: integer
+                  minReplicas:
+                    description: Min Replicas
+                    format: int32
+                    type: integer
+                type: object
+              wadoService:
+                description: WADO Service Spec
+                properties:
+                  concurrency:
+                    description: Container Concurrency
+                    format: int64
+                    type: integer
+                  image:
+                    description: Image
+                    type: string
+                  maxReplicas:
+                    description: Max Replicas
+                    format: int32
+                    type: integer
+                  minReplicas:
+                    description: Min Replicas
+                    format: int32
+                    type: integer
+                type: object
+            required:
+            - dicomEventDrivenIngestionName
+            type: object
+          status:
+            description: DicomwebIngestionServiceStatus defines the observed state of DicomwebIngestionService
+            properties:
+              message:
+                description: Human-readable message indicating details about current operator phase or error.
+                type: string
+              phase:
+                description: Current phase of the operator.
+                type: string
+              ready:
+                description: True if all resources are in a ready state and all work is done.
+                type: boolean
+              secondaryResources:
+                additionalProperties:
+                  items:
+                    type: string
+                  type: array
+                description: 'A map of all the secondary resources types and names created for this CR. e.g "Deployment": [ "DeploymentName1", "DeploymentName2" ]'
+                type: object
+              wadoServiceExternalEndpoint:
+                description: WADO Service External Endpoint
+                type: string
+              wadoServiceInternalEndpoint:
+                description: WADO Service Internal Endpoint
+                type: string
+            required:
+            - message
+            - phase
+            - ready
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+status:
+  acceptedNames:
+    kind: ""
+    plural: ""
+  conditions: []
+  storedVersions: []
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.4.1
+  creationTimestamp: null
+  name: dimseingestionservices.imaging-ingestion.alvearie.org
+spec:
+  group: imaging-ingestion.alvearie.org
+  names:
+    kind: DimseIngestionService
+    listKind: DimseIngestionServiceList
+    plural: dimseingestionservices
+    singular: dimseingestionservice
+  scope: Namespaced
+  versions:
+  - additionalPrinterColumns:
+    - jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
+    - jsonPath: .status.ready
+      name: Ready
+      type: string
+    name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: DimseIngestionService is the Schema for the dimseingestionservices API
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: DimseIngestionServiceSpec defines the desired state of DimseIngestionService
+            properties:
+              applicationEntityTitle:
+                description: Application Entity Title
+                type: string
+              bucketConfigName:
+                description: Bucket Config Name
+                type: string
+              bucketSecretName:
+                description: Bucket Secret Name
+                type: string
+              dicomEventDrivenIngestionName:
+                description: DICOM Event Driven Ingestion Name
+                type: string
+              dimseService:
+                description: DIMSE Service Spec
+                properties:
+                  image:
+                    description: Image
+                    type: string
+                type: object
+              imagePullSecrets:
+                description: Image Pull Secrets
+                items:
+                  description: LocalObjectReference contains enough information to let you locate the referenced object inside the same namespace.
+                  properties:
+                    name:
+                      description: 'Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?'
+                      type: string
+                  type: object
+                type: array
+              natsSecure:
+                description: Make NATS Connection Secure
+                type: boolean
+              natsTokenSecret:
+                description: NATS Token Secret Name
+                type: string
+              natsUrl:
+                description: NATS URL
+                type: string
+              providerName:
+                description: Provider Name
+                type: string
+            required:
+            - dicomEventDrivenIngestionName
+            type: object
+          status:
+            description: DimseIngestionServiceStatus defines the observed state of DimseIngestionService
+            properties:
+              message:
+                description: Human-readable message indicating details about current operator phase or error.
+                type: string
+              phase:
+                description: Current phase of the operator.
+                type: string
+              ready:
+                description: True if all resources are in a ready state and all work is done.
+                type: boolean
+              secondaryResources:
+                additionalProperties:
+                  items:
+                    type: string
+                  type: array
+                description: 'A map of all the secondary resources types and names created for this CR. e.g "Deployment": [ "DeploymentName1", "DeploymentName2" ]'
+                type: object
+            required:
+            - message
+            - phase
+            - ready
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+status:
+  acceptedNames:
+    kind: ""
+    plural: ""
+  conditions: []
+  storedVersions: []
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.4.1
+  creationTimestamp: null
+  name: dimseproxies.imaging-ingestion.alvearie.org
+spec:
+  group: imaging-ingestion.alvearie.org
+  names:
+    kind: DimseProxy
+    listKind: DimseProxyList
+    plural: dimseproxies
+    singular: dimseproxy
+  scope: Namespaced
+  versions:
+  - additionalPrinterColumns:
+    - jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
+    - jsonPath: .status.ready
+      name: Ready
+      type: string
+    name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: DimseProxy is the Schema for the dimseproxies API
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: DimseProxySpec defines the desired state of DimseProxy
+            properties:
+              applicationEntityTitle:
+                description: Application Entity Title
+                type: string
+              imagePullSecrets:
+                description: Image Pull Secrets
+                items:
+                  description: LocalObjectReference contains enough information to let you locate the referenced object inside the same namespace.
+                  properties:
+                    name:
+                      description: 'Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?'
+                      type: string
+                  type: object
+                type: array
+              natsSecure:
+                description: Make NATS Connection Secure
+                type: boolean
+              natsTokenSecret:
+                description: NATS Token Secret Name
+                type: string
+              natsUrl:
+                description: NATS URL
+                type: string
+              proxy:
+                description: DIMSE Proxy Spec
+                properties:
+                  image:
+                    description: Image
+                    type: string
+                type: object
+              targetDimseHost:
+                description: Target Dimse Host
+                type: string
+              targetDimsePort:
+                description: Target Dimse Port
+                type: integer
+            type: object
+          status:
+            description: DimseProxyStatus defines the observed state of DimseProxy
+            properties:
+              message:
+                description: Human-readable message indicating details about current operator phase or error.
+                type: string
+              phase:
+                description: Current phase of the operator.
+                type: string
+              ready:
+                description: True if all resources are in a ready state and all work is done.
+                type: boolean
+              secondaryResources:
+                additionalProperties:
+                  items:
+                    type: string
+                  type: array
+                description: 'A map of all the secondary resources types and names created for this CR. e.g "Deployment": [ "DeploymentName1", "DeploymentName2" ]'
+                type: object
+            required:
+            - message
+            - phase
+            - ready
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+status:
+  acceptedNames:
+    kind: ""
+    plural: ""
+  conditions: []
+  storedVersions: []
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: imaging-ingestion-operator-controller-manager
+  namespace: imaging-ingestion
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: imaging-ingestion-operator-leader-election-role
+  namespace: imaging-ingestion
+rules:
+- apiGroups:
+  - ""
+  - coordination.k8s.io
+  resources:
+  - configmaps
+  - leases
+  verbs:
+  - get
+  - list
+  - watch
+  - create
+  - update
+  - patch
+  - delete
+- apiGroups:
+  - ""
+  resources:
+  - events
+  verbs:
+  - create
+  - patch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  creationTimestamp: null
+  name: imaging-ingestion-operator-manager-role
+  namespace: imaging-ingestion
+rules:
+- apiGroups:
+  - apps
+  resources:
+  - deployments
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - configmaps
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - pods
+  verbs:
+  - get
+  - list
+- apiGroups:
+  - ""
+  resources:
+  - secrets
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - eventing.knative.dev
+  resources:
+  - brokers
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - eventing.knative.dev
+  resources:
+  - triggers
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - imaging-ingestion.alvearie.org
+  resources:
+  - dicomeventdriveningestions
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - imaging-ingestion.alvearie.org
+  resources:
+  - dicomeventdriveningestions/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - imaging-ingestion.alvearie.org
+  resources:
+  - dicomeventdriveningestions/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - imaging-ingestion.alvearie.org
+  resources:
+  - dicominstancebindings
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - imaging-ingestion.alvearie.org
+  resources:
+  - dicominstancebindings/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - imaging-ingestion.alvearie.org
+  resources:
+  - dicominstancebindings/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - imaging-ingestion.alvearie.org
+  resources:
+  - dicomstudybindings
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - imaging-ingestion.alvearie.org
+  resources:
+  - dicomstudybindings/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - imaging-ingestion.alvearie.org
+  resources:
+  - dicomstudybindings/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - imaging-ingestion.alvearie.org
+  resources:
+  - dicomwebingestionservices
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - imaging-ingestion.alvearie.org
+  resources:
+  - dicomwebingestionservices/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - imaging-ingestion.alvearie.org
+  resources:
+  - dicomwebingestionservices/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - imaging-ingestion.alvearie.org
+  resources:
+  - dimseingestionservices
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - imaging-ingestion.alvearie.org
+  resources:
+  - dimseingestionservices/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - imaging-ingestion.alvearie.org
+  resources:
+  - dimseingestionservices/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - imaging-ingestion.alvearie.org
+  resources:
+  - dimseproxies
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - imaging-ingestion.alvearie.org
+  resources:
+  - dimseproxies/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - imaging-ingestion.alvearie.org
+  resources:
+  - dimseproxies/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - serving.knative.dev
+  resources:
+  - services
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - sources.knative.dev
+  resources:
+  - sinkbindings
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: imaging-ingestion-operator-leader-election-rolebinding
+  namespace: imaging-ingestion
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: imaging-ingestion-operator-leader-election-role
+subjects:
+- kind: ServiceAccount
+  name: imaging-ingestion-operator-controller-manager
+  namespace: imaging-ingestion
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: imaging-ingestion-operator-manager-rolebinding
+  namespace: imaging-ingestion
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: imaging-ingestion-operator-manager-role
+subjects:
+- kind: ServiceAccount
+  name: imaging-ingestion-operator-controller-manager
+  namespace: imaging-ingestion
+---
+apiVersion: v1
+data:
+  controller_manager_config.yaml: |
+    apiVersion: controller-runtime.sigs.k8s.io/v1alpha1
+    kind: ControllerManagerConfig
+    health:
+      healthProbeBindAddress: :8081
+    metrics:
+      bindAddress: 127.0.0.1:8080
+    webhook:
+      port: 9443
+    leaderElection:
+      leaderElect: true
+      resourceName: 10aae506.alvearie.org
+kind: ConfigMap
+metadata:
+  name: imaging-ingestion-operator-manager-config
+  namespace: imaging-ingestion
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    control-plane: controller-manager
+  name: imaging-ingestion-operator-controller-manager
+  namespace: imaging-ingestion
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      control-plane: controller-manager
+  template:
+    metadata:
+      labels:
+        control-plane: controller-manager
+    spec:
+      containers:
+      - args:
+        - --leader-elect
+        command:
+        - /manager
+        env:
+        - name: WATCH_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        image: alvearie/imaging-ingestion-operator:1.0.0
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 8081
+          initialDelaySeconds: 15
+          periodSeconds: 20
+        name: manager
+        readinessProbe:
+          httpGet:
+            path: /readyz
+            port: 8081
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        resources:
+          limits:
+            cpu: 100m
+            memory: 30Mi
+          requests:
+            cpu: 100m
+            memory: 20Mi
+        securityContext:
+          allowPrivilegeEscalation: false
+      securityContext:
+        runAsNonRoot: true
+      serviceAccountName: imaging-ingestion-operator-controller-manager
+      terminationGracePeriodSeconds: 10
