@@ -116,6 +116,12 @@ deploy-manifests: manifests kustomize ## Deploy controller to the K8s cluster sp
 undeploy: ## Undeploy controller from the K8s cluster specified in ~/.kube/config.
 	$(KUSTOMIZE) build config/default | kubectl delete -f -
 
+produce-kube-resources: manifests kustomize
+	cd config/manager && $(KUSTOMIZE) edit set image controller=${IMG}
+	$(KUSTOMIZE) build config/default > ./deploy/manifests.yaml
+	rm -fr ./deploy/samples
+	mkdir ./deploy/samples
+	cp config/samples/imaging-ingestion* ./deploy/samples/
 
 CONTROLLER_GEN = $(shell pwd)/bin/controller-gen
 controller-gen: ## Download controller-gen locally if necessary.
