@@ -3,9 +3,6 @@
 
 ## Planned
 
--  Integrate into a Continuous Integration (CI) toolchain service and create a build process
-
-
 -  Improve the scope of support in the DIMSE Proxy for bidirectional use-cases.  Current capability is limited to unidirectional ingestion.
 
 

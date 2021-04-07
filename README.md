@@ -64,7 +64,7 @@ The imaging ingestion component is currently comprised of six (6) subcomponents:
 **Installation and Deployment on Kubernetes procedure:**
   1. Install the [Alvearie Imaging Ingestion Operator](imaging-ingestion-operator) 
   2. Create a PostgreSQL database for the imaging manifest data
-  3. Declare a [DICOM Event Driven Ingestion](docs/event-driven-ingestion/overview.md), binding it to the provided PostgreSQL database
+  3. Declare a [DICOM Event Driven Ingestion](docs/event-driven-ingestion/overview.md), binding it to the provided  database
   4. Create a S3 Object bucket for each storage space needed
   5. Declare a [DICOMweb Ingestion Service](docs/dicomweb-ingestion-service/overview.md) for each storage space
   6. Declare [DICOM Instance Binding](docs/dicom-instance-binding/overview.md) and [DICOM Study Binding](docs/dicom-study-binding/overview.md) as needed for distribution of DICOM instances and DICOM study notifications.

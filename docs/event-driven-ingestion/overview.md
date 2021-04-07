@@ -27,6 +27,8 @@ metadata:
 data:
   DATASOURCE_MAX_SIZE: '50'
   DB_HOST: img-ingest-db
+  # Default DB_KIND is 'postgresql'.  To use DB2, declare 'db2' as the DB_KIND.
+  #DB_KIND: db2
   DB_NAME: img-manifest
   DB_PORT: '5432'
   EVENT_LOOPS_POOL_SIZE: '20'
@@ -62,6 +64,8 @@ metadata:
   # All other subcomponents will need to reference this.
   name: core
 spec:
+  # Default container uses PostgreSQL.  To use DB2 override the default image
+  #image: alvearie/dicom-event-driven-ingestion-db2:0.0.1
   # Reference to the database configuration
   databaseConfigName: db-config
   # Reference to the dataabase credential
@@ -73,9 +77,11 @@ spec:
     minReplicas: 0
 ```
 
-## Using an alternative to the PostgreSQL database
+## Using alternative SQL databases
   The Event Driven Ingestion Service uses a relational database to maintain the imaging data manifest.  Implemented in Quarkus, it is possible to support a number of different database providers by modifying a few properties in [application.properties](../../dicom-event-driven-ingestion/src/main/resources/application.properties).  Refer to the [Quarkus Datasources](https://quarkus.io/guides/datasource) documentation for details.  
   
 As part of building a native image, the JDBC driver is included in a single binary within the container image.  With the current build, in order to use use an alternative database provider, a separate container needs to be built for each provider.  The provided *Kubernetes* operator allows alternative containers to be configured with the *DicomEventDrivenIngestion* custom resource.  
+
+The current build action creates two different containers; one for PostgreSQL, and one for IBM DB2.  
   
 
