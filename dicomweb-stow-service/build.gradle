@@ -24,8 +24,7 @@ dependencies {
     implementation "org.dcm4che:dcm4che-ws-rs:${dcm4cheVersion}"
     implementation "org.dcm4che:dcm4che-net:${dcm4cheVersion}"
     implementation "org.dcm4che:dcm4che-imageio:${dcm4cheVersion}"
-    implementation "org.dcm4che.dcm4chee-arc:dcm4chee-arc-store:${dcm4cheVersion}"
-    
+
     testImplementation 'io.quarkus:quarkus-junit5'
     testImplementation 'io.quarkus:quarkus-junit5-mockito'
     testImplementation 'io.rest-assured:rest-assured'
