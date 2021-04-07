@@ -21,6 +21,7 @@ dependencies {
     implementation 'io.quarkus:quarkus-rest-client'
     implementation 'io.quarkus:quarkus-hibernate-orm-panache'
     implementation 'io.quarkus:quarkus-jdbc-postgresql'
+    implementation 'io.quarkus:quarkus-jdbc-db2'
     implementation 'io.quarkus:quarkus-agroal'
     implementation 'io.quarkus:quarkus-funqy-knative-events'
     implementation 'io.quarkus:quarkus-quartz'
