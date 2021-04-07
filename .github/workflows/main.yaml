@@ -37,10 +37,14 @@ jobs:
       run: echo $IMAGING_INGESTION_VERSION
     - name: Build Optimized Images with Gradle on Merge
       if: ${{ github.ref == 'refs/heads/main' }}
-      run: ./gradlew -Pquarkus.package.type=native build
+      run: |
+        ./gradlew -Pquarkus.package.type=native build
+        ./gradlew -Pquarkus.package.type=native -Dquarkus.datasource.db-kind=db2 :dicom-event-driven-ingestion:clean :dicom-event-driven-ingestion:build
     - name: Build Images with Gradle on Pull Request
       if: ${{ github.event_name == 'pull_request' }}
-      run: ./gradlew build
+      run: |
+        ./gradlew build
+        ./gradlew -Dquarkus.datasource.db-kind=db2 :dicom-event-driven-ingestion:clean :dicom-event-driven-ingestion:build
     - name: Cleanup Gradle Cache
       # Remove some files from the Gradle cache, so they aren't cached by GitHub Actions.
       # Restoring these files from a GitHub Actions cache might cause problems for future builds.
@@ -63,7 +67,8 @@ jobs:
       run: |
         docker push alvearie/dicomweb-stow-binding:${{ env.IMAGING_INGESTION_VERSION }}
         docker push alvearie/dicomweb-fhir-binding:${{ env.IMAGING_INGESTION_VERSION }}
-        docker push alvearie/dicom-event-driven-ingestion:${{ env.IMAGING_INGESTION_VERSION }}
+        docker push alvearie/dicom-event-driven-ingestion-postgresql:${{ env.IMAGING_INGESTION_VERSION }}
+        docker push alvearie/dicom-event-driven-ingestion-db2:${{ env.IMAGING_INGESTION_VERSION }}
         docker push alvearie/dicomweb-wado-service:${{ env.IMAGING_INGESTION_VERSION }}
         docker push alvearie/dicomweb-stow-service:${{ env.IMAGING_INGESTION_VERSION }}
         docker push alvearie/dicom-dimse-service:${{ env.IMAGING_INGESTION_VERSION }}
