@@ -21,12 +21,12 @@ kubectl apply -f https://raw.githubusercontent.com/Alvearie/imaging-ingestion/ma
 
   Each of the provided CRDs has an example and in-line documentation with the subcomponent documentation pages.
   
-- [DicomEventDrivenIngestion](docs/event-driven-ingestion/overview.md)
-- [DicomwebIngestionService](docs/dicomweb-ingestion-service/overview.md) 
-- [DicomInstanceBinding](docs/dicom-instance-binding/overview.md) 
-- [DicomStudyBinding](docs/dicom-study-binding/overview.md)
-- [DimseIngestionService](docs/dimse-ingestion-service/overview.md)
-- [DimseProxy](docs/dimse-proxy/overview.md) 
+- [DicomEventDrivenIngestion](../docs/event-driven-ingestion/overview.md)
+- [DicomwebIngestionService](../docs/dicomweb-ingestion-service/overview.md) 
+- [DicomInstanceBinding](../docs/dicom-instance-binding/overview.md) 
+- [DicomStudyBinding](../docs/dicom-study-binding/overview.md)
+- [DimseIngestionService](../docs/dimse-ingestion-service/overview.md)
+- [DimseProxy](../docs/dimse-proxy/overview.md) 
 
 
 
