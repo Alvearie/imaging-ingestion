@@ -15,18 +15,25 @@ import (
 type DicomwebIngestionServiceSpec struct {
 	// Image Pull Secrets
 	// +optional
+	//+operator-sdk:csv:customresourcedefinitions:type=spec
 	ImagePullSecrets []corev1.LocalObjectReference `json:"imagePullSecrets,omitempty"`
 	// DICOM Event Driven Ingestion Name
+	//+operator-sdk:csv:customresourcedefinitions:type=spec
 	DicomEventDrivenIngestionName string `json:"dicomEventDrivenIngestionName"`
 	// Bucket Config Name
+	//+operator-sdk:csv:customresourcedefinitions:type=spec
 	BucketConfigName string `json:"bucketConfigName,omitempty"`
 	// Bucket Secret Name
+	//+operator-sdk:csv:customresourcedefinitions:type=spec
 	BucketSecretName string `json:"bucketSecretName,omitempty"`
 	// Provider Name
+	//+operator-sdk:csv:customresourcedefinitions:type=spec
 	ProviderName string `json:"providerName,omitempty"`
 	// STOW Service Spec
+	//+operator-sdk:csv:customresourcedefinitions:type=spec
 	StowService StowServiceSpec `json:"stowService,omitempty"`
 	// WADO Service Spec
+	//+operator-sdk:csv:customresourcedefinitions:type=spec
 	WadoService WadoServiceSpec `json:"wadoService,omitempty"`
 }
 
@@ -45,8 +52,10 @@ type DicomwebIngestionServiceStatus struct {
 	// Common Status Spec
 	CommonStatusSpec `json:",inline"`
 	// WADO Service Internal Endpoint
+	//+operator-sdk:csv:customresourcedefinitions:type=status
 	WadoServiceInternalEndpoint string `json:"wadoServiceInternalEndpoint,omitempty"`
 	// WADO Service External Endpoint
+	//+operator-sdk:csv:customresourcedefinitions:type=status
 	WadoServiceExternalEndpoint string `json:"wadoServiceExternalEndpoint,omitempty"`
 }
 

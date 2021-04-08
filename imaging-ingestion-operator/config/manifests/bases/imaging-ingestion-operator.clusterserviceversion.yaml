@@ -25,6 +25,44 @@ spec:
       - kind: Service
         name: serving.knative.dev
         version: v1
+      specDescriptors:
+      - description: Database Config Name
+        displayName: Database Config Name
+        path: databaseConfigName
+      - description: Database Secret Name
+        displayName: Database Secret Name
+        path: databaseSecretName
+      - description: Event Processor Spec
+        displayName: Event Processor
+        path: eventProcessor
+      - description: Container Concurrency
+        displayName: Concurrency
+        path: eventProcessor.concurrency
+      - description: Image
+        displayName: Image
+        path: eventProcessor.image
+      - description: Max Replicas
+        displayName: Max Replicas
+        path: eventProcessor.maxReplicas
+      - description: Min Replicas
+        displayName: Min Replicas
+        path: eventProcessor.minReplicas
+      - description: Image Pull Secrets
+        displayName: Image Pull Secrets
+        path: imagePullSecrets
+      statusDescriptors:
+      - description: Human-readable message indicating details about current operator phase or error.
+        displayName: Message
+        path: message
+      - description: Current phase of the operator.
+        displayName: Phase
+        path: phase
+      - description: True if all resources are in a ready state and all work is done.
+        displayName: Ready
+        path: ready
+      - description: 'A map of all the secondary resources types and names created for this CR. e.g "Deployment": [ "DeploymentName1", "DeploymentName2" ]'
+        displayName: Secondary Resources
+        path: secondaryResources
       version: v1alpha1
     - description: Fan-out notification of DICOM instance data (STOW-RS)
       displayName: Dicom Instance Binding
@@ -37,6 +75,47 @@ spec:
       - kind: Service
         name: serving.knative.dev
         version: v1
+      specDescriptors:
+      - description: Binding Config Name
+        displayName: Binding Config Name
+        path: bindingConfigName
+      - description: Binding Secret Name
+        displayName: Binding Secret Name
+        path: bindingSecretName
+      - description: DICOM Event Driven Ingestion Name
+        displayName: Dicom Event Driven Ingestion Name
+        path: dicomEventDrivenIngestionName
+      - description: Image Pull Secrets
+        displayName: Image Pull Secrets
+        path: imagePullSecrets
+      - description: Instance Binding Spec
+        displayName: Instance Binding
+        path: instanceBinding
+      - description: Container Concurrency
+        displayName: Concurrency
+        path: instanceBinding.concurrency
+      - description: Image
+        displayName: Image
+        path: instanceBinding.image
+      - description: Max Replicas
+        displayName: Max Replicas
+        path: instanceBinding.maxReplicas
+      - description: Min Replicas
+        displayName: Min Replicas
+        path: instanceBinding.minReplicas
+      statusDescriptors:
+      - description: Human-readable message indicating details about current operator phase or error.
+        displayName: Message
+        path: message
+      - description: Current phase of the operator.
+        displayName: Phase
+        path: phase
+      - description: True if all resources are in a ready state and all work is done.
+        displayName: Ready
+        path: ready
+      - description: 'A map of all the secondary resources types and names created for this CR. e.g "Deployment": [ "DeploymentName1", "DeploymentName2" ]'
+        displayName: Secondary Resources
+        path: secondaryResources
       version: v1alpha1
     - description: Fan-out notification of DICOM studies (FHIRv4 ImagingStudy)
       displayName: Dicom Study Binding
@@ -52,6 +131,47 @@ spec:
       - kind: SinkBinding
         name: sources.knative.dev
         version: v1beta1
+      specDescriptors:
+      - description: Binding Config Name
+        displayName: Binding Config Name
+        path: bindingConfigName
+      - description: Binding Secret Name
+        displayName: Binding Secret Name
+        path: bindingSecretName
+      - description: DICOM Event Driven Ingestion Name
+        displayName: Dicom Event Driven Ingestion Name
+        path: dicomEventDrivenIngestionName
+      - description: Image Pull Secrets
+        displayName: Image Pull Secrets
+        path: imagePullSecrets
+      - description: Study Binding Spec
+        displayName: Study Binding
+        path: studyBinding
+      - description: Container Concurrency
+        displayName: Concurrency
+        path: studyBinding.concurrency
+      - description: Image
+        displayName: Image
+        path: studyBinding.image
+      - description: Max Replicas
+        displayName: Max Replicas
+        path: studyBinding.maxReplicas
+      - description: Min Replicas
+        displayName: Min Replicas
+        path: studyBinding.minReplicas
+      statusDescriptors:
+      - description: Human-readable message indicating details about current operator phase or error.
+        displayName: Message
+        path: message
+      - description: Current phase of the operator.
+        displayName: Phase
+        path: phase
+      - description: True if all resources are in a ready state and all work is done.
+        displayName: Ready
+        path: ready
+      - description: 'A map of all the secondary resources types and names created for this CR. e.g "Deployment": [ "DeploymentName1", "DeploymentName2" ]'
+        displayName: Secondary Resources
+        path: secondaryResources
       version: v1alpha1
     - description: Provides DICOMweb WADO-RS and STOW-RS access to a S3 bucket
       displayName: Dicomweb Ingestion Service
@@ -64,6 +184,71 @@ spec:
       - kind: SinkBinding
         name: sources.knative.dev
         version: v1beta1
+      specDescriptors:
+      - description: Bucket Config Name
+        displayName: Bucket Config Name
+        path: bucketConfigName
+      - description: Bucket Secret Name
+        displayName: Bucket Secret Name
+        path: bucketSecretName
+      - description: DICOM Event Driven Ingestion Name
+        displayName: Dicom Event Driven Ingestion Name
+        path: dicomEventDrivenIngestionName
+      - description: Image Pull Secrets
+        displayName: Image Pull Secrets
+        path: imagePullSecrets
+      - description: Provider Name
+        displayName: Provider Name
+        path: providerName
+      - description: STOW Service Spec
+        displayName: Stow Service
+        path: stowService
+      - description: Container Concurrency
+        displayName: Concurrency
+        path: stowService.concurrency
+      - description: Image
+        displayName: Image
+        path: stowService.image
+      - description: Max Replicas
+        displayName: Max Replicas
+        path: stowService.maxReplicas
+      - description: Min Replicas
+        displayName: Min Replicas
+        path: stowService.minReplicas
+      - description: WADO Service Spec
+        displayName: Wado Service
+        path: wadoService
+      - description: Container Concurrency
+        displayName: Concurrency
+        path: wadoService.concurrency
+      - description: Image
+        displayName: Image
+        path: wadoService.image
+      - description: Max Replicas
+        displayName: Max Replicas
+        path: wadoService.maxReplicas
+      - description: Min Replicas
+        displayName: Min Replicas
+        path: wadoService.minReplicas
+      statusDescriptors:
+      - description: Human-readable message indicating details about current operator phase or error.
+        displayName: Message
+        path: message
+      - description: Current phase of the operator.
+        displayName: Phase
+        path: phase
+      - description: True if all resources are in a ready state and all work is done.
+        displayName: Ready
+        path: ready
+      - description: 'A map of all the secondary resources types and names created for this CR. e.g "Deployment": [ "DeploymentName1", "DeploymentName2" ]'
+        displayName: Secondary Resources
+        path: secondaryResources
+      - description: WADO Service External Endpoint
+        displayName: Wado Service External Endpoint
+        path: wadoServiceExternalEndpoint
+      - description: WADO Service Internal Endpoint
+        displayName: Wado Service Internal Endpoint
+        path: wadoServiceInternalEndpoint
       version: v1alpha1
     - description: Provides a proxied DIMSE Application Entity (AE) in the cluster for C-STORE operations to a storage space
       displayName: Dimse Ingestion Service
@@ -76,6 +261,53 @@ spec:
       - kind: Deployment
         name: ""
         version: v1
+      specDescriptors:
+      - description: Application Entity Title
+        displayName: Application Entity Title
+        path: applicationEntityTitle
+      - description: Bucket Config Name
+        displayName: Bucket Config Name
+        path: bucketConfigName
+      - description: Bucket Secret Name
+        displayName: Bucket Secret Name
+        path: bucketSecretName
+      - description: DICOM Event Driven Ingestion Name
+        displayName: Dicom Event Driven Ingestion Name
+        path: dicomEventDrivenIngestionName
+      - description: DIMSE Service Spec
+        displayName: Dimse Service
+        path: dimseService
+      - description: Image
+        displayName: Image
+        path: dimseService.image
+      - description: Image Pull Secrets
+        displayName: Image Pull Secrets
+        path: imagePullSecrets
+      - description: Make NATS Connection Secure
+        displayName: Nats Secure
+        path: natsSecure
+      - description: NATS Token Secret Name
+        displayName: Nats Token Secret Name
+        path: natsTokenSecret
+      - description: NATS URL
+        displayName: Nats URL
+        path: natsUrl
+      - description: Provider Name
+        displayName: Provider Name
+        path: providerName
+      statusDescriptors:
+      - description: Human-readable message indicating details about current operator phase or error.
+        displayName: Message
+        path: message
+      - description: Current phase of the operator.
+        displayName: Phase
+        path: phase
+      - description: True if all resources are in a ready state and all work is done.
+        displayName: Ready
+        path: ready
+      - description: 'A map of all the secondary resources types and names created for this CR. e.g "Deployment": [ "DeploymentName1", "DeploymentName2" ]'
+        displayName: Secondary Resources
+        path: secondaryResources
       version: v1alpha1
     - description: Provides a bidirectional proxied DIMSE Application Entity (AE) in the cluster
       displayName: Dimse Proxy
@@ -88,6 +320,47 @@ spec:
       - kind: Deployment
         name: ""
         version: v1
+      specDescriptors:
+      - description: Application Entity Title
+        displayName: Application Entity Title
+        path: applicationEntityTitle
+      - description: Image Pull Secrets
+        displayName: Image Pull Secrets
+        path: imagePullSecrets
+      - description: Make NATS Connection Secure
+        displayName: Nats Secure
+        path: natsSecure
+      - description: NATS Token Secret Name
+        displayName: Nats Token Secret Name
+        path: natsTokenSecret
+      - description: NATS URL
+        displayName: Nats URL
+        path: natsUrl
+      - description: DIMSE Proxy Spec
+        displayName: Proxy
+        path: proxy
+      - description: Image
+        displayName: Image
+        path: proxy.image
+      - description: Target Dimse Host
+        displayName: Target Dimse Host
+        path: targetDimseHost
+      - description: Target Dimse Port
+        displayName: Target Dimse Port
+        path: targetDimsePort
+      statusDescriptors:
+      - description: Human-readable message indicating details about current operator phase or error.
+        displayName: Message
+        path: message
+      - description: Current phase of the operator.
+        displayName: Phase
+        path: phase
+      - description: True if all resources are in a ready state and all work is done.
+        displayName: Ready
+        path: ready
+      - description: 'A map of all the secondary resources types and names created for this CR. e.g "Deployment": [ "DeploymentName1", "DeploymentName2" ]'
+        displayName: Secondary Resources
+        path: secondaryResources
       version: v1alpha1
   description: |
     ## About this Operator

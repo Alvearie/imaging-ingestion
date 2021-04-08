@@ -14,13 +14,17 @@ import (
 // DicomEventDrivenIngestionSpec defines the desired state of DicomEventDrivenIngestion
 type DicomEventDrivenIngestionSpec struct {
 	// Database Config Name
+	//+operator-sdk:csv:customresourcedefinitions:type=spec
 	DatabaseConfigName string `json:"databaseConfigName,omitempty"`
 	// Database Secret Name
+	//+operator-sdk:csv:customresourcedefinitions:type=spec
 	DatabaseSecretName string `json:"databaseSecretName,omitempty"`
 	// Image Pull Secrets
 	// +optional
+	//+operator-sdk:csv:customresourcedefinitions:type=spec
 	ImagePullSecrets []corev1.LocalObjectReference `json:"imagePullSecrets,omitempty"`
 	// Event Processor Spec
+	//+operator-sdk:csv:customresourcedefinitions:type=spec
 	EventProcessor EventProcessorSpec `json:"eventProcessor,omitempty"`
 }
 

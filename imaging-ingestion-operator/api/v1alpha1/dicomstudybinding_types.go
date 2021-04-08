@@ -14,15 +14,20 @@ import (
 // DicomStudyBindingSpec defines the desired state of DicomStudyBinding
 type DicomStudyBindingSpec struct {
 	// Binding Config Name
+	//+operator-sdk:csv:customresourcedefinitions:type=spec
 	BindingConfigName string `json:"bindingConfigName,omitempty"`
 	// Binding Secret Name
+	//+operator-sdk:csv:customresourcedefinitions:type=spec
 	BindingSecretName string `json:"bindingSecretName,omitempty"`
 	// Image Pull Secrets
 	// +optional
+	//+operator-sdk:csv:customresourcedefinitions:type=spec
 	ImagePullSecrets []corev1.LocalObjectReference `json:"imagePullSecrets,omitempty"`
 	// DICOM Event Driven Ingestion Name
+	//+operator-sdk:csv:customresourcedefinitions:type=spec
 	DicomEventDrivenIngestionName string `json:"dicomEventDrivenIngestionName"`
 	// Study Binding Spec
+	//+operator-sdk:csv:customresourcedefinitions:type=spec
 	StudyBinding StudyBindingSpec `json:"studyBinding,omitempty"`
 }
 
