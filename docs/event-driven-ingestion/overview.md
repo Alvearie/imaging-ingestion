@@ -64,14 +64,14 @@ metadata:
   # All other subcomponents will need to reference this.
   name: core
 spec:
-  # Default container uses PostgreSQL.  To use DB2 override the default image
-  #image: alvearie/dicom-event-driven-ingestion-db2:0.0.1
   # Reference to the database configuration
   databaseConfigName: db-config
   # Reference to the dataabase credential
   databaseSecretName: db-secret
-  # Scaling behavior of the service
+  # Container details including scaling behavior
   eventProcessor:
+    # Default image is PostgreSQL.  To use DB2 override the default image
+    #image: alvearie/dicom-event-driven-ingestion-db2:0.0.1
     concurrency: 0
     maxReplicas: 3
     minReplicas: 0
