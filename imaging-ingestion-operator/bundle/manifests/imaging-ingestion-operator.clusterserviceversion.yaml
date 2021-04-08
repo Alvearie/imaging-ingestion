@@ -124,31 +124,79 @@ spec:
       displayName: Dicom Event Driven Ingestion
       kind: DicomEventDrivenIngestion
       name: dicomeventdriveningestions.imaging-ingestion.alvearie.org
+      resources:
+      - kind: Broker
+        name: eventing.knative.dev
+        version: v1
+      - kind: Trigger
+        name: eventing.knative.dev
+        version: v1
+      - kind: Service
+        name: serving.knative.dev
+        version: v1
       version: v1alpha1
     - description: Fan-out notification of DICOM instance data (STOW-RS)
       displayName: Dicom Instance Binding
       kind: DicomInstanceBinding
       name: dicominstancebindings.imaging-ingestion.alvearie.org
+      resources:
+      - kind: Trigger
+        name: eventing.knative.dev
+        version: v1
+      - kind: Service
+        name: serving.knative.dev
+        version: v1
       version: v1alpha1
     - description: Fan-out notification of DICOM studies (FHIRv4 ImagingStudy)
       displayName: Dicom Study Binding
       kind: DicomStudyBinding
       name: dicomstudybindings.imaging-ingestion.alvearie.org
+      resources:
+      - kind: Trigger
+        name: eventing.knative.dev
+        version: v1
+      - kind: Service
+        name: serving.knative.dev
+        version: v1
+      - kind: SinkBinding
+        name: sources.knative.dev
+        version: v1beta1
       version: v1alpha1
     - description: Provides DICOMweb WADO-RS and STOW-RS access to a S3 bucket
       displayName: Dicomweb Ingestion Service
       kind: DicomwebIngestionService
       name: dicomwebingestionservices.imaging-ingestion.alvearie.org
+      resources:
+      - kind: Service
+        name: serving.knative.dev
+        version: v1
+      - kind: SinkBinding
+        name: sources.knative.dev
+        version: v1beta1
       version: v1alpha1
     - description: Provides a proxied DIMSE Application Entity (AE) in the cluster for C-STORE operations to a storage space
       displayName: Dimse Ingestion Service
       kind: DimseIngestionService
       name: dimseingestionservices.imaging-ingestion.alvearie.org
+      resources:
+      - kind: ConfigMap
+        name: ""
+        version: v1
+      - kind: Deployment
+        name: ""
+        version: v1
       version: v1alpha1
     - description: Provides a bidirectional proxied DIMSE Application Entity (AE) in the cluster
       displayName: Dimse Proxy
       kind: DimseProxy
       name: dimseproxies.imaging-ingestion.alvearie.org
+      resources:
+      - kind: ConfigMap
+        name: ""
+        version: v1
+      - kind: Deployment
+        name: ""
+        version: v1
       version: v1alpha1
   description: |
     ## About this Operator
@@ -162,10 +210,12 @@ spec:
 
 
     ## Prerequisites
+
     - [Knative](https://operatorhub.io/operator/knative-operator)
     - ProgresSQL such as [Crunchy](https://operatorhub.io/operator/postgresql)
     - S3 storage such as [MinIO](https://operatorhub.io/operator/minio-operator)
     - [NATS operator](https://github.com/nats-io/nats-operator/) (Optional:  only required for DIMSE Proxy component)
+
 
 
     ## Documentation

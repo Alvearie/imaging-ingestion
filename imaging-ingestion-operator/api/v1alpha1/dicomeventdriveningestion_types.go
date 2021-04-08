@@ -42,6 +42,7 @@ type DicomEventDrivenIngestionStatus struct {
 //+kubebuilder:printcolumn:name="Age",type="date",JSONPath=".metadata.creationTimestamp"
 //+kubebuilder:printcolumn:name="Ready",type="string",JSONPath=".status.ready"
 
+//+operator-sdk:csv:customresourcedefinitions:resources={{Service,v1,serving.knative.dev},{Broker,v1,eventing.knative.dev},{Trigger,v1,eventing.knative.dev}}
 // Event driven manifest of all DICOM data across all associated S3 buckets
 type DicomEventDrivenIngestion struct {
 	metav1.TypeMeta   `json:",inline"`

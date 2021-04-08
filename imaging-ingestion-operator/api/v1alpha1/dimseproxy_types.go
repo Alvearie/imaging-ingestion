@@ -49,6 +49,7 @@ type DimseProxyStatus struct {
 //+kubebuilder:printcolumn:name="Age",type="date",JSONPath=".metadata.creationTimestamp"
 //+kubebuilder:printcolumn:name="Ready",type="string",JSONPath=".status.ready"
 
+//+operator-sdk:csv:customresourcedefinitions:resources={{Deployment,v1},{ConfigMap,v1}}
 // Provides a bidirectional proxied DIMSE Application Entity (AE) in the cluster
 type DimseProxy struct {
 	metav1.TypeMeta   `json:",inline"`
