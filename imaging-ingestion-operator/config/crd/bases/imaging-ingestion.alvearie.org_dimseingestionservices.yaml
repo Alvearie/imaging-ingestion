@@ -26,8 +26,8 @@ spec:
     name: v1alpha1
     schema:
       openAPIV3Schema:
-        description: DimseIngestionService is the Schema for the dimseingestionservices
-          API
+        description: Provides a proxied DIMSE Application Entity (AE) in the cluster
+          for C-STORE operations to a storage space
         properties:
           apiVersion:
             description: 'APIVersion defines the versioned schema of this representation

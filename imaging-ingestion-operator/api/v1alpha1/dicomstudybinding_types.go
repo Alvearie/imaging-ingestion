@@ -42,7 +42,7 @@ type DicomStudyBindingStatus struct {
 //+kubebuilder:printcolumn:name="Age",type="date",JSONPath=".metadata.creationTimestamp"
 //+kubebuilder:printcolumn:name="Ready",type="string",JSONPath=".status.ready"
 
-// DicomStudyBinding is the Schema for the dicomstudybindings API
+// Fan-out notification of DICOM studies (FHIRv4 ImagingStudy)
 type DicomStudyBinding struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`

@@ -53,7 +53,7 @@ type DimseIngestionServiceStatus struct {
 //+kubebuilder:printcolumn:name="Age",type="date",JSONPath=".metadata.creationTimestamp"
 //+kubebuilder:printcolumn:name="Ready",type="string",JSONPath=".status.ready"
 
-// DimseIngestionService is the Schema for the dimseingestionservices API
+// Provides a proxied DIMSE Application Entity (AE) in the cluster for C-STORE operations to a storage space
 type DimseIngestionService struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`

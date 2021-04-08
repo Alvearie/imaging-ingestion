@@ -11,12 +11,12 @@ spec:
   apiservicedefinitions: {}
   customresourcedefinitions:
     owned:
-    - description: Event driven manifest of all DICOM data across all associated S3 buckets.
+    - description: Event driven manifest of all DICOM data across all associated S3 buckets
       displayName: Dicom Event Driven Ingestion
       kind: DicomEventDrivenIngestion
       name: dicomeventdriveningestions.imaging-ingestion.alvearie.org
       version: v1alpha1
-    - description: Fan-out notification of DICOM instance data. (STOW-RS)
+    - description: Fan-out notification of DICOM instance data (STOW-RS)
       displayName: Dicom Instance Binding
       kind: DicomInstanceBinding
       name: dicominstancebindings.imaging-ingestion.alvearie.org
@@ -31,7 +31,7 @@ spec:
       kind: DicomwebIngestionService
       name: dicomwebingestionservices.imaging-ingestion.alvearie.org
       version: v1alpha1
-    - description: Provides a proxied DIMSE Application Entity (AE) in the cluster for C-STORE operations to a storage space.
+    - description: Provides a proxied DIMSE Application Entity (AE) in the cluster for C-STORE operations to a storage space
       displayName: Dimse Ingestion Service
       kind: DimseIngestionService
       name: dimseingestionservices.imaging-ingestion.alvearie.org
@@ -42,7 +42,7 @@ spec:
       name: dimseproxies.imaging-ingestion.alvearie.org
       version: v1alpha1
   description: |
-   ## About this Operator
+    ## About this Operator
     The Alvearie Imaging Ingestion provides a collection of components for extending enterprise medical imaging informatics systems to a modern cloud. Some potential usages:
 
     - Perform lightweight secure bridging of DICOM from the enterprise imaging zone to a cloud availability zone.
@@ -54,7 +54,7 @@ spec:
 
     ## Prerequisites
 
-    - [Knative](https://operatorhub.io/operator/knative-operator) 
+    - [Knative](https://operatorhub.io/operator/knative-operator)
     - ProgresSQL such as [Crunchy](https://operatorhub.io/operator/postgresql)
     - S3 storage such as [MinIO](https://operatorhub.io/operator/minio-operator)
     - [NATS operator](https://github.com/nats-io/nats-operator/) (Optional:  only required for DIMSE Proxy component)

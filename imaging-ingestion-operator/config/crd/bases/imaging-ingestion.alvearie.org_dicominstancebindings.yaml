@@ -26,8 +26,7 @@ spec:
     name: v1alpha1
     schema:
       openAPIV3Schema:
-        description: DicomInstanceBinding is the Schema for the dicominstancebindings
-          API
+        description: Fan-out notification of DICOM instance data (STOW-RS)
         properties:
           apiVersion:
             description: 'APIVersion defines the versioned schema of this representation

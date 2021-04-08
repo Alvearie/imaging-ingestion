@@ -55,7 +55,7 @@ type DicomwebIngestionServiceStatus struct {
 //+kubebuilder:printcolumn:name="Age",type="date",JSONPath=".metadata.creationTimestamp"
 //+kubebuilder:printcolumn:name="Ready",type="string",JSONPath=".status.ready"
 
-// DicomwebIngestionService is the Schema for the dicomwebingestionservices API
+// Provides DICOMweb WADO-RS and STOW-RS access to a S3 bucket
 type DicomwebIngestionService struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`

@@ -42,7 +42,7 @@ type DicomEventDrivenIngestionStatus struct {
 //+kubebuilder:printcolumn:name="Age",type="date",JSONPath=".metadata.creationTimestamp"
 //+kubebuilder:printcolumn:name="Ready",type="string",JSONPath=".status.ready"
 
-// DicomEventDrivenIngestion is the Schema for the dicomeventdriveningestions API
+// Event driven manifest of all DICOM data across all associated S3 buckets
 type DicomEventDrivenIngestion struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`

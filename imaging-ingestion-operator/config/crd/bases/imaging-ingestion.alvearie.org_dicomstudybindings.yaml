@@ -26,7 +26,7 @@ spec:
     name: v1alpha1
     schema:
       openAPIV3Schema:
-        description: DicomStudyBinding is the Schema for the dicomstudybindings API
+        description: Fan-out notification of DICOM studies (FHIRv4 ImagingStudy)
         properties:
           apiVersion:
             description: 'APIVersion defines the versioned schema of this representation

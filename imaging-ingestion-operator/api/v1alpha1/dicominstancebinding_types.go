@@ -42,7 +42,7 @@ type DicomInstanceBindingStatus struct {
 //+kubebuilder:printcolumn:name="Age",type="date",JSONPath=".metadata.creationTimestamp"
 //+kubebuilder:printcolumn:name="Ready",type="string",JSONPath=".status.ready"
 
-// DicomInstanceBinding is the Schema for the dicominstancebindings API
+// Fan-out notification of DICOM instance data (STOW-RS)
 type DicomInstanceBinding struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
