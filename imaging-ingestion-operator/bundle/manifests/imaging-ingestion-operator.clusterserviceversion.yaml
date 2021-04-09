@@ -160,13 +160,13 @@ spec:
         displayName: Image Pull Secrets
         path: imagePullSecrets
       statusDescriptors:
-      - description: Human-readable message indicating details about current operator phase or error.
+      - description: Human-readable message indicating details about current operator phase or error
         displayName: Message
         path: message
-      - description: Current phase of the operator.
+      - description: Current phase of the operator
         displayName: Phase
         path: phase
-      - description: True if all resources are in a ready state and all work is done.
+      - description: True if all resources are in a ready state and all work is done
         displayName: Ready
         path: ready
       - description: 'A map of all the secondary resources types and names created for this CR. e.g "Deployment": [ "DeploymentName1", "DeploymentName2" ]'
@@ -213,13 +213,13 @@ spec:
         displayName: Min Replicas
         path: instanceBinding.minReplicas
       statusDescriptors:
-      - description: Human-readable message indicating details about current operator phase or error.
+      - description: Human-readable message indicating details about current operator phase or error
         displayName: Message
         path: message
-      - description: Current phase of the operator.
+      - description: Current phase of the operator
         displayName: Phase
         path: phase
-      - description: True if all resources are in a ready state and all work is done.
+      - description: True if all resources are in a ready state and all work is done
         displayName: Ready
         path: ready
       - description: 'A map of all the secondary resources types and names created for this CR. e.g "Deployment": [ "DeploymentName1", "DeploymentName2" ]'
@@ -269,13 +269,13 @@ spec:
         displayName: Min Replicas
         path: studyBinding.minReplicas
       statusDescriptors:
-      - description: Human-readable message indicating details about current operator phase or error.
+      - description: Human-readable message indicating details about current operator phase or error
         displayName: Message
         path: message
-      - description: Current phase of the operator.
+      - description: Current phase of the operator
         displayName: Phase
         path: phase
-      - description: True if all resources are in a ready state and all work is done.
+      - description: True if all resources are in a ready state and all work is done
         displayName: Ready
         path: ready
       - description: 'A map of all the secondary resources types and names created for this CR. e.g "Deployment": [ "DeploymentName1", "DeploymentName2" ]'
@@ -340,13 +340,13 @@ spec:
         displayName: Min Replicas
         path: wadoService.minReplicas
       statusDescriptors:
-      - description: Human-readable message indicating details about current operator phase or error.
+      - description: Human-readable message indicating details about current operator phase or error
         displayName: Message
         path: message
-      - description: Current phase of the operator.
+      - description: Current phase of the operator
         displayName: Phase
         path: phase
-      - description: True if all resources are in a ready state and all work is done.
+      - description: True if all resources are in a ready state and all work is done
         displayName: Ready
         path: ready
       - description: 'A map of all the secondary resources types and names created for this CR. e.g "Deployment": [ "DeploymentName1", "DeploymentName2" ]'
@@ -405,13 +405,13 @@ spec:
         displayName: Provider Name
         path: providerName
       statusDescriptors:
-      - description: Human-readable message indicating details about current operator phase or error.
+      - description: Human-readable message indicating details about current operator phase or error
         displayName: Message
         path: message
-      - description: Current phase of the operator.
+      - description: Current phase of the operator
         displayName: Phase
         path: phase
-      - description: True if all resources are in a ready state and all work is done.
+      - description: True if all resources are in a ready state and all work is done
         displayName: Ready
         path: ready
       - description: 'A map of all the secondary resources types and names created for this CR. e.g "Deployment": [ "DeploymentName1", "DeploymentName2" ]'
@@ -458,13 +458,13 @@ spec:
         displayName: Target Dimse Port
         path: targetDimsePort
       statusDescriptors:
-      - description: Human-readable message indicating details about current operator phase or error.
+      - description: Human-readable message indicating details about current operator phase or error
         displayName: Message
         path: message
-      - description: Current phase of the operator.
+      - description: Current phase of the operator
         displayName: Phase
         path: phase
-      - description: True if all resources are in a ready state and all work is done.
+      - description: True if all resources are in a ready state and all work is done
         displayName: Ready
         path: ready
       - description: 'A map of all the secondary resources types and names created for this CR. e.g "Deployment": [ "DeploymentName1", "DeploymentName2" ]'

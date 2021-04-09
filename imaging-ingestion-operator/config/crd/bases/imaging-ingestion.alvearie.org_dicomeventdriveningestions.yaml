@@ -92,14 +92,14 @@ spec:
                 type: string
               message:
                 description: Human-readable message indicating details about current
-                  operator phase or error.
+                  operator phase or error
                 type: string
               phase:
-                description: Current phase of the operator.
+                description: Current phase of the operator
                 type: string
               ready:
                 description: True if all resources are in a ready state and all work
-                  is done.
+                  is done
                 type: boolean
               secondaryResources:
                 additionalProperties:

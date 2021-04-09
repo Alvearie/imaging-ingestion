@@ -31,13 +31,13 @@ type DeploymentSpec struct {
 
 // CommonStatusSpec defines the Common Status Spec
 type CommonStatusSpec struct {
-	// Current phase of the operator.
+	// Current phase of the operator
 	//+operator-sdk:csv:customresourcedefinitions:type=status
 	Phase StatusPhase `json:"phase"`
-	// Human-readable message indicating details about current operator phase or error.
+	// Human-readable message indicating details about current operator phase or error
 	//+operator-sdk:csv:customresourcedefinitions:type=status
 	Message string `json:"message"`
-	// True if all resources are in a ready state and all work is done.
+	// True if all resources are in a ready state and all work is done
 	//+operator-sdk:csv:customresourcedefinitions:type=status
 	Ready bool `json:"ready"`
 	// A map of all the secondary resources types and names created for this CR. e.g "Deployment": [ "DeploymentName1", "DeploymentName2" ]
