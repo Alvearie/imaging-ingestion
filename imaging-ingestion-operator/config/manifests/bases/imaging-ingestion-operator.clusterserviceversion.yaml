@@ -366,10 +366,10 @@ spec:
     The Alvearie Imaging Ingestion provides a collection of components for extending enterprise medical imaging informatics systems to Kubernetes.
 
     ## About this Operator
-    This operator enables standards-based medical imaging application interfaces such as DICOM Message Service Element (DIMSE) and DICOMweb. 
-    The API's provided allow for extending enterprise imaging systems to the cloud with custom, fit for purpose deployments. 
-    This is possible at speed, low cost, and little or zero integration effort.or extending enterprise medical imaging informatics systems to a modern cloud. 
-    
+    This operator enables standards-based medical imaging application interfaces such as DICOM Message Service Element (DIMSE) and DICOMweb.
+    The API's provided allow for extending enterprise imaging systems to the cloud with custom, fit for purpose deployments.
+    This is possible at speed, low cost, and little or zero integration effort.or extending enterprise medical imaging informatics systems to a modern cloud.
+
 
     Some potential usages:
 
