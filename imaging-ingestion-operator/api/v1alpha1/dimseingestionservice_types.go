@@ -15,25 +15,35 @@ import (
 type DimseIngestionServiceSpec struct {
 	// Image Pull Secrets
 	// +optional
+	//+operator-sdk:csv:customresourcedefinitions:type=spec
 	ImagePullSecrets []corev1.LocalObjectReference `json:"imagePullSecrets,omitempty"`
 	// DICOM Event Driven Ingestion Name
+	//+operator-sdk:csv:customresourcedefinitions:type=spec
 	DicomEventDrivenIngestionName string `json:"dicomEventDrivenIngestionName"`
 	// Bucket Config Name
+	//+operator-sdk:csv:customresourcedefinitions:type=spec
 	BucketConfigName string `json:"bucketConfigName,omitempty"`
 	// Bucket Secret Name
+	//+operator-sdk:csv:customresourcedefinitions:type=spec
 	BucketSecretName string `json:"bucketSecretName,omitempty"`
 	// Application Entity Title
+	//+operator-sdk:csv:customresourcedefinitions:type=spec
 	ApplicationEntityTitle string `json:"applicationEntityTitle,omitempty"`
 	// NATS URL
+	//+operator-sdk:csv:customresourcedefinitions:type=spec
 	NatsURL string `json:"natsUrl,omitempty"`
 	// Make NATS Connection Secure
+	//+operator-sdk:csv:customresourcedefinitions:type=spec
 	NatsSecure bool `json:"natsSecure,omitempty"`
 	// NATS Token Secret Name
 	// +optional
+	//+operator-sdk:csv:customresourcedefinitions:type=spec
 	NatsTokenSecretName string `json:"natsTokenSecret,omitempty"`
 	// Provider Name
+	//+operator-sdk:csv:customresourcedefinitions:type=spec
 	ProviderName string `json:"providerName,omitempty"`
 	// DIMSE Service Spec
+	//+operator-sdk:csv:customresourcedefinitions:type=spec
 	DimseService DimseServiceSpec `json:"dimseService,omitempty"`
 }
 
@@ -53,7 +63,8 @@ type DimseIngestionServiceStatus struct {
 //+kubebuilder:printcolumn:name="Age",type="date",JSONPath=".metadata.creationTimestamp"
 //+kubebuilder:printcolumn:name="Ready",type="string",JSONPath=".status.ready"
 
-// DimseIngestionService is the Schema for the dimseingestionservices API
+//+operator-sdk:csv:customresourcedefinitions:resources={{Deployment,v1},{ConfigMap,v1}}
+// Provides a proxied DIMSE Application Entity (AE) in the cluster for C-STORE operations to a storage space
 type DimseIngestionService struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`

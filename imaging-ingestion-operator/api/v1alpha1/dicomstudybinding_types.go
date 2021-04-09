@@ -14,15 +14,20 @@ import (
 // DicomStudyBindingSpec defines the desired state of DicomStudyBinding
 type DicomStudyBindingSpec struct {
 	// Binding Config Name
+	//+operator-sdk:csv:customresourcedefinitions:type=spec
 	BindingConfigName string `json:"bindingConfigName,omitempty"`
 	// Binding Secret Name
+	//+operator-sdk:csv:customresourcedefinitions:type=spec
 	BindingSecretName string `json:"bindingSecretName,omitempty"`
 	// Image Pull Secrets
 	// +optional
+	//+operator-sdk:csv:customresourcedefinitions:type=spec
 	ImagePullSecrets []corev1.LocalObjectReference `json:"imagePullSecrets,omitempty"`
 	// DICOM Event Driven Ingestion Name
+	//+operator-sdk:csv:customresourcedefinitions:type=spec
 	DicomEventDrivenIngestionName string `json:"dicomEventDrivenIngestionName"`
 	// Study Binding Spec
+	//+operator-sdk:csv:customresourcedefinitions:type=spec
 	StudyBinding StudyBindingSpec `json:"studyBinding,omitempty"`
 }
 
@@ -42,7 +47,8 @@ type DicomStudyBindingStatus struct {
 //+kubebuilder:printcolumn:name="Age",type="date",JSONPath=".metadata.creationTimestamp"
 //+kubebuilder:printcolumn:name="Ready",type="string",JSONPath=".status.ready"
 
-// DicomStudyBinding is the Schema for the dicomstudybindings API
+//+operator-sdk:csv:customresourcedefinitions:resources={{Service,v1,serving.knative.dev},{Trigger,v1,eventing.knative.dev},{SinkBinding,v1beta1,sources.knative.dev}}
+// Fan-out notification of DICOM studies (FHIRv4 ImagingStudy)
 type DicomStudyBinding struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`

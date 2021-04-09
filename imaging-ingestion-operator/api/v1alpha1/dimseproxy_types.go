@@ -15,21 +15,29 @@ import (
 type DimseProxySpec struct {
 	// Image Pull Secrets
 	// +optional
+	//+operator-sdk:csv:customresourcedefinitions:type=spec
 	ImagePullSecrets []corev1.LocalObjectReference `json:"imagePullSecrets,omitempty"`
 	// Application Entity Title
+	//+operator-sdk:csv:customresourcedefinitions:type=spec
 	ApplicationEntityTitle string `json:"applicationEntityTitle,omitempty"`
 	// Target Dimse Host
+	//+operator-sdk:csv:customresourcedefinitions:type=spec
 	TargetDimseHost string `json:"targetDimseHost,omitempty"`
 	// Target Dimse Port
+	//+operator-sdk:csv:customresourcedefinitions:type=spec
 	TargetDimsePort int `json:"targetDimsePort,omitempty"`
 	// NATS URL
+	//+operator-sdk:csv:customresourcedefinitions:type=spec
 	NatsURL string `json:"natsUrl,omitempty"`
 	// Make NATS Connection Secure
+	//+operator-sdk:csv:customresourcedefinitions:type=spec
 	NatsSecure bool `json:"natsSecure,omitempty"`
 	// NATS Token Secret Name
 	// +optional
+	//+operator-sdk:csv:customresourcedefinitions:type=spec
 	NatsTokenSecretName string `json:"natsTokenSecret,omitempty"`
 	// DIMSE Proxy Spec
+	//+operator-sdk:csv:customresourcedefinitions:type=spec
 	Proxy ProxySpec `json:"proxy,omitempty"`
 }
 
@@ -49,7 +57,8 @@ type DimseProxyStatus struct {
 //+kubebuilder:printcolumn:name="Age",type="date",JSONPath=".metadata.creationTimestamp"
 //+kubebuilder:printcolumn:name="Ready",type="string",JSONPath=".status.ready"
 
-// DimseProxy is the Schema for the dimseproxies API
+//+operator-sdk:csv:customresourcedefinitions:resources={{Deployment,v1},{ConfigMap,v1}}
+// Provides a bidirectional proxied DIMSE Application Entity (AE) in the cluster
 type DimseProxy struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`

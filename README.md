@@ -50,8 +50,8 @@ The imaging ingestion component is currently comprised of six (6) subcomponents:
 | Dependency               | Function  |  Open Source Operator          | Openshift |  OpenSource Available in OperatorHub.io | Deployment Example  |
 |--------------------------|-----------|------------------------------|-----------------------------|----------------------|---------------------------------------------|
 |[Certificate Manager](https://cert-manager.io)| Certificate Management  | [cert-manager](https://github.com/jetstack/cert-manager) | certified | yes | |
-| [Istio](https://istio.io)| Service mesh for Knative and service security overlay| [Istio Operator](https://github.com/istio/istio/tree/master/operator) |OpenShift Service Mesh |  no | |
-|[Knative Serving and Eventing](https://knative.dev/docs/serving)| Serving elastic scalable microservices and Event-first interaction patterns between microservices | [Knative Operator](https://github.com/knative/operator) | OpenShift Serverless Operator | no | | 
+| [Istio](https://istio.io)| Service mesh for Knative and service security overlay| [Istio Operator](https://github.com/istio/istio/tree/master/operator) |OpenShift Service Mesh |  yes | |
+|[Knative Serving and Eventing](https://knative.dev/docs/serving)| Serving elastic scalable microservices and Event-first interaction patterns between microservices | [Knative Operator](https://github.com/knative/operator) | OpenShift Serverless Operator | yes | | 
 |[PostgreSQL](https://www.postgresql.org)| Default backing store for imaging manifest data | [Crunchy Data PostgreSQL Operator ](https://github.com/CrunchyData/postgres-operator) | certified | yes | |
 |Any S3 compliant object storage| DICOM storage spaces| [MinIO](https://github.com/minio/minio-operator) | OpenShift Container Storage |  yes |  |
 |[NATS](https://nats.io)| Messaging DIMSE to/from the enterprise imaging security zone and *Kubernetes*.  **This is optional and only needed for DIMSE support**.| [NATS Operator](https://github.com/nats-io/nats-operator) |Not certified |  no | [example](examples/nats/README.md) |
@@ -63,8 +63,8 @@ The imaging ingestion component is currently comprised of six (6) subcomponents:
 
 **Installation and Deployment on Kubernetes procedure:**
   1. Install the [Alvearie Imaging Ingestion Operator](imaging-ingestion-operator) 
-  2. Create a PostgreSQL database for the imaging manifest data
-  3. Declare a [DICOM Event Driven Ingestion](docs/event-driven-ingestion/overview.md), binding it to the provided  database
+  2. Create a database for the imaging manifest data
+  3. Declare a [DICOM Event Driven Ingestion](docs/event-driven-ingestion/overview.md), configuring it to use the provided  database
   4. Create a S3 Object bucket for each storage space needed
   5. Declare a [DICOMweb Ingestion Service](docs/dicomweb-ingestion-service/overview.md) for each storage space
   6. Declare [DICOM Instance Binding](docs/dicom-instance-binding/overview.md) and [DICOM Study Binding](docs/dicom-study-binding/overview.md) as needed for distribution of DICOM instances and DICOM study notifications.

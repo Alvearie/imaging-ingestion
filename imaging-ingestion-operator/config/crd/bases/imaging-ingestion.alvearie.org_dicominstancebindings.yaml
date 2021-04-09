@@ -26,8 +26,7 @@ spec:
     name: v1alpha1
     schema:
       openAPIV3Schema:
-        description: DicomInstanceBinding is the Schema for the dicominstancebindings
-          API
+        description: Fan-out notification of DICOM instance data (STOW-RS)
         properties:
           apiVersion:
             description: 'APIVersion defines the versioned schema of this representation
@@ -93,14 +92,14 @@ spec:
             properties:
               message:
                 description: Human-readable message indicating details about current
-                  operator phase or error.
+                  operator phase or error
                 type: string
               phase:
-                description: Current phase of the operator.
+                description: Current phase of the operator
                 type: string
               ready:
                 description: True if all resources are in a ready state and all work
-                  is done.
+                  is done
                 type: boolean
               secondaryResources:
                 additionalProperties:
