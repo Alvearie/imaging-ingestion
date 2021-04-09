@@ -111,9 +111,14 @@ metadata:
         }
       ]
     capabilities: Basic Install
+    categories: Integration & Delivery
+    containerImage: alvearie/imaging-ingestion-operator:0.0.1
+    createdAt: "2021-04-08T15:29:55Z"
+    description: The Alvearie Imaging Ingestion provides a collection of components for extending enterprise medical imaging informatics systems to Kubernetes.
     operators.operatorframework.io/builder: operator-sdk-v1.5.0
     operators.operatorframework.io/project_layout: go.kubebuilder.io/v3
-    reatedAt: "2021-04-08T15:29:55Z"
+    repository: https://github.com/Alvearie/imaging-ingestion
+    support: alvearie.slack.com
   name: imaging-ingestion-operator.v0.0.1
   namespace: placeholder
 spec:
@@ -843,7 +848,7 @@ spec:
   - imaging study
   links:
   - name: Alvearie Imaging Ingestion Operator
-    url: https://github.com/Alvearie/imaging-ingestion/tree/main/imaging-ingestion-operator
+    url: https://github.com/Alvearie/imaging-ingestion
   maintainers:
   - email: rduggan@ca.ibm.com
     name: Richard Duggan
