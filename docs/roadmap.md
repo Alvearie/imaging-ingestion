@@ -12,9 +12,6 @@
 -  Provide a streamlined and lightweight example for rapid evaluation on a small *Kubernetes* deployment such as *Minikube* or *Docker Desktop*.
 
 
--  Provide a *OpenShift Cluster Service Version (CSV)* for deployment and management within *OpenShift Operator Lifecycle Manager (OLM)*
-
-
 -  Implement UPS-RS as a second binding implementation for *DicomStudyBinding* custom resources. This implementation will add/update a target imaging work list with work items when study revisions are created. Currently only the FHIRv4 ImagingStudy resource fan-out is available.
 
 
