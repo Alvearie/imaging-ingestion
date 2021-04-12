@@ -10,7 +10,7 @@ Each of the subcomponents of imaging ingestion are represented as individual *Ku
 
   For Kubernetes clusters, such as *OpenShift*, that have Operator Lifecycle Manager (OLM) deployed, the easiest way to deploy the Alvearie Imaging Ingestion operator, is by using the community operator provided on [Operatorhub.io](https://operatorhub.io).
 
-**Option 2: Using kubctl**
+**Option 2: Using kubectl**
 
   Apply the provided YAML to the cluster.  Without modification, this YAML will:
 -  Creates a **imaging-ingestion** namespace, 
@@ -33,6 +33,5 @@ kubectl apply -f https://raw.githubusercontent.com/Alvearie/imaging-ingestion/ma
 - [DicomStudyBinding](../docs/dicom-study-binding/overview.md)
 - [DimseIngestionService](../docs/dimse-ingestion-service/overview.md)
 - [DimseProxy](../docs/dimse-proxy/overview.md) 
-
 
 
