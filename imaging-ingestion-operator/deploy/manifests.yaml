@@ -29,7 +29,7 @@ spec:
     name: v1alpha1
     schema:
       openAPIV3Schema:
-        description: DicomEventDrivenIngestion is the Schema for the dicomeventdriveningestions API
+        description: Event driven manifest of all DICOM data across all associated S3 buckets
         properties:
           apiVersion:
             description: 'APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
@@ -85,13 +85,13 @@ spec:
                 description: Broker Endpoint
                 type: string
               message:
-                description: Human-readable message indicating details about current operator phase or error.
+                description: Human-readable message indicating details about current operator phase or error
                 type: string
               phase:
-                description: Current phase of the operator.
+                description: Current phase of the operator
                 type: string
               ready:
-                description: True if all resources are in a ready state and all work is done.
+                description: True if all resources are in a ready state and all work is done
                 type: boolean
               secondaryResources:
                 additionalProperties:
@@ -143,7 +143,7 @@ spec:
     name: v1alpha1
     schema:
       openAPIV3Schema:
-        description: DicomInstanceBinding is the Schema for the dicominstancebindings API
+        description: Fan-out notification of DICOM instance data (STOW-RS)
         properties:
           apiVersion:
             description: 'APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
@@ -201,13 +201,13 @@ spec:
             description: DicomInstanceBindingStatus defines the observed state of DicomInstanceBinding
             properties:
               message:
-                description: Human-readable message indicating details about current operator phase or error.
+                description: Human-readable message indicating details about current operator phase or error
                 type: string
               phase:
-                description: Current phase of the operator.
+                description: Current phase of the operator
                 type: string
               ready:
-                description: True if all resources are in a ready state and all work is done.
+                description: True if all resources are in a ready state and all work is done
                 type: boolean
               secondaryResources:
                 additionalProperties:
@@ -259,7 +259,7 @@ spec:
     name: v1alpha1
     schema:
       openAPIV3Schema:
-        description: DicomStudyBinding is the Schema for the dicomstudybindings API
+        description: Fan-out notification of DICOM studies (FHIRv4 ImagingStudy)
         properties:
           apiVersion:
             description: 'APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
@@ -317,13 +317,13 @@ spec:
             description: DicomStudyBindingStatus defines the observed state of DicomStudyBinding
             properties:
               message:
-                description: Human-readable message indicating details about current operator phase or error.
+                description: Human-readable message indicating details about current operator phase or error
                 type: string
               phase:
-                description: Current phase of the operator.
+                description: Current phase of the operator
                 type: string
               ready:
-                description: True if all resources are in a ready state and all work is done.
+                description: True if all resources are in a ready state and all work is done
                 type: boolean
               secondaryResources:
                 additionalProperties:
@@ -375,7 +375,7 @@ spec:
     name: v1alpha1
     schema:
       openAPIV3Schema:
-        description: DicomwebIngestionService is the Schema for the dicomwebingestionservices API
+        description: Provides DICOMweb WADO-RS and STOW-RS access to a S3 bucket
         properties:
           apiVersion:
             description: 'APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
@@ -455,13 +455,13 @@ spec:
             description: DicomwebIngestionServiceStatus defines the observed state of DicomwebIngestionService
             properties:
               message:
-                description: Human-readable message indicating details about current operator phase or error.
+                description: Human-readable message indicating details about current operator phase or error
                 type: string
               phase:
-                description: Current phase of the operator.
+                description: Current phase of the operator
                 type: string
               ready:
-                description: True if all resources are in a ready state and all work is done.
+                description: True if all resources are in a ready state and all work is done
                 type: boolean
               secondaryResources:
                 additionalProperties:
@@ -519,7 +519,7 @@ spec:
     name: v1alpha1
     schema:
       openAPIV3Schema:
-        description: DimseIngestionService is the Schema for the dimseingestionservices API
+        description: Provides a proxied DIMSE Application Entity (AE) in the cluster for C-STORE operations to a storage space
         properties:
           apiVersion:
             description: 'APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
@@ -580,13 +580,13 @@ spec:
             description: DimseIngestionServiceStatus defines the observed state of DimseIngestionService
             properties:
               message:
-                description: Human-readable message indicating details about current operator phase or error.
+                description: Human-readable message indicating details about current operator phase or error
                 type: string
               phase:
-                description: Current phase of the operator.
+                description: Current phase of the operator
                 type: string
               ready:
-                description: True if all resources are in a ready state and all work is done.
+                description: True if all resources are in a ready state and all work is done
                 type: boolean
               secondaryResources:
                 additionalProperties:
@@ -638,7 +638,7 @@ spec:
     name: v1alpha1
     schema:
       openAPIV3Schema:
-        description: DimseProxy is the Schema for the dimseproxies API
+        description: Provides a bidirectional proxied DIMSE Application Entity (AE) in the cluster
         properties:
           apiVersion:
             description: 'APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
@@ -691,13 +691,13 @@ spec:
             description: DimseProxyStatus defines the observed state of DimseProxy
             properties:
               message:
-                description: Human-readable message indicating details about current operator phase or error.
+                description: Human-readable message indicating details about current operator phase or error
                 type: string
               phase:
-                description: Current phase of the operator.
+                description: Current phase of the operator
                 type: string
               ready:
-                description: True if all resources are in a ready state and all work is done.
+                description: True if all resources are in a ready state and all work is done
                 type: boolean
               secondaryResources:
                 additionalProperties:

@@ -16,6 +16,7 @@ const (
 	KnativeEventingKind    = "Broker"
 
 	AutoDetectTick    = 30 * time.Second
+	StartupDetectTick = 5 * time.Second
 	RequeueDelay      = 5 * time.Minute
 	RequeueDelayError = 5 * time.Second
 

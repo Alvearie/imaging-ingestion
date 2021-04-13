@@ -7,9 +7,11 @@ SPDX-License-Identifier: Apache-2.0
 package main
 
 import (
+	"errors"
 	"flag"
 	"fmt"
 	"os"
+	"time"
 
 	// Import all Kubernetes client auth plugins (e.g. Azure, GCP, OIDC, etc.)
 	// to ensure that exec-entrypoint and run can make use of them.
@@ -44,6 +46,10 @@ var (
 
 func init() {
 	utilruntime.Must(clientgoscheme.AddToScheme(scheme))
+
+	utilruntime.Must(kservingv1.AddToScheme(scheme))
+	utilruntime.Must(keventingv1.AddToScheme(scheme))
+	utilruntime.Must(ksourcesv1alpha2.AddToScheme(scheme))
 
 	utilruntime.Must(imagingingestionv1alpha1.AddToScheme(scheme))
 	//+kubebuilder:scaffold:scheme
@@ -94,6 +100,15 @@ func main() {
 		autodetect.Start()
 	}
 
+	ticker := time.NewTicker(common.StartupDetectTick)
+	for range ticker.C {
+		if common.IsKnativeAvailable() {
+			break
+		} else {
+			setupLog.Error(errors.New("Knative Serving or Eventing is not deployed in cluster"), "Deploy Knative Serving and Eventing to continue")
+		}
+	}
+
 	if err = (&dicomeventdriveningestion.DicomEventDrivenIngestionReconciler{
 		Client: mgr.GetClient(),
 		Log:    ctrl.Log.WithName("controllers").WithName("DicomEventDrivenIngestion"),
@@ -140,19 +155,6 @@ func main() {
 		Scheme: mgr.GetScheme(),
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "DimseProxy")
-		os.Exit(1)
-	}
-
-	if err := kservingv1.AddToScheme(mgr.GetScheme()); err != nil {
-		setupLog.Error(err, "Unable to add to scheme")
-		os.Exit(1)
-	}
-	if err := keventingv1.AddToScheme(mgr.GetScheme()); err != nil {
-		setupLog.Error(err, "Unable to add to scheme")
-		os.Exit(1)
-	}
-	if err := ksourcesv1alpha2.AddToScheme(mgr.GetScheme()); err != nil {
-		setupLog.Error(err, "Unable to add to scheme")
 		os.Exit(1)
 	}
 	//+kubebuilder:scaffold:builder
