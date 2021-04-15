@@ -15,7 +15,7 @@ import java.util.Iterator;
 import java.util.concurrent.CompletionStage;
 
 import javax.annotation.PostConstruct;
-import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.context.RequestScoped;
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
 import javax.imageio.stream.ImageInputStream;
@@ -25,7 +25,7 @@ import org.jboss.logging.Logger;
 import org.jboss.resteasy.spi.AsyncOutputStream;
 import org.jboss.resteasy.spi.AsyncStreamingOutput;
 
-@ApplicationScoped
+@RequestScoped
 public class RenderService {
     private static final Logger LOG = Logger.getLogger(RenderService.class);
 
@@ -48,12 +48,15 @@ public class RenderService {
     public AsyncStreamingOutput render(InputStream is, Viewport viewport) {
         try {
             BufferedImage bi = null;
-            synchronized(reader) {
+            try {
                 DicomImageReadParam param = (DicomImageReadParam) reader.getDefaultReadParam();
                 ImageInputStream iis = ImageIO.createImageInputStream(is);
                 reader.setInput(iis, false);
                 bi = reader.read(0, param);
                 iis.close();
+            } catch (UnsupportedOperationException e) {
+                LOG.error("Unable to load the image udue to limitation in GraalVM, try running in a non-native mode");
+                throw e;
             }
             
             if (viewport != null) {
