@@ -133,10 +133,15 @@ public class WadoResource {
 
         Date lastModified = new Date();
         if (instances.size() == 1) {
-            Object output = getRenderedImage(instances.get(0), viewport);
-            Response.ResponseBuilder responseBuilder = Response.status(Response.Status.OK).lastModified(lastModified)
-                    .tag(String.valueOf(lastModified.hashCode())).entity(output).type(IMAGE_JPEG_TYPE);
-            ar.resume(responseBuilder.build());
+            try {
+                Object output = getRenderedImage(instances.get(0), viewport);
+                Response.ResponseBuilder responseBuilder = Response.status(Response.Status.OK).lastModified(lastModified)
+                        .tag(String.valueOf(lastModified.hashCode())).entity(output).type(IMAGE_JPEG_TYPE);
+                ar.resume(responseBuilder.build());
+            } catch (UnsupportedOperationException e) {
+                Response.ResponseBuilder responseBuilder = Response.status(Response.Status.NOT_IMPLEMENTED);
+                ar.resume(responseBuilder.build());
+            }
         } else {
 
             MultipartRelatedOutput output = new MultipartRelatedOutput();
