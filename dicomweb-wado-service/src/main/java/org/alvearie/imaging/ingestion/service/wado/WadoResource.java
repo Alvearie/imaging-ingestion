@@ -18,6 +18,7 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.container.AsyncResponse;
 import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.MediaType;
@@ -40,6 +41,9 @@ public class WadoResource {
     public final static MediaType APPLICATION_DICOM_TYPE = new MediaType("application", "dicom");
     public final static String IMAGE_JPEG = "image/jpeg";
     public final static MediaType IMAGE_JPEG_TYPE = new MediaType("image", "jpeg");
+    
+    public final static int THUMBNAIL_WIDTH = 100;
+    public final static int THUMBNAIL_HEIGHT = 150;
 
     @Inject
     S3Service s3Service;
@@ -61,8 +65,10 @@ public class WadoResource {
     @GET
     @Path("/studies/{studyUID}/rendered")
     @Produces("multipart/related")
-    public void retrieveRenderedStudy(@PathParam("studyUID") String studyUID, @Suspended AsyncResponse ar) {
-        buildDicomResponse(queryClient.getInstances(studyUID), ar);
+    public void retrieveRenderedStudy(@PathParam("studyUID") String studyUID, @QueryParam("annotation") String annotation,
+            @QueryParam("quality") int quality, @QueryParam("viewport") String viewportSpec, @QueryParam("window") String window, @Suspended AsyncResponse ar) {
+        RenderService.Viewport viewport = creatViewportFromQueryParam(viewportSpec);
+        buildRenderedResponse(queryClient.getInstances(studyUID), viewport, ar);
     }
 
     @GET
@@ -76,9 +82,10 @@ public class WadoResource {
     @GET
     @Path("/studies/{studyUID}/series/{seriesUID}/rendered")
     public void retrieveRenderedSeries(@PathParam("studyUID") String studyUID, @PathParam("seriesUID") String seriesUID,
-            @Suspended AsyncResponse ar) {
-
-        buildRenderedResponse(queryClient.getInstances(studyUID, seriesUID), ar);
+            @QueryParam("annotation") String annotation, @QueryParam("quality") int quality,
+            @QueryParam("viewport") String viewportSpec, @QueryParam("window") String window, @Suspended AsyncResponse ar) {
+        RenderService.Viewport viewport = creatViewportFromQueryParam(viewportSpec);
+        buildRenderedResponse(queryClient.getInstances(studyUID, seriesUID), viewport, ar);
     }
 
     @GET
@@ -92,23 +99,41 @@ public class WadoResource {
     @Path("/studies/{studyUID}/series/{seriesUID}/instances/{objectUID}/rendered")
     public void retrieveRenderedInstance(@PathParam("studyUID") String studyUID,
             @PathParam("seriesUID") String seriesUID, @PathParam("objectUID") String objectUID,
+            @QueryParam("annotation") String annotation, @QueryParam("quality") int quality,
+            @QueryParam("viewport") String viewportSpec, @QueryParam("window") String window, @Suspended AsyncResponse ar) {
+        RenderService.Viewport viewport = creatViewportFromQueryParam(viewportSpec);
+        buildRenderedResponse(queryClient.getInstances(studyUID, seriesUID, objectUID), viewport, ar);
+    }
+    
+    @GET
+    @Path("/studies/{studyUID}/series/{seriesUID}/instances/{objectUID}/thumbnail")
+    public void retrieveRenderedThumbnailInstance(@PathParam("studyUID") String studyUID,
+            @PathParam("seriesUID") String seriesUID, @PathParam("objectUID") String objectUID,
+            @QueryParam("viewport") String viewportSpec,
             @Suspended AsyncResponse ar) {
-
-        buildRenderedResponse(queryClient.getInstances(studyUID, seriesUID, objectUID), ar);
+        RenderService.Viewport viewport = creatViewportFromQueryParam(viewportSpec);
+        if (viewport == null) {
+            viewport = renderService.createViewport();
+            viewport.vw = THUMBNAIL_WIDTH;
+            viewport.vh = THUMBNAIL_HEIGHT;
+        } else {
+            viewport.sx = viewport.sy = viewport.sw = viewport.sh = 0;
+        }
+        buildRenderedResponse(queryClient.getInstances(studyUID, seriesUID, objectUID), viewport, ar);
     }
 
-    private void buildRenderedResponse(List<String> instances, AsyncResponse ar) {
+    private void buildRenderedResponse(List<String> instances, RenderService.Viewport viewport, AsyncResponse ar) {
         if (instances == null || instances.size() == 0) {
             Response.ResponseBuilder responseBuilder = Response.status(Response.Status.NOT_FOUND);
             ar.resume(responseBuilder.build());
             return;
         }
 
-        LOG.infof("Found %d instances", instances.size());
+        LOG.info(String.format("Found %d instances", instances.size()));
 
         Date lastModified = new Date();
         if (instances.size() == 1) {
-            Object output = getRenderedImage(instances.get(0));
+            Object output = getRenderedImage(instances.get(0), viewport);
             Response.ResponseBuilder responseBuilder = Response.status(Response.Status.OK).lastModified(lastModified)
                     .tag(String.valueOf(lastModified.hashCode())).entity(output).type(IMAGE_JPEG_TYPE);
             ar.resume(responseBuilder.build());
@@ -117,7 +142,7 @@ public class WadoResource {
             MultipartRelatedOutput output = new MultipartRelatedOutput();
 
             for (String inst : instances) {
-                addRenderedPart(output, inst);
+                addRenderedPart(output, inst, viewport);
             }
 
             Response.ResponseBuilder responseBuilder = Response.status(Response.Status.OK).lastModified(lastModified)
@@ -133,7 +158,7 @@ public class WadoResource {
             return;
         }
 
-        LOG.infof("Found %d instances", instances.size());
+        LOG.info(String.format("Found %d instances", instances.size()));
 
         Date lastModified = new Date();
         MultipartRelatedOutput output = new MultipartRelatedOutput();
@@ -161,12 +186,42 @@ public class WadoResource {
         };
     }
 
-    private void addRenderedPart(MultipartRelatedOutput output, String objectKey) {
-        output.addPart(getRenderedImage(objectKey), IMAGE_JPEG_TYPE);
+    private void addRenderedPart(MultipartRelatedOutput output, String objectKey, RenderService.Viewport viewport) {
+        output.addPart(getRenderedImage(objectKey, viewport), IMAGE_JPEG_TYPE);
     }
-
-    private Object getRenderedImage(String objectKey) {
+    
+    private Object getRenderedImage(String objectKey,  RenderService.Viewport viewport) {
         ByteArrayOutputStream baos = s3Service.getObject(objectKey);
-        return renderService.render(new ByteArrayInputStream(baos.toByteArray()));
+        return renderService.render(new ByteArrayInputStream(baos.toByteArray()), viewport);
+    }
+    
+    public RenderService.Viewport creatViewportFromQueryParam(String viewPortSpec) {
+        RenderService.Viewport viewport = null;
+        if (viewPortSpec != null) {
+            String[] segments = viewPortSpec.split(",");
+            if (segments.length >= 2) {
+                viewport = renderService.createViewport();
+                try {
+                 viewport.vw = Integer.valueOf(segments[0]);
+                 viewport.vh = Integer.valueOf(segments[1]);
+                 if (segments.length == 4) {
+                     viewport.sx = Integer.valueOf(segments[2]);
+                     viewport.sy = Integer.valueOf(segments[3]);
+                 } else if (segments.length == 6) {
+                     viewport.sw = Integer.valueOf(segments[4]);
+                     viewport.sh = Integer.valueOf(segments[5]);
+                     if (segments[2] != null) {
+                         viewport.sx = Integer.valueOf(segments[2]);
+                     }
+                     if (segments[3] != null) {
+                         viewport.sy = Integer.valueOf(segments[3]);
+                     }
+                 }
+                } catch (NumberFormatException e) {
+                    viewport = null;
+                }
+            }
+        }
+        return viewport;
     }
 }
