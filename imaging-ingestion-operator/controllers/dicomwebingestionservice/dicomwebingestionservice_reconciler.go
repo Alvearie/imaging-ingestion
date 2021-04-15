@@ -64,7 +64,15 @@ func (i *DicomwebIngestionServiceReconciler) GetStowServiceDesiredState(state *D
 }
 
 func (i *DicomwebIngestionServiceReconciler) GetWadoServiceDesiredState(state *DicomwebIngestionServiceState, cr *v1alpha1.DicomwebIngestionService) common.ControllerAction {
-	service := model.WadoService(cr)
+	eventDrivenIngestionResource, err := GetEventDrivenIngestionResource(context.Background(), cr, i.Client)
+	if eventDrivenIngestionResource == nil || err != nil {
+		return common.GenericErrorAction{
+			Ref: errors.New("Missing DicomEventDrivenIngestion"),
+			Msg: "Missing DicomEventDrivenIngestion",
+		}
+	}
+
+	service := model.WadoService(cr, GetEventProcessorServiceEndpoint(eventDrivenIngestionResource))
 	if state.WadoService == nil {
 		return common.GenericCreateAction{
 			Ref: service,

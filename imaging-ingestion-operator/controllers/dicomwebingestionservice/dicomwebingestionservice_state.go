@@ -143,10 +143,15 @@ func (i *DicomwebIngestionServiceState) readStowServiceCurrentState(context cont
 }
 
 func (i *DicomwebIngestionServiceState) readWadoServiceCurrentState(context context.Context, cr *v1alpha1.DicomwebIngestionService, controllerClient client.Client) error {
-	service := model.WadoService(cr)
+	eventDrivenIngestionResource, err := GetEventDrivenIngestionResource(context, cr, controllerClient)
+	if eventDrivenIngestionResource == nil || err != nil {
+		return errors.New("Error getting DicomEventDrivenIngestion")
+	}
+
+	service := model.WadoService(cr, GetEventProcessorServiceEndpoint(eventDrivenIngestionResource))
 	serviceSelector := model.WadoServiceSelector(cr)
 
-	err := controllerClient.Get(context, serviceSelector, service)
+	err = controllerClient.Get(context, serviceSelector, service)
 	if err != nil {
 		// If the resource type doesn't exist on the cluster or does exist but is not found
 		if meta.IsNoMatchError(err) || apiErrors.IsNotFound(err) {
@@ -208,4 +213,15 @@ func (i *DicomwebIngestionServiceState) readStowSinkBindingCurrentState(context 
 	}
 
 	return nil
+}
+
+func GetEventProcessorServiceEndpoint(cr *v1alpha1.DicomEventDrivenIngestion) string {
+	// TODO: Fix this to get advertised Endpoint from Status
+	if se, ok := cr.Status.SecondaryResources["ServiceEndpoint"]; ok {
+		if len(se) > 0 {
+			return se[0]
+		}
+	}
+
+	return ""
 }

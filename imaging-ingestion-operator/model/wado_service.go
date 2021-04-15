@@ -17,7 +17,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
-func WadoService(cr *v1alpha1.DicomwebIngestionService) *kservingv1.Service {
+func WadoService(cr *v1alpha1.DicomwebIngestionService, eventProcessorServiceEndpoint string) *kservingv1.Service {
 	return &kservingv1.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      GetWadoServiceName(cr),
@@ -51,6 +51,10 @@ func WadoService(cr *v1alpha1.DicomwebIngestionService) *kservingv1.Service {
 										{
 											Name:  "BUCKET_SECRET_PATH",
 											Value: "/etc/bucket/secret",
+										},
+										{
+											Name:  "QUERY_ENDPOINT",
+											Value: eventProcessorServiceEndpoint + "/query",
 										},
 									},
 									VolumeMounts: []corev1.VolumeMount{
