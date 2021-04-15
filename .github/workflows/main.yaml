@@ -39,7 +39,8 @@ jobs:
       if: ${{ github.ref == 'refs/heads/main' }}
       run: |
         ./gradlew -Pquarkus.package.type=native build
-        ./gradlew -Pquarkus.package.type=native -Dquarkus.datasource.db-kind=db2 :dicom-event-driven-ingestion:clean :dicom-event-driven-ingestion:build
+        ./gradlew :dicom-event-driven-ingestion:clean :dicom-event-driven-ingestion:build
+        ./gradlew -Dquarkus.datasource.db-kind=db2 :dicom-event-driven-ingestion:clean :dicom-event-driven-ingestion:build
     - name: Build Images with Gradle on Pull Request
       if: ${{ github.event_name == 'pull_request' }}
       run: |
