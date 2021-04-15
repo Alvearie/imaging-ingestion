@@ -142,6 +142,10 @@ func (i *DicomEventDrivenIngestionState) readEventProcessorServiceCurrentState(c
 	} else {
 		i.EventProcessorService = service.DeepCopy()
 		cr.UpdateStatusSecondaryResources(i.EventProcessorService.Kind, i.EventProcessorService.Name)
+		// TODO: Add Endpoint directly under Status in next version
+		if i.EventProcessorService != nil && i.EventProcessorService.Status.Address != nil && i.EventProcessorService.Status.Address.URL != nil {
+			cr.UpdateStatusSecondaryResources("ServiceEndpoint", i.EventProcessorService.Status.Address.URL.String())
+		}
 	}
 
 	return nil
