@@ -5,13 +5,8 @@
             {
                 "seriesInstanceUID": "2.16.124.113531.1.1.10241360029058.20160106.122820.111",
                 "number": 1,
-                "attributes": [
-                    {
-                        "group": 8,
-                        "element": 96,
-                        "value": "CT"
-                    }
-                ],
+                "modality": "CT",
+                "attributes": [],
                 "instances": [
                     {
                         "sopInstanceUID": "2.16.124.113531.1.1.10230900029078.20160106.122826.112",

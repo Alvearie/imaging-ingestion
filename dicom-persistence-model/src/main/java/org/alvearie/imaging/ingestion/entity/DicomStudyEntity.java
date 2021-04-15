@@ -31,8 +31,20 @@ public class DicomStudyEntity extends PanacheEntity {
     @OrderBy("number")
     public List<DicomSeriesEntity> series = new ArrayList<>();
 
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "study", fetch = FetchType.LAZY)
+    public List<DicomStudyAttributesEntity> attributes = new ArrayList<>();
+
     @Column(name = "study_instance_uid", unique = true)
     public String studyInstanceUID;
+
+    @Column(name = "study_id")
+    public String studyID;
+
+    @Column(name = "study_date")
+    public String studyDate;
+
+    @Column(name = "study_time")
+    public String studyTime;
 
     public Integer revision;
 
@@ -46,6 +58,13 @@ public class DicomStudyEntity extends PanacheEntity {
         }
     }
 
+    public void addAttribute(DicomStudyAttributesEntity attr) {
+        attr.study = this;
+        if (!this.attributes.contains(attr)) {
+            this.attributes.add(attr);
+        }
+    }
+
     public static DicomStudyEntity findByStudyInstanceUID(String id, boolean lock) {
         if (lock) {
             return find("studyInstanceUID", id).withLock(LockModeType.PESSIMISTIC_WRITE).firstResult();
@@ -56,7 +75,9 @@ public class DicomStudyEntity extends PanacheEntity {
 
     @Override
     public String toString() {
-        return "DicomStudyEntity [provider=" + provider + ", series=" + series + ", studyInstanceUID="
-                + studyInstanceUID + ", revision=" + revision + ", revisionTime=" + revisionTime + ", id=" + id + "]";
+        return "DicomStudyEntity [provider=" + provider + ", series=" + series + ", attributes=" + attributes
+                + ", studyInstanceUID=" + studyInstanceUID + ", studyID=" + studyID + ", studyDate=" + studyDate
+                + ", studyTime=" + studyTime + ", revision=" + revision + ", revisionTime=" + revisionTime + ", id="
+                + id + "]";
     }
 }

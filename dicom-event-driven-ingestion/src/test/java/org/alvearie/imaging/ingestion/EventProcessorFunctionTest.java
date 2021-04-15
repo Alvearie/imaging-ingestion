@@ -14,7 +14,7 @@ import org.alvearie.imaging.ingestion.event.Element;
 import org.alvearie.imaging.ingestion.event.Image;
 import org.alvearie.imaging.ingestion.event.ImageStoredEvent;
 import org.alvearie.imaging.ingestion.event.Store;
-import org.eclipse.microprofile.rest.client.inject.RestClient;
+import org.dcm4che3.data.Tag;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -27,10 +27,6 @@ import io.quarkus.test.junit.mockito.InjectMock;
 public class EventProcessorFunctionTest {
     @InjectMock
     StudyManager studyManager;
-
-    @InjectMock
-    @RestClient
-    StudyRevisionEventClient eventClient;
 
     @Inject
     EventProcessorFunction processor;
@@ -50,29 +46,10 @@ public class EventProcessorFunctionTest {
 
         List<Element> elements = new ArrayList<>();
 
-        Element element = new Element();
-        element.setGroup(DicomConstants.STUDY_INSTANCE_UID_GROUP);
-        element.setElement(DicomConstants.STUDY_INSTANCE_UID_ELEMENT);
-        element.setValue("study1");
-        elements.add(element);
-
-        element = new Element();
-        element.setGroup(DicomConstants.SERIES_INSTANCE_UID_GROUP);
-        element.setElement(DicomConstants.SERIES_INSTANCE_UID_ELEMENT);
-        element.setValue("series1");
-        elements.add(element);
-
-        element = new Element();
-        element.setGroup(DicomConstants.SOP_INSTANCE_UID_GROUP);
-        element.setElement(DicomConstants.SOP_INSTANCE_UID_ELEMENT);
-        element.setValue("instance1");
-        elements.add(element);
-
-        element = new Element();
-        element.setGroup(DicomConstants.MODALITY_GROUP);
-        element.setElement(DicomConstants.MODALITY_ELEMENT);
-        element.setValue("CT");
-        elements.add(element);
+        elements.add(buildElement(Tag.StudyInstanceUID, "study1"));
+        elements.add(buildElement(Tag.SeriesInstanceUID, "series1"));
+        elements.add(buildElement(Tag.SOPInstanceUID, "instance1"));
+        elements.add(buildElement(Tag.Modality, "CT"));
 
         Image image = new Image();
         image.setElements(elements);
@@ -86,5 +63,16 @@ public class EventProcessorFunctionTest {
 
         data.setStore(store);
         return data;
+    }
+
+    private Element buildElement(int tag, String value) {
+        String ts = String.format("%08X", tag);
+
+        Element elem = new Element();
+        elem.setGroup(ts.substring(0, 4));
+        elem.setElement(ts.substring(4));
+        elem.setValue(value);
+
+        return elem;
     }
 }

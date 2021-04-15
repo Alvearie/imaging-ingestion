@@ -1,6 +1,6 @@
 /*
  * (C) Copyright IBM Corp. 2021
- * 
+ *
  * SPDX-License-Identifier: Apache-2.0
  */
 package org.alvearie.imaging.ingestion.event;
@@ -10,6 +10,7 @@ import java.util.List;
 public class DicomSeries {
     private String seriesInstanceUID;
     private Integer number;
+    private String modality;
     private List<DicomSeriesAttribute> attributes;
     private List<DicomInstance> instances;
 
@@ -43,5 +44,13 @@ public class DicomSeries {
 
     public void setInstances(List<DicomInstance> instances) {
         this.instances = instances;
+    }
+
+    public String getModality() {
+        return modality;
+    }
+
+    public void setModality(String modality) {
+        this.modality = modality;
     }
 }
