@@ -84,3 +84,12 @@ spec:
     minReplicas: 0
 ```
 
+
+## Usage
+
+The operator will create knative services for each of the STOW-RS and WADO-RS.  These service URLs will have the following naming pattern.
+
+|Service       | Naming Pattern                                    | Example         |
+|--------------|:--------------------------------------------------|:----------------|
+|STOW-RS       | https://&lt;custom-resource-name&gt;-stow.&lt;namespace&gt;.&lt;domain&gt;/stow-rs | `https://img-ingest-stow.imaging-ingestion.mycluster.net/stow-rs` |
+|WADO-RS       | https://&lt;custom-resource-name&gt;-wado.&lt;namespace&gt;.&lt;domain&gt;/wado-rs | `https://img-ingest-stow.imaging-ingestion.mycluster.net/wado-rs` |
