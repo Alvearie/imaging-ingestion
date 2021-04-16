@@ -45,13 +45,13 @@ public class StudyRevisonEventBuilder {
                         DicomSeries s = new DicomSeries();
                         s.setSeriesInstanceUID(se.seriesInstanceUID);
                         s.setNumber(se.number);
+                        s.setModality(se.modality);
                         if (se.attributes != null) {
                             List<DicomSeriesAttribute> attributes = new ArrayList<>();
                             for (DicomSeriesAttributesEntity sae : se.attributes) {
                                 if (sae != null) {
                                     DicomSeriesAttribute sa = new DicomSeriesAttribute();
-                                    sa.setGroup(sae.group);
-                                    sa.setElement(sae.element);
+                                    sa.setTag(sae.tag);
                                     sa.setValue(sae.value);
 
                                     attributes.add(sa);

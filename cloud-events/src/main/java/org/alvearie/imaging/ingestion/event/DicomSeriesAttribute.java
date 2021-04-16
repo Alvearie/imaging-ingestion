@@ -1,29 +1,20 @@
 /*
  * (C) Copyright IBM Corp. 2021
- * 
+ *
  * SPDX-License-Identifier: Apache-2.0
  */
 package org.alvearie.imaging.ingestion.event;
 
 public class DicomSeriesAttribute {
-    private Integer group;
-    private Integer element;
+    private Integer tag;
     private String value;
 
-    public Integer getGroup() {
-        return group;
+    public Integer getTag() {
+        return tag;
     }
 
-    public void setGroup(Integer group) {
-        this.group = group;
-    }
-
-    public Integer getElement() {
-        return element;
-    }
-
-    public void setElement(Integer element) {
-        this.element = element;
+    public void setTag(Integer tag) {
+        this.tag = tag;
     }
 
     public String getValue() {

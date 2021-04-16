@@ -136,10 +136,10 @@ public class SimpleStoreService implements StoreService {
         Element elem = new Element();
         elem.setGroup(ts.substring(0, 4));
         elem.setElement(ts.substring(4));
-        elem.setName(vr.toString());
+        elem.setVR(vr.toString());
         elem.setValue(attrs.getString(tag));
 
-        LOG.debugf("(%s, %s) %s %s", elem.getGroup(), elem.getElement(), elem.getName(), elem.getValue());
+        LOG.debugf("(%s, %s) %s %s", elem.getGroup(), elem.getElement(), elem.getVR(), elem.getValue());
 
         return elem;
     }

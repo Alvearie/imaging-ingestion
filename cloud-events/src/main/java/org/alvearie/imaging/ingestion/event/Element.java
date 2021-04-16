@@ -1,6 +1,6 @@
 /*
  * (C) Copyright IBM Corp. 2021
- * 
+ *
  * SPDX-License-Identifier: Apache-2.0
  */
 package org.alvearie.imaging.ingestion.event;
@@ -8,7 +8,7 @@ package org.alvearie.imaging.ingestion.event;
 public class Element {
     String group;
     String element;
-    String name;
+    String vr;
     String value;
 
     public String getGroup() {
@@ -27,12 +27,12 @@ public class Element {
         this.element = element;
     }
 
-    public String getName() {
-        return name;
+    public String getVR() {
+        return vr;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setVR(String vr) {
+        this.vr = vr;
     }
 
     public String getValue() {

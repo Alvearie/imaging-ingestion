@@ -142,9 +142,12 @@ func getSeries(eventSeries []events.DicomSeries) []fhir.ImagingSeries {
 	series := []fhir.ImagingSeries{}
 	for _, s := range eventSeries {
 		series = append(series, fhir.ImagingSeries{
-			UID:               s.SeriesInstanceUID,
-			Number:            s.Number,
-			Modality:          getModality(s.Attributes),
+			UID:    s.SeriesInstanceUID,
+			Number: s.Number,
+			Modality: fhir.Coding{
+				System: "http://dicom.nema.org/resources/ontology/DCM",
+				Code:   s.Modality,
+			},
 			NumberOfInstances: len(s.Instances),
 			Instance:          getInstances(s.Instances),
 		})
@@ -166,18 +169,6 @@ func getInstances(eventInstances []events.DicomInstance) []fhir.ImagingInstance 
 		})
 	}
 	return instances
-}
-
-func getModality(attributes []events.DicomSeriesAttribute) fhir.Coding {
-	modality := fhir.Coding{}
-	for _, attr := range attributes {
-		if attr.Group == 8 && attr.Element == 96 {
-			modality.System = "http://dicom.nema.org/resources/ontology/DCM"
-			modality.Code = attr.Value
-			break
-		}
-	}
-	return modality
 }
 
 // Post will post resource to FHIR endpoint

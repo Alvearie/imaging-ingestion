@@ -41,6 +41,8 @@ public class DicomSeriesEntity extends PanacheEntity {
 
     public Integer number;
 
+    public String modality;
+
     public void addInstance(DicomInstanceEntity inst) {
         inst.series = this;
         if (!this.instances.contains(inst)) {
@@ -84,6 +86,6 @@ public class DicomSeriesEntity extends PanacheEntity {
     @Override
     public String toString() {
         return "DicomSeriesEntity [instances=" + instances + ", attributes=" + attributes + ", seriesInstanceUID="
-                + seriesInstanceUID + ", number=" + number + ", id=" + id + "]";
+                + seriesInstanceUID + ", number=" + number + ", modality=" + modality + ", id=" + id + "]";
     }
 }

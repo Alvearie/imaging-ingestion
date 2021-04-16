@@ -26,6 +26,8 @@ dependencies {
     implementation 'io.quarkus:quarkus-funqy-knative-events'
     implementation 'io.quarkus:quarkus-quartz'
 
+    implementation "org.dcm4che:dcm4che-core:${dcm4cheVersion}"
+
     testImplementation 'io.quarkus:quarkus-junit5'
     testImplementation 'io.quarkus:quarkus-junit5-mockito'
     testImplementation 'io.quarkus:quarkus-panache-mock'

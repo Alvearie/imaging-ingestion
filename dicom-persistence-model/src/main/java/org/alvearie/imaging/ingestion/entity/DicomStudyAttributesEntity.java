@@ -16,11 +16,11 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.quarkus.hibernate.orm.panache.PanacheEntity;
 
 @Entity
-@Table(name = "DICOM_SERIES_ATTRIBUTES")
-public class DicomSeriesAttributesEntity extends PanacheEntity {
+@Table(name = "DICOM_STUDY_ATTRIBUTES")
+public class DicomStudyAttributesEntity extends PanacheEntity {
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
-    public DicomSeriesEntity series;
+    public DicomStudyEntity study;
 
     public Integer tag;
 
@@ -35,11 +35,11 @@ public class DicomSeriesAttributesEntity extends PanacheEntity {
             return true;
         }
 
-        if ((object == null) || !(object instanceof DicomSeriesAttributesEntity)) {
+        if ((object == null) || !(object instanceof DicomStudyAttributesEntity)) {
             return false;
         }
 
-        final DicomSeriesAttributesEntity e = (DicomSeriesAttributesEntity) object;
+        final DicomStudyAttributesEntity e = (DicomStudyAttributesEntity) object;
 
         if (tag != null && e.tag != null) {
             return tag.equals(e.tag);
@@ -49,6 +49,6 @@ public class DicomSeriesAttributesEntity extends PanacheEntity {
 
     @Override
     public String toString() {
-        return "DicomSeriesAttributesEntity [tag=" + tag + ", vr=" + vr + ", value=" + value + ", id=" + id + "]";
+        return "DicomStudyAttributesEntity [tag=" + tag + ", vr=" + vr + ", value=" + value + ", id=" + id + "]";
     }
 }

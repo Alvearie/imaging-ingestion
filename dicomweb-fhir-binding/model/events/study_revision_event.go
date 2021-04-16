@@ -21,6 +21,7 @@ type DicomStudy struct {
 type DicomSeries struct {
 	SeriesInstanceUID string                 `json:"seriesInstanceUID"`
 	Number            int                    `json:"number"`
+	Modality          string                 `json:"modality"`
 	Attributes        []DicomSeriesAttribute `json:"attributes"`
 	Instances         []DicomInstance        `json:"instances"`
 }
