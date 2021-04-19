@@ -18,6 +18,7 @@ pluginManagement {
 rootProject.name = 'imaging-ingestion'
 include 'cloud-events'
 include 'dicom-persistence-model'
+include 'dicomweb-common-model'
 include 'dicomweb-common-service'
 include 'dicomweb-stow-service'
 include 'dicomweb-wado-service'

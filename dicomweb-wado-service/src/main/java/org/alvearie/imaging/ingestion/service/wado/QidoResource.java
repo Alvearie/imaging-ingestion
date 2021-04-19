@@ -26,7 +26,7 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
-import org.alvearie.imaging.ingestion.service.model.DicomSearchResult;
+import org.alvearie.imaging.ingestion.model.result.DicomSearchResult;
 import org.alvearie.imaging.ingestion.service.s3.S3Service;
 import org.dcm4che3.data.Tag;
 import org.eclipse.microprofile.rest.client.inject.RestClient;

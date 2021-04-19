@@ -15,6 +15,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import org.alvearie.imaging.ingestion.model.result.DicomEntityResult;
 import org.jboss.logging.Logger;
 
 @ApplicationScoped
@@ -27,8 +28,8 @@ public class QueryResource {
 
     @GET
     @Path("/studies/{studyUID}")
-    public Response getInstances(@PathParam("studyUID") String studyUID) {
-        List<String> instances = retrieveService.getInstances(studyUID);
+    public Response getResults(@PathParam("studyUID") String studyUID) {
+        List<DicomEntityResult> instances = retrieveService.getResults(studyUID);
         if (instances == null) {
             return Response.status(Status.NOT_FOUND).build();
         }
@@ -37,8 +38,8 @@ public class QueryResource {
 
     @GET
     @Path("/studies/{studyUID}/series/{seriesUID}")
-    public Response getInstances(@PathParam("studyUID") String studyUID, @PathParam("seriesUID") String seriesUID) {
-        List<String> instances = retrieveService.getInstances(studyUID, seriesUID);
+    public Response getResults(@PathParam("studyUID") String studyUID, @PathParam("seriesUID") String seriesUID) {
+        List<DicomEntityResult> instances = retrieveService.getResults(studyUID, seriesUID);
         if (instances == null) {
             return Response.status(Status.NOT_FOUND).build();
         }
@@ -47,9 +48,9 @@ public class QueryResource {
 
     @GET
     @Path("/studies/{studyUID}/series/{seriesUID}/instances/{instanceUID}")
-    public Response getInstances(@PathParam("studyUID") String studyUID, @PathParam("seriesUID") String seriesUID,
+    public Response getResults(@PathParam("studyUID") String studyUID, @PathParam("seriesUID") String seriesUID,
             @PathParam("instanceUID") String instanceUID) {
-        List<String> instances = retrieveService.getInstances(studyUID, seriesUID, instanceUID);
+        List<DicomEntityResult> instances = retrieveService.getResults(studyUID, seriesUID, instanceUID);
         if (instances == null) {
             return Response.status(Status.NOT_FOUND).build();
         }

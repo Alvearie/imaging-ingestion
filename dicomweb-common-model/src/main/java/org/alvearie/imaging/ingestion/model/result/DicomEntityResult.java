@@ -3,7 +3,7 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  */
-package org.alvearie.imaging.ingestion.service.model;
+package org.alvearie.imaging.ingestion.model.result;
 
 import java.util.Map;
 

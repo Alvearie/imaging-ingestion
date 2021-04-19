@@ -13,6 +13,7 @@ import javax.enterprise.context.ApplicationScoped;
 import org.alvearie.imaging.ingestion.entity.DicomInstanceEntity;
 import org.alvearie.imaging.ingestion.entity.DicomSeriesEntity;
 import org.alvearie.imaging.ingestion.entity.DicomStudyEntity;
+import org.alvearie.imaging.ingestion.model.result.DicomEntityResult;
 import org.jboss.logging.Logger;
 
 @ApplicationScoped
@@ -42,8 +43,8 @@ public class RetrieveService {
         return study;
     }
 
-    public List<String> getInstances(String studyId) {
-        List<String> instances = new ArrayList<>();
+    public List<DicomEntityResult> getResults(String studyId) {
+        List<DicomEntityResult> results = new ArrayList<>();
         DicomStudyEntity study = DicomStudyEntity.findByStudyInstanceUID(studyId, false);
         if (study != null) {
             if (study.series != null) {
@@ -51,7 +52,13 @@ public class RetrieveService {
                     if (series != null) {
                         if (series.instances != null) {
                             for (DicomInstanceEntity instance : series.instances) {
-                                instances.add(instance.objectName);
+                                DicomEntityResult result = new DicomEntityResult();
+
+                                DicomEntityResult.DicomResource resource = result.createResource();
+                                resource.setObjectName(instance.objectName);
+
+                                result.setResource(resource);
+                                results.add(result);
                             }
                         }
                     }
@@ -59,31 +66,43 @@ public class RetrieveService {
             }
         }
 
-        return instances;
+        return results;
     }
 
-    public List<String> getInstances(String studyId, String seriesId) {
-        List<String> instances = new ArrayList<>();
+    public List<DicomEntityResult> getResults(String studyId, String seriesId) {
+        List<DicomEntityResult> results = new ArrayList<>();
         DicomSeriesEntity series = DicomSeriesEntity.findBySeriesInstanceUID(seriesId, false);
         if (series != null && studyId.equals(series.study.studyInstanceUID)) {
             if (series.instances != null) {
                 for (DicomInstanceEntity instance : series.instances) {
-                    instances.add(instance.objectName);
+                    DicomEntityResult result = new DicomEntityResult();
+
+                    DicomEntityResult.DicomResource resource = result.createResource();
+                    resource.setObjectName(instance.objectName);
+
+                    result.setResource(resource);
+                    results.add(result);
                 }
             }
         }
 
-        return instances;
+        return results;
     }
 
-    public List<String> getInstances(String studyId, String seriesId, String instanceId) {
-        List<String> instances = new ArrayList<>();
+    public List<DicomEntityResult> getResults(String studyId, String seriesId, String instanceId) {
+        List<DicomEntityResult> results = new ArrayList<>();
         DicomInstanceEntity instance = DicomInstanceEntity.findBySopInstanceUID(instanceId);
         if (instance != null && seriesId.equals(instance.series.seriesInstanceUID)
                 && studyId.equals(instance.series.study.studyInstanceUID)) {
-            instances.add(instance.objectName);
+            DicomEntityResult result = new DicomEntityResult();
+
+            DicomEntityResult.DicomResource resource = result.createResource();
+            resource.setObjectName(instance.objectName);
+
+            result.setResource(resource);
+            results.add(result);
         }
 
-        return instances;
+        return results;
     }
 }

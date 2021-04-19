@@ -11,6 +11,7 @@ plugins {
 dependencies {
     implementation project(':cloud-events')
     implementation project(':dicom-persistence-model')
+    implementation project(':dicomweb-common-model')
 
     implementation enforcedPlatform("${quarkusPlatformGroupId}:${quarkusPlatformArtifactId}:${quarkusPlatformVersion}")
     implementation 'io.quarkus:quarkus-container-image-docker'
