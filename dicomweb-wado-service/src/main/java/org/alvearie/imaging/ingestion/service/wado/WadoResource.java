@@ -24,6 +24,7 @@ import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.alvearie.imaging.ingestion.model.result.DicomEntityResult;
 import org.alvearie.imaging.ingestion.service.s3.S3Service;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.jboss.logging.Logger;
@@ -41,7 +42,7 @@ public class WadoResource {
     public final static MediaType APPLICATION_DICOM_TYPE = new MediaType("application", "dicom");
     public final static String IMAGE_JPEG = "image/jpeg";
     public final static MediaType IMAGE_JPEG_TYPE = new MediaType("image", "jpeg");
-    
+
     public final static int THUMBNAIL_WIDTH = 100;
     public final static int THUMBNAIL_HEIGHT = 150;
 
@@ -59,16 +60,18 @@ public class WadoResource {
     @Path("/studies/{studyUID}")
     @Produces("multipart/related")
     public void retrieveStudy(@PathParam("studyUID") String studyUID, @Suspended AsyncResponse ar) throws IOException {
-        buildDicomResponse(queryClient.getInstances(studyUID), ar);
+        buildDicomResponse(queryClient.getResults(studyUID), ar);
     }
 
     @GET
     @Path("/studies/{studyUID}/rendered")
     @Produces("multipart/related")
-    public void retrieveRenderedStudy(@PathParam("studyUID") String studyUID, @QueryParam("annotation") String annotation,
-            @QueryParam("quality") int quality, @QueryParam("viewport") String viewportSpec, @QueryParam("window") String window, @Suspended AsyncResponse ar) {
+    public void retrieveRenderedStudy(@PathParam("studyUID") String studyUID,
+            @QueryParam("annotation") String annotation, @QueryParam("quality") int quality,
+            @QueryParam("viewport") String viewportSpec, @QueryParam("window") String window,
+            @Suspended AsyncResponse ar) {
         RenderService.Viewport viewport = creatViewportFromQueryParam(viewportSpec);
-        buildRenderedResponse(queryClient.getInstances(studyUID), viewport, ar);
+        buildRenderedResponse(queryClient.getResults(studyUID), viewport, ar);
     }
 
     @GET
@@ -76,23 +79,24 @@ public class WadoResource {
     @Produces("multipart/related")
     public void retrieveSeries(@PathParam("studyUID") String studyUID, @PathParam("seriesUID") String seriesUID,
             @Suspended AsyncResponse ar) {
-        buildDicomResponse(queryClient.getInstances(studyUID, seriesUID), ar);
+        buildDicomResponse(queryClient.getResults(studyUID, seriesUID), ar);
     }
 
     @GET
     @Path("/studies/{studyUID}/series/{seriesUID}/rendered")
     public void retrieveRenderedSeries(@PathParam("studyUID") String studyUID, @PathParam("seriesUID") String seriesUID,
             @QueryParam("annotation") String annotation, @QueryParam("quality") int quality,
-            @QueryParam("viewport") String viewportSpec, @QueryParam("window") String window, @Suspended AsyncResponse ar) {
+            @QueryParam("viewport") String viewportSpec, @QueryParam("window") String window,
+            @Suspended AsyncResponse ar) {
         RenderService.Viewport viewport = creatViewportFromQueryParam(viewportSpec);
-        buildRenderedResponse(queryClient.getInstances(studyUID, seriesUID), viewport, ar);
+        buildRenderedResponse(queryClient.getResults(studyUID, seriesUID), viewport, ar);
     }
 
     @GET
     @Path("/studies/{studyUID}/series/{seriesUID}/instances/{objectUID}")
     public void retrieveInstance(@PathParam("studyUID") String studyUID, @PathParam("seriesUID") String seriesUID,
             @PathParam("objectUID") String objectUID, @Suspended AsyncResponse ar) {
-        buildDicomResponse(queryClient.getInstances(studyUID, seriesUID, objectUID), ar);
+        buildDicomResponse(queryClient.getResults(studyUID, seriesUID, objectUID), ar);
     }
 
     @GET
@@ -100,17 +104,17 @@ public class WadoResource {
     public void retrieveRenderedInstance(@PathParam("studyUID") String studyUID,
             @PathParam("seriesUID") String seriesUID, @PathParam("objectUID") String objectUID,
             @QueryParam("annotation") String annotation, @QueryParam("quality") int quality,
-            @QueryParam("viewport") String viewportSpec, @QueryParam("window") String window, @Suspended AsyncResponse ar) {
+            @QueryParam("viewport") String viewportSpec, @QueryParam("window") String window,
+            @Suspended AsyncResponse ar) {
         RenderService.Viewport viewport = creatViewportFromQueryParam(viewportSpec);
-        buildRenderedResponse(queryClient.getInstances(studyUID, seriesUID, objectUID), viewport, ar);
+        buildRenderedResponse(queryClient.getResults(studyUID, seriesUID, objectUID), viewport, ar);
     }
-    
+
     @GET
     @Path("/studies/{studyUID}/series/{seriesUID}/instances/{objectUID}/thumbnail")
     public void retrieveRenderedThumbnailInstance(@PathParam("studyUID") String studyUID,
             @PathParam("seriesUID") String seriesUID, @PathParam("objectUID") String objectUID,
-            @QueryParam("viewport") String viewportSpec,
-            @Suspended AsyncResponse ar) {
+            @QueryParam("viewport") String viewportSpec, @Suspended AsyncResponse ar) {
         RenderService.Viewport viewport = creatViewportFromQueryParam(viewportSpec);
         if (viewport == null) {
             viewport = renderService.createViewport();
@@ -119,24 +123,26 @@ public class WadoResource {
         } else {
             viewport.sx = viewport.sy = viewport.sw = viewport.sh = 0;
         }
-        buildRenderedResponse(queryClient.getInstances(studyUID, seriesUID, objectUID), viewport, ar);
+        buildRenderedResponse(queryClient.getResults(studyUID, seriesUID, objectUID), viewport, ar);
     }
 
-    private void buildRenderedResponse(List<String> instances, RenderService.Viewport viewport, AsyncResponse ar) {
-        if (instances == null || instances.size() == 0) {
+    private void buildRenderedResponse(List<DicomEntityResult> results, RenderService.Viewport viewport,
+            AsyncResponse ar) {
+        if (results == null || results.size() == 0) {
             Response.ResponseBuilder responseBuilder = Response.status(Response.Status.NOT_FOUND);
             ar.resume(responseBuilder.build());
             return;
         }
 
-        LOG.info(String.format("Found %d instances", instances.size()));
+        LOG.info(String.format("Found %d instances", results.size()));
 
         Date lastModified = new Date();
-        if (instances.size() == 1) {
+        if (results.size() == 1) {
             try {
-                Object output = getRenderedImage(instances.get(0), viewport);
-                Response.ResponseBuilder responseBuilder = Response.status(Response.Status.OK).lastModified(lastModified)
-                        .tag(String.valueOf(lastModified.hashCode())).entity(output).type(IMAGE_JPEG_TYPE);
+                Object output = getRenderedImage(results.get(0).getResource().getObjectName(), viewport);
+                Response.ResponseBuilder responseBuilder = Response.status(Response.Status.OK)
+                        .lastModified(lastModified).tag(String.valueOf(lastModified.hashCode())).entity(output)
+                        .type(IMAGE_JPEG_TYPE);
                 ar.resume(responseBuilder.build());
             } catch (UnsupportedOperationException e) {
                 Response.ResponseBuilder responseBuilder = Response.status(Response.Status.NOT_IMPLEMENTED);
@@ -146,8 +152,8 @@ public class WadoResource {
 
             MultipartRelatedOutput output = new MultipartRelatedOutput();
 
-            for (String inst : instances) {
-                addRenderedPart(output, inst, viewport);
+            for (DicomEntityResult rslt : results) {
+                addRenderedPart(output, rslt.getResource().getObjectName(), viewport);
             }
 
             Response.ResponseBuilder responseBuilder = Response.status(Response.Status.OK).lastModified(lastModified)
@@ -156,20 +162,20 @@ public class WadoResource {
         }
     }
 
-    private void buildDicomResponse(List<String> instances, AsyncResponse ar) {
-        if (instances == null || instances.size() == 0) {
+    private void buildDicomResponse(List<DicomEntityResult> results, AsyncResponse ar) {
+        if (results == null || results.size() == 0) {
             Response.ResponseBuilder responseBuilder = Response.status(Response.Status.NOT_FOUND);
             ar.resume(responseBuilder.build());
             return;
         }
 
-        LOG.info(String.format("Found %d instances", instances.size()));
+        LOG.info(String.format("Found %d instances", results.size()));
 
         Date lastModified = new Date();
         MultipartRelatedOutput output = new MultipartRelatedOutput();
 
-        for (String inst : instances) {
-            addDicomPart(output, inst);
+        for (DicomEntityResult rslt : results) {
+            addDicomPart(output, rslt.getResource().getObjectName());
         }
 
         Response.ResponseBuilder responseBuilder = Response.status(Response.Status.OK).lastModified(lastModified)
@@ -194,12 +200,12 @@ public class WadoResource {
     private void addRenderedPart(MultipartRelatedOutput output, String objectKey, RenderService.Viewport viewport) {
         output.addPart(getRenderedImage(objectKey, viewport), IMAGE_JPEG_TYPE);
     }
-    
-    private Object getRenderedImage(String objectKey,  RenderService.Viewport viewport) {
+
+    private Object getRenderedImage(String objectKey, RenderService.Viewport viewport) {
         ByteArrayOutputStream baos = s3Service.getObject(objectKey);
         return renderService.render(new ByteArrayInputStream(baos.toByteArray()), viewport);
     }
-    
+
     public RenderService.Viewport creatViewportFromQueryParam(String viewPortSpec) {
         RenderService.Viewport viewport = null;
         if (viewPortSpec != null) {
@@ -207,21 +213,21 @@ public class WadoResource {
             if (segments.length >= 2) {
                 viewport = renderService.createViewport();
                 try {
-                 viewport.vw = Integer.valueOf(segments[0]);
-                 viewport.vh = Integer.valueOf(segments[1]);
-                 if (segments.length == 4) {
-                     viewport.sx = Integer.valueOf(segments[2]);
-                     viewport.sy = Integer.valueOf(segments[3]);
-                 } else if (segments.length == 6) {
-                     viewport.sw = Integer.valueOf(segments[4]);
-                     viewport.sh = Integer.valueOf(segments[5]);
-                     if (segments[2] != null) {
-                         viewport.sx = Integer.valueOf(segments[2]);
-                     }
-                     if (segments[3] != null) {
-                         viewport.sy = Integer.valueOf(segments[3]);
-                     }
-                 }
+                    viewport.vw = Integer.valueOf(segments[0]);
+                    viewport.vh = Integer.valueOf(segments[1]);
+                    if (segments.length == 4) {
+                        viewport.sx = Integer.valueOf(segments[2]);
+                        viewport.sy = Integer.valueOf(segments[3]);
+                    } else if (segments.length == 6) {
+                        viewport.sw = Integer.valueOf(segments[4]);
+                        viewport.sh = Integer.valueOf(segments[5]);
+                        if (segments[2] != null) {
+                            viewport.sx = Integer.valueOf(segments[2]);
+                        }
+                        if (segments[3] != null) {
+                            viewport.sy = Integer.valueOf(segments[3]);
+                        }
+                    }
                 } catch (NumberFormatException e) {
                     viewport = null;
                 }

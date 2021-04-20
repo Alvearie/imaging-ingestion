@@ -9,6 +9,7 @@ plugins {
 }
 
 dependencies {
+    implementation project(':dicom-search-model')
     implementation project(':dicomweb-common-service')
 
     implementation enforcedPlatform("${quarkusPlatformGroupId}:${quarkusPlatformArtifactId}:${quarkusPlatformVersion}")
