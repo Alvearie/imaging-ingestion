@@ -26,6 +26,8 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
+import org.alvearie.imaging.ingestion.model.result.DicomEntityResult;
+import org.alvearie.imaging.ingestion.model.result.DicomQueryModel;
 import org.alvearie.imaging.ingestion.model.result.DicomSearchResult;
 import org.alvearie.imaging.ingestion.service.s3.S3Service;
 import org.dcm4che3.data.Tag;
@@ -53,9 +55,6 @@ public class QidoResource {
     public static final String QUERY_PARAM_LIMIT = "limit";
     public static final String QUERY_PARAM_INCLUDEFIELD = "includefield";
 
-    public enum Scope {
-        STUDY, SERIES, INSTANCE;
-    }
 
     public enum ValidStudyTags {
         // Core
@@ -168,49 +167,14 @@ public class QidoResource {
         }
     }
 
-    public class QueryModel {
-        Scope scope;
-        boolean fuzzyMatching;
-        int offset;
-        int limit;
-        List<String> includedFields = new ArrayList<String>();
-        Map<Integer, String> queryAttributes = new HashMap<Integer, String>();
-
-        @Override
-        public String toString() {
-            StringBuilder builder = new StringBuilder();
-            builder.append("scope : ");
-            builder.append(scope);
-            builder.append("fuzzyMatching : ");
-            builder.append(fuzzyMatching);
-            builder.append(" offset : ");
-            builder.append(offset);
-            builder.append(" limit : ");
-            builder.append(limit);
-            builder.append(" includedFields : ");
-            for (String field : includedFields) {
-                builder.append(field);
-                builder.append(',');
-            }
-            builder.append(" Query : ");
-            for (Entry<Integer, String> attribute : queryAttributes.entrySet()) {
-                builder.append(Integer.toHexString(attribute.getKey()));
-                builder.append('=');
-                builder.append(attribute.getValue());
-                builder.append(',');
-            }
-
-            return builder.toString();
-        }
-    }
 
     @GET
     @Path("/studies")
     @Produces(APPLICATION_DICOM_JSON)
     public void searchStudy(@PathParam("studyUID") String studyUID, @Context UriInfo uriInfo,
             @Suspended AsyncResponse ar) throws IOException {
-        QueryModel model = new QueryModel();
-        model.scope = Scope.STUDY;
+        DicomQueryModel model = new DicomQueryModel();
+        model.setScope(DicomQueryModel.Scope.STUDY);
         buildQidoResponse(model, uriInfo.getQueryParameters(), ar);
     }
 
@@ -219,8 +183,8 @@ public class QidoResource {
     @Produces(APPLICATION_DICOM_JSON)
     public void searchSeries(@PathParam("studyUID") String studyUID, @PathParam("seriesUID") String seriesUID,
             @Context UriInfo uriInfo, @Suspended AsyncResponse ar) {
-        QueryModel model = new QueryModel();
-        model.scope = Scope.SERIES;
+        DicomQueryModel model = new DicomQueryModel();
+        model.setScope(DicomQueryModel.Scope.SERIES);
         buildQidoResponse(model, uriInfo.getQueryParameters(), ar);
     }
 
@@ -229,8 +193,8 @@ public class QidoResource {
     @Produces(APPLICATION_DICOM_JSON)
     public void searchInstance(@PathParam("studyUID") String studyUID, @PathParam("seriesUID") String seriesUID,
             @PathParam("objectUID") String objectUID, @Context UriInfo uriInfo, @Suspended AsyncResponse ar) {
-        QueryModel model = new QueryModel();
-        model.scope = Scope.INSTANCE;
+        DicomQueryModel model = new DicomQueryModel();
+        model.setScope(DicomQueryModel.Scope.INSTANCE);
         buildQidoResponse(model, uriInfo.getQueryParameters(), ar);
 
     }
@@ -240,8 +204,8 @@ public class QidoResource {
     @Produces(APPLICATION_DICOM_JSON)
     public void searchInstance(@PathParam("studyUID") String studyUID, @Context UriInfo uriInfo,
             @Suspended AsyncResponse ar) {
-        QueryModel model = new QueryModel();
-        model.scope = Scope.INSTANCE;
+        DicomQueryModel model = new DicomQueryModel();
+        model.setScope(DicomQueryModel.Scope.INSTANCE);
         buildQidoResponse(model, uriInfo.getQueryParameters(), ar);
 
     }
@@ -250,8 +214,8 @@ public class QidoResource {
     @Path("/series")
     @Produces(APPLICATION_DICOM_JSON)
     public void searchSeries(@Context UriInfo uriInfo, @Suspended AsyncResponse ar) {
-        QueryModel model = new QueryModel();
-        model.scope = Scope.SERIES;
+        DicomQueryModel model = new DicomQueryModel();
+        model.setScope(DicomQueryModel.Scope.SERIES);
         buildQidoResponse(model, uriInfo.getQueryParameters(), ar);
     }
 
@@ -259,41 +223,48 @@ public class QidoResource {
     @Path("/instances")
     @Produces(APPLICATION_DICOM_JSON)
     public void searchInstance(@Context UriInfo uriInfo, @Suspended AsyncResponse ar) {
-        QueryModel model = new QueryModel();
-        model.scope = Scope.SERIES;
+        DicomQueryModel model = new DicomQueryModel();
+        model.setScope(DicomQueryModel.Scope.SERIES);
         buildQidoResponse(model, uriInfo.getQueryParameters(), ar);
     }
 
-    private void buildQidoResponse(QueryModel model, MultivaluedMap<String, String> queryParams, AsyncResponse ar) {
+    private void buildQidoResponse(DicomQueryModel model, MultivaluedMap<String, String> queryParams, AsyncResponse ar) {
         queryParams.entrySet().iterator().forEachRemaining(e -> handleQueryParameter(model, e));
         LOG.info("Qido Model: " + model.toString());
 
-        Response.ResponseBuilder responseBuilder = Response.ok(generateTestData());
+        List<DicomEntityResult> results = queryClient.getResults(model);
+        
+        List<DicomSearchResult> castedResults = new ArrayList<DicomSearchResult>();
+        for (DicomEntityResult result: results) {
+            castedResults.add((DicomSearchResult)result);
+        }
+        
+        Response.ResponseBuilder responseBuilder = Response.ok(castedResults);
         // Response.ResponseBuilder responseBuilder =
         // Response.status(Response.Status.NOT_IMPLEMENTED);
 
         ar.resume(responseBuilder.build());
     }
 
-    private void handleQueryParameter(QueryModel model, Entry<String, List<String>> entry) {
+    private void handleQueryParameter(DicomQueryModel model, Entry<String, List<String>> entry) {
         if (entry.getKey().equals(QUERY_PARAM_FUZZYMATCHING)) {
-            model.fuzzyMatching = Boolean.valueOf(entry.getValue().get(0));
+            model.setFuzzyMatching(Boolean.valueOf(entry.getValue().get(0)));
         } else if (entry.getKey().equals(QUERY_PARAM_OFFSET)) {
-            model.offset = getIntQueryParam(entry.getValue().get(0), 0);
+            model.setOffset(getIntQueryParam(entry.getValue().get(0), 0));
         } else if (entry.getKey().equals(QUERY_PARAM_LIMIT)) {
-            model.limit = getIntQueryParam(entry.getValue().get(0), DEFAULT_LIMIT);
+            model.setLimit(getIntQueryParam(entry.getValue().get(0), DEFAULT_LIMIT));
         } else if (entry.getKey().equals(QUERY_PARAM_INCLUDEFIELD)) {
-            filteredFields(entry.getValue(), model.includedFields);
+            filteredFields(entry.getValue(), model.getIncludedFields());
         } else {
-            switch (model.scope) {
+            switch (model.getScope()) {
             case STUDY:
-                getStudyQueryAttributes(entry.getKey(), entry.getValue().get(0), model.queryAttributes);
+                getStudyQueryAttributes(entry.getKey(), entry.getValue().get(0), model.getQueryAttributes());
                 break;
             case SERIES:
-                getSeriesQueryAttributes(entry.getKey(), entry.getValue().get(0), model.queryAttributes);
+                getSeriesQueryAttributes(entry.getKey(), entry.getValue().get(0), model.getQueryAttributes());
                 break;
             case INSTANCE:
-                getInstanceQueryAttributes(entry.getKey(), entry.getValue().get(0), model.queryAttributes);
+                getInstanceQueryAttributes(entry.getKey(), entry.getValue().get(0), model.getQueryAttributes());
                 break;
             }
         }
@@ -367,29 +338,4 @@ public class QidoResource {
             }
         }
     }
-
-    private List<DicomSearchResult> generateTestData() {
-        List<DicomSearchResult> searchResults = new ArrayList<DicomSearchResult>();
-        DicomSearchResult searchResult = new DicomSearchResult();
-        DicomSearchResult.DicomAttribute attribute1 = searchResult.createAttribute();
-        attribute1.setVr("CS");
-        attribute1.addValue("abc.123");
-        searchResult.addElement(Tag.PatientID, attribute1);
-
-        DicomSearchResult.DicomAttribute attribute2 = searchResult.createAttribute();
-        attribute2.setVr("CS");
-        attribute2.addValue("abc.123");
-        attribute2.addValue("Smith");
-        searchResult.addElement(Tag.PatientName, attribute2);
-
-        DicomSearchResult.DicomAttribute attribute3 = searchResult.createAttribute();
-        attribute3.setVr("CS");
-        searchResult.addElement(Tag.AccessionNumber, attribute3);
-
-        searchResults.add(searchResult);
-
-        return searchResults;
-
-    }
-
 }

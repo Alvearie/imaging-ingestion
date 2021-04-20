@@ -9,11 +9,13 @@ import java.util.List;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 
 import org.alvearie.imaging.ingestion.model.result.DicomEntityResult;
+import org.alvearie.imaging.ingestion.model.result.DicomQueryModel;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
 @Path("")
@@ -36,4 +38,10 @@ public interface DicomQueryClient {
     @Produces("application/json")
     List<DicomEntityResult> getResults(@PathParam("studyUID") String studyUID, @PathParam("seriesUID") String seriesUID,
             @PathParam("instanceUID") String instanceUID);
+    
+    @POST
+    @Path("/studies")
+    @Produces("application/json")
+    List<DicomEntityResult> getResults(DicomQueryModel model);
+    
 }

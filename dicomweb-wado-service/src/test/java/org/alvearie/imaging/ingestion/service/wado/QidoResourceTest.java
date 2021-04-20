@@ -8,7 +8,13 @@ package org.alvearie.imaging.ingestion.service.wado;
 import static io.restassured.RestAssured.given;
 
 import java.util.ArrayList;
+import java.util.List;
 
+import org.alvearie.imaging.ingestion.model.result.DicomEntityResult;
+import org.alvearie.imaging.ingestion.model.result.DicomEntityResult.DicomResource;
+import org.alvearie.imaging.ingestion.model.result.DicomQueryModel;
+import org.alvearie.imaging.ingestion.model.result.DicomSearchResult;
+import org.dcm4che3.data.Tag;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -25,27 +31,56 @@ public class QidoResourceTest {
 
     @Test
     public void testSearchStudiesByPatientIdAttribute() {
-        Mockito.when(queryClient.getResults(Mockito.anyString())).thenReturn(new ArrayList<>());
+        Mockito.when(queryClient.getResults(Mockito.any(DicomQueryModel.class))).thenReturn(generateTestData());
         given().log().all(true).get("/wado-rs/studies?PatientID=xxx").then().log().all().statusCode(200);
     }
 
     @Test
     public void testSearchSeriesByPatientIdTag() {
-        Mockito.when(queryClient.getResults(Mockito.anyString())).thenReturn(new ArrayList<>());
+        Mockito.when(queryClient.getResults(Mockito.any(DicomQueryModel.class))).thenReturn(generateTestData());
         given().log().all(true).get("/wado-rs/series?00100020=xxx").then().log().all().statusCode(200);
     }
 
     @Test
     public void testSearchInstancesBySopClassUid() {
-        Mockito.when(queryClient.getResults(Mockito.anyString())).thenReturn(new ArrayList<>());
+        Mockito.when(queryClient.getResults(Mockito.any(DicomQueryModel.class))).thenReturn(generateTestData());
         given().log().all(true).get("/wado-rs/instances?00080016=1.2.840.10008.5.1.4.1.1.2").then().log().all()
                 .statusCode(200);
     }
 
     @Test
     public void testSearchStudiesByPatientIdAndStudyDateRange() {
-        Mockito.when(queryClient.getResults(Mockito.anyString())).thenReturn(new ArrayList<>());
+        Mockito.when(queryClient.getResults(Mockito.any(DicomQueryModel.class))).thenReturn(generateTestData());
         given().log().all(true).get("/wado-rs/studies?PatientID=xxx&00080020=20200101-20201231").then().log().all()
                 .statusCode(200);
+    }
+    
+    private List<DicomEntityResult> generateTestData() {
+        List<DicomEntityResult> searchResult = new ArrayList<DicomEntityResult>();
+        
+        DicomEntityResult dicom = new DicomEntityResult();
+        DicomSearchResult.DicomAttribute attribute1 = dicom.createAttribute();
+        attribute1.setVr("CS");
+        attribute1.addValue("abc.123");
+        dicom.addElement(Tag.PatientID, attribute1);
+
+        DicomSearchResult.DicomAttribute attribute2 = dicom.createAttribute();
+        attribute2.setVr("CS");
+        attribute2.addValue("abc.123");
+        attribute2.addValue("Smith");
+        dicom.addElement(Tag.PatientName, attribute2);
+
+        DicomSearchResult.DicomAttribute attribute3 = dicom.createAttribute();
+        attribute3.setVr("CS");
+        dicom.addElement(Tag.AccessionNumber, attribute3);
+
+        DicomEntityResult.DicomResource resource = dicom.createResource();
+        resource.setObjectName("/path_to_resource");
+        dicom.setResource(resource);
+        
+        searchResult.add(dicom);
+
+        return searchResult;
+
     }
 }
