@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.alvearie.imaging.ingestion.model.result.DicomEntityResult;
+import org.alvearie.imaging.ingestion.model.result.DicomResource;
 import org.alvearie.imaging.ingestion.service.s3.S3Service;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.junit.jupiter.api.Test;
@@ -102,7 +103,7 @@ public class WadoResourceTest {
         List<DicomEntityResult> results = new ArrayList<>();
         DicomEntityResult result = new DicomEntityResult();
 
-        DicomEntityResult.DicomResource resource = result.createResource();
+        DicomResource resource = new DicomResource();
         resource.setObjectName(objectName);
 
         result.setResource(resource);

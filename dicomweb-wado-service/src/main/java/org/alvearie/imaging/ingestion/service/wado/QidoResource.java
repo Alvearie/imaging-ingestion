@@ -7,7 +7,6 @@ package org.alvearie.imaging.ingestion.service.wado;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -54,7 +53,6 @@ public class QidoResource {
     public static final String QUERY_PARAM_OFFSET = "offset";
     public static final String QUERY_PARAM_LIMIT = "limit";
     public static final String QUERY_PARAM_INCLUDEFIELD = "includefield";
-
 
     public enum ValidStudyTags {
         // Core
@@ -167,7 +165,6 @@ public class QidoResource {
         }
     }
 
-
     @GET
     @Path("/studies")
     @Produces(APPLICATION_DICOM_JSON)
@@ -228,17 +225,20 @@ public class QidoResource {
         buildQidoResponse(model, uriInfo.getQueryParameters(), ar);
     }
 
-    private void buildQidoResponse(DicomQueryModel model, MultivaluedMap<String, String> queryParams, AsyncResponse ar) {
+    private void buildQidoResponse(DicomQueryModel model, MultivaluedMap<String, String> queryParams,
+            AsyncResponse ar) {
         queryParams.entrySet().iterator().forEachRemaining(e -> handleQueryParameter(model, e));
         LOG.info("Qido Model: " + model.toString());
 
         List<DicomEntityResult> results = queryClient.getResults(model);
-        
+
         List<DicomSearchResult> castedResults = new ArrayList<DicomSearchResult>();
-        for (DicomEntityResult result: results) {
-            castedResults.add((DicomSearchResult)result);
+        for (DicomEntityResult result : results) {
+            DicomSearchResult searchResult = new DicomSearchResult();
+            searchResult.setAttributes(result.getAttributes());
+            castedResults.add(searchResult);
         }
-        
+
         Response.ResponseBuilder responseBuilder = Response.ok(castedResults);
         // Response.ResponseBuilder responseBuilder =
         // Response.status(Response.Status.NOT_IMPLEMENTED);

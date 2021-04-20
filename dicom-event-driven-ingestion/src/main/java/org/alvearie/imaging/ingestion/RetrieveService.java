@@ -14,6 +14,7 @@ import org.alvearie.imaging.ingestion.entity.DicomInstanceEntity;
 import org.alvearie.imaging.ingestion.entity.DicomSeriesEntity;
 import org.alvearie.imaging.ingestion.entity.DicomStudyEntity;
 import org.alvearie.imaging.ingestion.model.result.DicomEntityResult;
+import org.alvearie.imaging.ingestion.model.result.DicomResource;
 import org.jboss.logging.Logger;
 
 @ApplicationScoped
@@ -54,7 +55,7 @@ public class RetrieveService {
                             for (DicomInstanceEntity instance : series.instances) {
                                 DicomEntityResult result = new DicomEntityResult();
 
-                                DicomEntityResult.DicomResource resource = result.createResource();
+                                DicomResource resource = new DicomResource();
                                 resource.setObjectName(instance.objectName);
 
                                 result.setResource(resource);
@@ -77,7 +78,7 @@ public class RetrieveService {
                 for (DicomInstanceEntity instance : series.instances) {
                     DicomEntityResult result = new DicomEntityResult();
 
-                    DicomEntityResult.DicomResource resource = result.createResource();
+                    DicomResource resource = new DicomResource();
                     resource.setObjectName(instance.objectName);
 
                     result.setResource(resource);
@@ -96,7 +97,7 @@ public class RetrieveService {
                 && studyId.equals(instance.series.study.studyInstanceUID)) {
             DicomEntityResult result = new DicomEntityResult();
 
-            DicomEntityResult.DicomResource resource = result.createResource();
+            DicomResource resource = new DicomResource();
             resource.setObjectName(instance.objectName);
 
             result.setResource(resource);
