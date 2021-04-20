@@ -20,6 +20,8 @@ public class DicomQueryModel {
     }
     
     private Scope scope;
+    private String studyUid;
+    private String seriesUid;
     private boolean fuzzyMatching;
     private int offset;
     private int limit;
@@ -31,7 +33,7 @@ public class DicomQueryModel {
         StringBuilder builder = new StringBuilder();
         builder.append("scope : ");
         builder.append(getScope());
-        builder.append("fuzzyMatching : ");
+        builder.append(" fuzzyMatching : ");
         builder.append(isFuzzyMatching());
         builder.append(" offset : ");
         builder.append(getOffset());
@@ -101,4 +103,19 @@ public class DicomQueryModel {
         this.queryAttributes = queryAttributes;
     }
 
+    public String getStudyUid() {
+        return studyUid;
+    }
+
+    public void setStudyUid(String studyUid) {
+        this.studyUid = studyUid;
+    }
+
+    public String getSeriesUid() {
+        return seriesUid;
+    }
+
+    public void setSeriesUid(String seriesUid) {
+        this.seriesUid = seriesUid;
+    }
 }

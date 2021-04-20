@@ -197,6 +197,8 @@ public class EventProcessorFunction {
                         case Tag.ReferringPhysicianName:
                         case Tag.PatientName:
                         case Tag.PatientID:
+                        case Tag.PatientBirthDate:
+                        case Tag.PatientSex:
                             studyAttributes.add(buildStudyAttribute(elem.getGroup(), elem.getElement(), elem.getVR(),
                                     elem.getValue()));
                             break;
@@ -219,6 +221,7 @@ public class EventProcessorFunction {
                         case Tag.Modality:
                             modality = elem.getValue();
                             break;
+                        case Tag.SeriesDescription:
                         case Tag.PerformedProcedureStepStartDate:
                         case Tag.PerformedProcedureStepStartTime:
                         case Tag.RequestAttributesSequence:

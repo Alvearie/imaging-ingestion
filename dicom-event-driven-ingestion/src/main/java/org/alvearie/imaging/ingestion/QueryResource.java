@@ -9,19 +9,23 @@ import java.util.List;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
 import org.alvearie.imaging.ingestion.model.result.DicomEntityResult;
+import org.alvearie.imaging.ingestion.model.result.DicomQueryModel;
 import org.jboss.logging.Logger;
 
 @ApplicationScoped
 @Path("/query")
 public class QueryResource {
-    private static final Logger log = Logger.getLogger(QueryResource.class);
+    private static final Logger LOG = Logger.getLogger(QueryResource.class);
 
     @Inject
     RetrieveService retrieveService;
@@ -55,5 +59,15 @@ public class QueryResource {
             return Response.status(Status.NOT_FOUND).build();
         }
         return Response.ok(instances).build();
+    }
+    
+    @POST
+    @Path("/studies")
+    @Consumes("application/json")
+    @Produces("application/json")
+    public Response getResults(DicomQueryModel model) {
+        LOG.info("QUERY MODEL " + model.toString());
+        List<DicomEntityResult> instances = retrieveService.getResults(model);
+        return Response.ok(instances).build(); 
     }
 }

@@ -23,6 +23,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 
 import org.alvearie.imaging.ingestion.model.result.DicomEntityResult;
@@ -178,10 +179,11 @@ public class QidoResource {
     @GET
     @Path("/studies/{studyUID}/series")
     @Produces(APPLICATION_DICOM_JSON)
-    public void searchSeries(@PathParam("studyUID") String studyUID, @PathParam("seriesUID") String seriesUID,
+    public void searchSeries(@PathParam("studyUID") String studyUID,
             @Context UriInfo uriInfo, @Suspended AsyncResponse ar) {
         DicomQueryModel model = new DicomQueryModel();
         model.setScope(DicomQueryModel.Scope.SERIES);
+        model.setStudyUid(studyUID);
         buildQidoResponse(model, uriInfo.getQueryParameters(), ar);
     }
 
@@ -192,6 +194,8 @@ public class QidoResource {
             @PathParam("objectUID") String objectUID, @Context UriInfo uriInfo, @Suspended AsyncResponse ar) {
         DicomQueryModel model = new DicomQueryModel();
         model.setScope(DicomQueryModel.Scope.INSTANCE);
+        model.setStudyUid(studyUID);
+        model.setSeriesUid(seriesUID);
         buildQidoResponse(model, uriInfo.getQueryParameters(), ar);
 
     }
@@ -203,6 +207,7 @@ public class QidoResource {
             @Suspended AsyncResponse ar) {
         DicomQueryModel model = new DicomQueryModel();
         model.setScope(DicomQueryModel.Scope.INSTANCE);
+        model.setStudyUid(studyUID);
         buildQidoResponse(model, uriInfo.getQueryParameters(), ar);
 
     }
@@ -221,7 +226,7 @@ public class QidoResource {
     @Produces(APPLICATION_DICOM_JSON)
     public void searchInstance(@Context UriInfo uriInfo, @Suspended AsyncResponse ar) {
         DicomQueryModel model = new DicomQueryModel();
-        model.setScope(DicomQueryModel.Scope.SERIES);
+        model.setScope(DicomQueryModel.Scope.INSTANCE);
         buildQidoResponse(model, uriInfo.getQueryParameters(), ar);
     }
 
@@ -231,18 +236,19 @@ public class QidoResource {
         LOG.info("Qido Model: " + model.toString());
 
         List<DicomEntityResult> results = queryClient.getResults(model);
-
-        List<DicomSearchResult> castedResults = new ArrayList<DicomSearchResult>();
-        for (DicomEntityResult result : results) {
-            DicomSearchResult searchResult = new DicomSearchResult();
-            searchResult.setAttributes(result.getAttributes());
-            castedResults.add(searchResult);
+        Response.ResponseBuilder responseBuilder;
+        if (results != null) {
+            List<DicomSearchResult> castedResults = new ArrayList<DicomSearchResult>();
+            for (DicomEntityResult result : results) {
+                DicomSearchResult searchResult = new DicomSearchResult();
+                searchResult.setAttributes(result.getAttributes());
+                castedResults.add(searchResult);
+            }
+            responseBuilder = Response.ok(castedResults);
+        } else {
+           responseBuilder = Response.status(Status.NOT_FOUND);
         }
-
-        Response.ResponseBuilder responseBuilder = Response.ok(castedResults);
-        // Response.ResponseBuilder responseBuilder =
-        // Response.status(Response.Status.NOT_IMPLEMENTED);
-
+       
         ar.resume(responseBuilder.build());
     }
 
