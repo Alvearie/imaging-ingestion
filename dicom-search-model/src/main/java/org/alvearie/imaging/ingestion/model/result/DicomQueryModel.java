@@ -11,14 +11,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import io.quarkus.runtime.annotations.RegisterForReflection;
 
-
+@RegisterForReflection
 public class DicomQueryModel {
-    
+
     public enum Scope {
         STUDY, SERIES, INSTANCE;
     }
-    
+
     private Scope scope;
     private String studyUid;
     private String seriesUid;
