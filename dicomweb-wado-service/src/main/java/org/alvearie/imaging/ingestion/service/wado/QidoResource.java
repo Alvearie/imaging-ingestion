@@ -54,6 +54,41 @@ public class QidoResource {
     public static final String QUERY_PARAM_OFFSET = "offset";
     public static final String QUERY_PARAM_LIMIT = "limit";
     public static final String QUERY_PARAM_INCLUDEFIELD = "includefield";
+    
+    
+    public enum ValidPatientTags {
+        PatientName(Tag.PatientName),
+        PatientId(Tag.PatientID);
+        
+        int value;
+        
+        ValidPatientTags(int value) {
+            this.value = value;
+        }
+        
+        public int getValue() {
+            return value;
+        }
+        
+        public static ValidPatientTags lookupTag(int tagValue) {
+            for (ValidPatientTags value : values()) {
+                if (value.getValue() == tagValue) {
+                    return value;
+                }
+            }
+            return null;
+        }
+
+        public static ValidPatientTags lookupTag(String tagName) {
+            for (ValidPatientTags value : values()) {
+                if (value.name().equals(tagName)) {
+                    return value;
+                }
+            }
+            return null;
+        }
+        
+    }
 
     public enum ValidStudyTags {
         // Core
@@ -262,14 +297,24 @@ public class QidoResource {
         } else if (entry.getKey().equals(QUERY_PARAM_INCLUDEFIELD)) {
             filteredFields(entry.getValue(), model.getIncludedFields());
         } else {
+            getPatientQueryAttributes(entry.getKey(), entry.getValue().get(0), model.getQueryAttributes());
             switch (model.getScope()) {
             case STUDY:
                 getStudyQueryAttributes(entry.getKey(), entry.getValue().get(0), model.getQueryAttributes());
                 break;
             case SERIES:
+                if (model.getStudyUid() == null) {
+                    getStudyQueryAttributes(entry.getKey(), entry.getValue().get(0), model.getQueryAttributes());
+                }
                 getSeriesQueryAttributes(entry.getKey(), entry.getValue().get(0), model.getQueryAttributes());
                 break;
             case INSTANCE:
+                if (model.getStudyUid() == null) {
+                    getStudyQueryAttributes(entry.getKey(), entry.getValue().get(0), model.getQueryAttributes());
+                }
+                if (model.getSeriesUid() == null) {
+                    getSeriesQueryAttributes(entry.getKey(), entry.getValue().get(0), model.getQueryAttributes());
+                }
                 getInstanceQueryAttributes(entry.getKey(), entry.getValue().get(0), model.getQueryAttributes());
                 break;
             }
@@ -296,6 +341,21 @@ public class QidoResource {
                 for (String value : values) {
                     results.add(value);
                 }
+            }
+        }
+    }
+    
+    private void getPatientQueryAttributes(String attribute, String value, Map<Integer, String> results) {
+        try {
+            int tagValue = Integer.parseUnsignedInt(attribute, 16);
+            ValidPatientTags tag = ValidPatientTags.lookupTag(tagValue);
+            if (tag != null) {
+                results.put(tag.getValue(), value);
+            }
+        } catch (NumberFormatException e) {
+            ValidPatientTags tag = ValidPatientTags.lookupTag(attribute);
+            if (tag != null) {
+                results.put(tag.getValue(), value);
             }
         }
     }

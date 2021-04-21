@@ -128,43 +128,16 @@ public class RetrieveService {
     public List<DicomEntityResult> handleStudyQuery(DicomQueryModel model) {
         List<DicomEntityResult> results = new ArrayList<>();
         
-        // TODO:  Implement the query
-        List<DicomStudyEntity> studyInstances = DicomStudyEntity.listAll();
+        List<DicomStudyEntity> studyInstances = new QueryHelper().queryStudies(model);
         
         for (DicomStudyEntity studyInstance : studyInstances) {
             DicomEntityResult searchResult = new DicomEntityResult();
-            
-            // Add the study date
-            DicomAttribute studyDateAttribute = new DicomAttribute();
-            studyDateAttribute.addValue(studyInstance.studyDate);
-            studyDateAttribute.setVr(VR.DA.name());
-            searchResult.addElement(Tag.StudyDate, studyDateAttribute);
-            
-            // Add the study time
-            DicomAttribute studyTimeAttribute = new DicomAttribute();
-            studyTimeAttribute.addValue(studyInstance.studyTime);
-            studyTimeAttribute.setVr(VR.TM.name());
-            searchResult.addElement(Tag.StudyTime, studyTimeAttribute);
-            
-            // Add the study instance UID
-            DicomAttribute studyInstanceUidAttribute = new DicomAttribute();
-            studyInstanceUidAttribute.addValue(studyInstance.studyInstanceUID);
-            studyInstanceUidAttribute.setVr(VR.UI.name());
-            searchResult.addElement(Tag.StudyInstanceUID, studyInstanceUidAttribute);
-            
-            // Add the study ID
-            DicomAttribute studyIdAttribute = new DicomAttribute();
-            studyIdAttribute.addValue(studyInstance.studyID);
-            studyIdAttribute.setVr(VR.SH.name());
-            searchResult.addElement(Tag.StudyID, studyIdAttribute);
+            addAttributeToEntity(searchResult, Tag.StudyDate, VR.DA, studyInstance.studyDate);
+            addAttributeToEntity(searchResult, Tag.StudyTime, VR.TM, studyInstance.studyTime);
+            addAttributeToEntity(searchResult, Tag.StudyInstanceUID, VR.UI, studyInstance.studyInstanceUID);
+            addAttributeToEntity(searchResult, Tag.StudyID, VR.SH, studyInstance.studyID);
             
             List<DicomSeriesEntity> studySeries = studyInstance.series;
-            
-            // Number of study related series
-            DicomAttribute seriesCountAttribute = new DicomAttribute();
-            seriesCountAttribute.addValue(Integer.valueOf(studySeries.size()).toString());
-            seriesCountAttribute.setVr(VR.IS.name());
-            searchResult.addElement(Tag.NumberOfStudyRelatedSeries, seriesCountAttribute);
             
             int instancesInStudy = 0;
             List<String> modalitiesInStudy = new ArrayList<String>();
@@ -173,43 +146,15 @@ public class RetrieveService {
                 modalitiesInStudy.add(series.modality);
             }
             
-            // Modalities in study
-            DicomAttribute modalitiesInStudyAttribute = new DicomAttribute();
-            for (String modality : modalitiesInStudy) {
-                modalitiesInStudyAttribute.addValue(modality);
-            }
-            modalitiesInStudyAttribute.setVr(VR.CS.name());
-            searchResult.addElement(Tag.ModalitiesInStudy, modalitiesInStudyAttribute);
-           
-            // Number of study related instances
-            DicomAttribute instancesCountAttribute = new DicomAttribute();
-            instancesCountAttribute.addValue(Integer.valueOf(instancesInStudy).toString());
-            instancesCountAttribute.setVr(VR.IS.name());
-            searchResult.addElement(Tag.NumberOfStudyRelatedInstances, instancesCountAttribute);
-            
-            // Resource Link
-            DicomAttribute retrieveUrlAttribute = new DicomAttribute();
-            retrieveUrlAttribute.addValue(studyInstance.provider.wadoExternalEndpoint 
+            addAttributeToEntity(searchResult, Tag.NumberOfStudyRelatedSeries, VR.IS, studySeries.size());
+            addAttributeToEntity(searchResult, Tag.NumberOfStudyRelatedInstances, VR.IS, instancesInStudy);        
+            addAttributeToEntity(searchResult, Tag.ModalitiesInStudy, VR.CS, modalitiesInStudy);
+            addAttributeToEntity(searchResult, Tag.RetrieveURL, VR.UR, studyInstance.provider.wadoExternalEndpoint 
                     + "/studies/" + studyInstance.studyInstanceUID);
-            retrieveUrlAttribute.setVr(VR.UR.name());
-            searchResult.addElement(Tag.RetrieveURL, retrieveUrlAttribute);
-            
-            
+              
             List<DicomStudyAttributesEntity> studyAttributes = studyInstance.attributes;
             for (DicomStudyAttributesEntity studyAttribute : studyAttributes) {
-                DicomAttribute resultAttribute = new DicomAttribute();
-                String value = studyAttribute.value;
-                
-                if (VR.CS.name().equals(studyAttribute.vr)) {
-                    String[] values = value.split(","); 
-                    for (String singleValue : values) {
-                        resultAttribute.addValue(singleValue);
-                    }
-                } else {
-                    resultAttribute.addValue(value);
-                }                
-                resultAttribute.setVr(studyAttribute.vr);
-                searchResult.addElement(studyAttribute.tag, resultAttribute);
+                addAttributeToEntity(searchResult, studyAttribute.tag.intValue(), VR.valueOf(studyAttribute.vr), studyAttribute.value);
             }
             results.add(searchResult);
         }
@@ -219,64 +164,21 @@ public class RetrieveService {
     public List<DicomEntityResult> handleSeriesQuery(DicomQueryModel model) {
         List<DicomEntityResult> results = new ArrayList<>();
         
-        // TODO:  Implement the query string
-        List<DicomSeriesEntity> seriesInstances;
-        if (model.getStudyUid() != null) {
-            seriesInstances = DicomSeriesEntity.list("study.studyInstanceUID", model.getStudyUid());
-        } else {
-            seriesInstances = DicomSeriesEntity.listAll();
-        }
+        List<DicomSeriesEntity> seriesInstances =  new QueryHelper().querySeries(model);
         
         for (DicomSeriesEntity series: seriesInstances) {
             DicomEntityResult searchResult = new DicomEntityResult();
-            
-            // Modality
-            DicomAttribute modalityAttribute = new DicomAttribute();
-            modalityAttribute.addValue(series.modality);
-            modalityAttribute.setVr(VR.CS.name());
-            searchResult.addElement(Tag.Modality, modalityAttribute);
-            
-            // SeriesInstanceUid
-            DicomAttribute seriesInstanceUidAttribute = new DicomAttribute();
-            seriesInstanceUidAttribute.addValue(series.seriesInstanceUID);
-            seriesInstanceUidAttribute.setVr(VR.UI.name());
-            searchResult.addElement(Tag.SeriesInstanceUID, seriesInstanceUidAttribute);
-            
-            // SeriesNumber
-            DicomAttribute seriesNumberAttribute = new DicomAttribute();
-            seriesNumberAttribute.addValue(Integer.valueOf(series.number).toString());
-            seriesNumberAttribute.setVr(VR.IS.name());
-            searchResult.addElement(Tag.SeriesNumber, seriesNumberAttribute);
-            
-            // Instances
-            DicomAttribute instancesNumberAttribute = new DicomAttribute();
-            instancesNumberAttribute.addValue(Integer.valueOf(series.instances.size()).toString());
-            instancesNumberAttribute.setVr(VR.IS.name());
-            searchResult.addElement(Tag.NumberOfSeriesRelatedInstances, instancesNumberAttribute);
-            
-            // Resource Link
-            DicomAttribute retrieveUrlAttribute = new DicomAttribute();
-            retrieveUrlAttribute.addValue(series.study.provider.wadoExternalEndpoint 
+            addAttributeToEntity(searchResult, Tag.Modality, VR.CS, series.modality);
+            addAttributeToEntity(searchResult, Tag.SeriesInstanceUID, VR.UI, series.seriesInstanceUID);
+            addAttributeToEntity(searchResult, Tag.SeriesNumber, VR.IS, series.number);
+            addAttributeToEntity(searchResult, Tag.NumberOfSeriesRelatedInstances, VR.IS, series.instances.size());
+            addAttributeToEntity(searchResult, Tag.RetrieveURL, VR.UR
+                    , series.study.provider.wadoExternalEndpoint 
                     + "/studies/" + series.study.studyInstanceUID 
                     + "/series/" + series.seriesInstanceUID);
-            retrieveUrlAttribute.setVr(VR.UR.name());
-            searchResult.addElement(Tag.RetrieveURL, retrieveUrlAttribute);
             
-            List<DicomSeriesAttributesEntity> seriesAttributes = series.attributes;
-            for (DicomSeriesAttributesEntity seriesAttribute : seriesAttributes) {
-                DicomAttribute resultAttribute = new DicomAttribute();
-                String value = seriesAttribute.value;
-                
-                if (VR.CS.name().equals(seriesAttribute.vr)) {
-                    String[] values = value.split(","); 
-                    for (String singleValue : values) {
-                        resultAttribute.addValue(singleValue);
-                    }
-                } else {
-                    resultAttribute.addValue(value);
-                }                
-                resultAttribute.setVr(seriesAttribute.vr);
-                searchResult.addElement(seriesAttribute.tag, resultAttribute);
+            for (DicomSeriesAttributesEntity seriesAttribute : series.attributes) {
+                addAttributeToEntity(searchResult, seriesAttribute.tag.intValue(), VR.valueOf(seriesAttribute.vr), seriesAttribute.value);
             }
             
             results.add(searchResult);
@@ -288,49 +190,48 @@ public class RetrieveService {
         List<DicomEntityResult> results = new ArrayList<>();
         
         // TODO:  Implement the query string
-        List<DicomInstanceEntity> instances;
-        if (model.getSeriesUid() != null) {
-            if (model.getStudyUid() != null) {
-                instances = DicomInstanceEntity.list("series.study.studyInstanceUID = ?1 and series.seriesInstanceUID = ?2" , model.getStudyUid(), model.getSeriesUid());
-            } else {
-                instances = DicomInstanceEntity.list("series.seriesInstanceUID", model.getSeriesUid());
-            }
-        } else {
-            instances = DicomInstanceEntity.listAll();
-        }
-        
+        List<DicomInstanceEntity> instances = new QueryHelper().queryInstances(model);
         for (DicomInstanceEntity instance : instances) {
             DicomEntityResult searchResult = new DicomEntityResult();
-            
-            // SOP Class UID
-            DicomAttribute sopClassUidAttribute = new DicomAttribute();
-            sopClassUidAttribute.addValue(instance.sopClassUID);
-            sopClassUidAttribute.setVr(VR.UI.name());
-            searchResult.addElement(Tag.SOPClassUID, sopClassUidAttribute);
-            
-            // SOP Instance UID
-            DicomAttribute sopInstanceAttribute = new DicomAttribute();
-            sopInstanceAttribute.addValue(instance.sopInstanceUID);
-            sopInstanceAttribute.setVr(VR.UI.name());
-            searchResult.addElement(Tag.SOPInstanceUID, sopInstanceAttribute);
-            
-            // Instance Number
-            DicomAttribute instanceNumberAttribute = new DicomAttribute();
-            instanceNumberAttribute.addValue(Integer.valueOf(instance.number).toString());
-            instanceNumberAttribute.setVr(VR.IS.name());
-            searchResult.addElement(Tag.SeriesNumber, instanceNumberAttribute);
-            
-            // Resource Link
-            DicomAttribute retrieveUrlAttribute = new DicomAttribute();
-            retrieveUrlAttribute.addValue(instance.series.study.provider.wadoExternalEndpoint 
+            addAttributeToEntity(searchResult, Tag.SOPClassUID, VR.UI, instance.sopClassUID);
+            addAttributeToEntity(searchResult, Tag.SOPInstanceUID, VR.UI, instance.sopInstanceUID);
+            addAttributeToEntity(searchResult, Tag.SeriesNumber, VR.IS, instance.number);
+            addAttributeToEntity(searchResult, Tag.RetrieveURL, VR.UR 
+                    , instance.series.study.provider.wadoExternalEndpoint 
                     + "/studies/" + instance.series.study.studyInstanceUID 
                     + "/series/" + instance.series.seriesInstanceUID
-                    + "/instances/" + instance.sopInstanceUID);
-            retrieveUrlAttribute.setVr(VR.UR.name());
-            searchResult.addElement(Tag.RetrieveURL, retrieveUrlAttribute);
-            
+                    + "/instances/" + instance.sopInstanceUID);        
             results.add(searchResult);
         }
         return results;
+    }
+    
+    private DicomEntityResult addAttributeToEntity(DicomEntityResult result, int tag, VR valueRepresentation, int value) {
+        return addAttributeToEntity(result, tag, valueRepresentation, Integer.valueOf(value).toString());
+    }
+    
+    private DicomEntityResult addAttributeToEntity(DicomEntityResult result, int tag, VR valueRepresentation, String value) {
+        DicomAttribute attribute = new DicomAttribute();
+        if (value != null && VR.CS == valueRepresentation) {
+            String[] values = value.split(","); 
+            for (String singleValue : values) {
+                attribute.addValue(singleValue);
+            }
+        } else {
+            attribute.addValue(value);
+        }
+        attribute.setVr(valueRepresentation.name());
+        result.addElement(tag, attribute);
+        return result;
+    }
+    
+    private DicomEntityResult addAttributeToEntity(DicomEntityResult result, int tag, VR valueRepresentation, List<String> values) {
+        DicomAttribute instanceNumberAttribute = new DicomAttribute();
+        for (String value : values) {
+            instanceNumberAttribute.addValue(value);
+        }
+        instanceNumberAttribute.setVr(valueRepresentation.name());
+        result.addElement(tag, instanceNumberAttribute);
+        return result;
     }
 }
