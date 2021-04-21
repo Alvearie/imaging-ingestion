@@ -21,7 +21,7 @@ public class DicomAttribute {
     @JsonProperty("vr")
     private String vr;
 
-    @JsonProperty("value")
+    @JsonProperty("Value")
     private List<String> value;
 
     public String getVr() {
