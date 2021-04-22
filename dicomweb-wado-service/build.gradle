@@ -25,6 +25,7 @@ dependencies {
     implementation 'software.amazon.awssdk:apache-client'
 
     implementation "org.dcm4che:dcm4che-imageio:${dcm4cheVersion}"
+    implementation "org.dcm4che:dcm4che-json:${dcm4cheVersion}"
 
     testImplementation 'io.quarkus:quarkus-junit5'
     testImplementation 'io.quarkus:quarkus-junit5-mockito'
