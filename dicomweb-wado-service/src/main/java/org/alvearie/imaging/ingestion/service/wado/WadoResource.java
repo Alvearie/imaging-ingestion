@@ -58,6 +58,8 @@ public class WadoResource {
     public final static MediaType APPLICATION_DICOM_TYPE = new MediaType("application", "dicom");
     public final static String IMAGE_JPEG = "image/jpeg";
     public final static MediaType IMAGE_JPEG_TYPE = new MediaType("image", "jpeg");
+    public final static MediaType APPLICATION_DICOM_JSON_TYPE = new MediaType("application", "dicom+json");
+    public final static String APPLICATION_DICOM_JSON = "application/dicom+json";
 
     public final static int THUMBNAIL_WIDTH = 100;
     public final static int THUMBNAIL_HEIGHT = 150;
@@ -84,7 +86,7 @@ public class WadoResource {
 
     @GET
     @Path("/studies/{studyUID}/metadata")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(APPLICATION_DICOM_JSON)
     public void retrieveStudyMetadata(@PathParam("studyUID") String studyUID,
             @QueryParam("includefields") String includefields, @Suspended AsyncResponse ar) {
         buildMetadataResponse(queryClient.getResults(studyUID), ar);
@@ -111,7 +113,7 @@ public class WadoResource {
 
     @GET
     @Path("/studies/{studyUID}/series/{seriesUID}/metadata")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(APPLICATION_DICOM_JSON)
     public void retrieveSeriesMetadata(@PathParam("studyUID") String studyUID, @PathParam("seriesUID") String seriesUID,
             @QueryParam("includefields") String includefields, @Suspended AsyncResponse ar) {
         buildMetadataResponse(queryClient.getResults(studyUID, seriesUID), ar);
@@ -136,7 +138,7 @@ public class WadoResource {
 
     @GET
     @Path("/studies/{studyUID}/series/{seriesUID}/instances/{objectUID}/metadata")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(APPLICATION_DICOM_JSON)
     public void retrieveInstanceMetadata(@PathParam("studyUID") String studyUID,
             @PathParam("seriesUID") String seriesUID, @PathParam("objectUID") String objectUID,
             @Suspended AsyncResponse ar) {
