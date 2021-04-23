@@ -7,6 +7,7 @@ package org.alvearie.imaging.ingestion.service.wado;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
@@ -40,8 +41,12 @@ import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.BulkData;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.VR;
+import org.dcm4che3.imageio.codec.ImageDescriptor;
 import org.dcm4che3.imageio.codec.Transcoder;
+import org.dcm4che3.io.DicomInputStream;
 import org.dcm4che3.json.JSONWriter;
+import org.dcm4che3.util.StreamUtils;
+import org.dcm4che3.util.StringUtils;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.jboss.logging.Logger;
 import org.jboss.resteasy.plugins.providers.multipart.MultipartRelatedOutput;
@@ -81,7 +86,7 @@ public class WadoResource {
     @Path("/studies/{studyUID}")
     @Produces("multipart/related")
     public void retrieveStudy(@PathParam("studyUID") String studyUID, @Suspended AsyncResponse ar) throws IOException {
-        buildDicomResponse(queryClient.getResults(studyUID), ar);
+        buildDicomResponse(queryClient.getResults(studyUID), null, ar);
     }
 
     @GET
@@ -108,7 +113,7 @@ public class WadoResource {
     @Produces("multipart/related")
     public void retrieveSeries(@PathParam("studyUID") String studyUID, @PathParam("seriesUID") String seriesUID,
             @Suspended AsyncResponse ar) {
-        buildDicomResponse(queryClient.getResults(studyUID, seriesUID), ar);
+        buildDicomResponse(queryClient.getResults(studyUID, seriesUID), null, ar);
     }
 
     @GET
@@ -133,7 +138,7 @@ public class WadoResource {
     @Path("/studies/{studyUID}/series/{seriesUID}/instances/{objectUID}")
     public void retrieveInstance(@PathParam("studyUID") String studyUID, @PathParam("seriesUID") String seriesUID,
             @PathParam("objectUID") String objectUID, @Suspended AsyncResponse ar) {
-        buildDicomResponse(queryClient.getResults(studyUID, seriesUID, objectUID), ar);
+        buildDicomResponse(queryClient.getResults(studyUID, seriesUID, objectUID), null, ar);
     }
 
     @GET
@@ -143,6 +148,22 @@ public class WadoResource {
             @PathParam("seriesUID") String seriesUID, @PathParam("objectUID") String objectUID,
             @Suspended AsyncResponse ar) {
         buildMetadataResponse(queryClient.getResults(studyUID, seriesUID, objectUID), ar);
+    }
+
+    @GET
+    @Path("/studies/{studyUID}/series/{seriesUID}/instances/{objectUID}/frames/{frameList}")
+    public void retrieveFrames(@PathParam("studyUID") String studyUID, @PathParam("seriesUID") String seriesUID,
+            @PathParam("objectUID") String objectUID, @PathParam("frameList") String frameList,
+            @Suspended AsyncResponse ar) {
+        buildDicomResponse(queryClient.getResults(studyUID, seriesUID, objectUID), new FrameList(frameList).frames, ar);
+    }
+    
+    @GET
+    @Path("/studies/{studyUID}/series/{seriesUID}/instances/{objectUID}/frames/{frameList}/rendered")
+    public void retrieveRenderedFrame(@PathParam("studyUID") String studyUID, @PathParam("seriesUID") String seriesUID,
+            @PathParam("objectUID") String objectUID, @PathParam("frameList") String frameList,
+            @Suspended AsyncResponse ar) {
+        buildRenderedFrameResponse(queryClient.getResults(studyUID, seriesUID, objectUID), null, new FrameList(frameList).frames, ar);
     }
 
     @GET
@@ -166,9 +187,8 @@ public class WadoResource {
             viewport = renderService.createViewport();
             viewport.vw = THUMBNAIL_WIDTH;
             viewport.vh = THUMBNAIL_HEIGHT;
-        } else {
-            viewport.sx = viewport.sy = viewport.sw = viewport.sh = 0;
-        }
+        } 
+        viewport.sx = viewport.sy = viewport.sw = viewport.sh = 0;
         buildRenderedResponse(queryClient.getResults(studyUID, seriesUID, objectUID), viewport, ar);
     }
 
@@ -208,7 +228,7 @@ public class WadoResource {
         }
     }
 
-    private void buildDicomResponse(List<DicomEntityResult> results, AsyncResponse ar) {
+    private void buildDicomResponse(List<DicomEntityResult> results, int[] frameList, AsyncResponse ar) {
         if (results == null || results.size() == 0) {
             Response.ResponseBuilder responseBuilder = Response.status(Response.Status.NOT_FOUND);
             ar.resume(responseBuilder.build());
@@ -220,8 +240,15 @@ public class WadoResource {
         Date lastModified = new Date();
         MultipartRelatedOutput output = new MultipartRelatedOutput();
 
-        for (DicomEntityResult rslt : results) {
-            addDicomPart(output, rslt.getResource().getObjectName());
+        try {
+            for (DicomEntityResult rslt : results) {
+                addDicomPart(output, rslt.getResource().getObjectName(), frameList);
+            }
+        }
+        catch (IOException e) {
+            Response.ResponseBuilder responseBuilder = Response.status(Response.Status.NO_CONTENT);
+            ar.resume(responseBuilder.build());
+            return;
         }
 
         Response.ResponseBuilder responseBuilder = Response.status(Response.Status.OK).lastModified(lastModified)
@@ -311,8 +338,108 @@ public class WadoResource {
         }
     }
 
-    private void addDicomPart(MultipartRelatedOutput output, String objectKey) {
-        output.addPart(getDicom(objectKey), APPLICATION_DICOM_TYPE);
+    private void addDicomPart(MultipartRelatedOutput output, String objectKey, int[] frameList) throws IOException {
+        if (frameList == null || frameList.length == 0) {
+            output.addPart(getDicom(objectKey), APPLICATION_DICOM_TYPE);
+        } else {
+            addDicomFramesPart(output, objectKey, frameList);
+        }
+    }
+
+    private void addDicomFramesPart(MultipartRelatedOutput output, String objectKey, int[] frameList) throws IOException {
+        try {
+            ByteArrayOutputStream baos = s3Service.getObject(objectKey);
+            DicomInputStream dis = new DicomInputStream(new ByteArrayInputStream(baos.toByteArray()));
+        
+            int frameLength = new ImageDescriptor(dis.readDatasetUntilPixelData()).getFrameLength();
+            if (dis.tag() != Tag.PixelData) {
+                throw new IOException("Missing pixel data in requested object");
+            }
+
+            int frame = 1;
+            for (int nextFrame : frameList) {
+                while (frame < nextFrame) {
+                    dis.skip(frameLength);
+                    frame++;
+                }
+                
+                long offset= dis.getPosition();
+                LOG.info(String.format("Extracting frame %d (%d bytes)from inputstream at position %d", frame, frameLength, offset));
+
+                ByteArrayOutputStream out = new ByteArrayOutputStream();
+                try {
+                    StreamUtils.copy(dis, out, frameLength);
+                } catch (EOFException e) {
+                    LOG.error(String.format("Error loading data frame, more data expected. Current offset %d. Expected length of at least %d", dis.getPosition(), offset + frameLength));
+                    throw e;
+                }
+                frame++;
+
+                output.addPart(new AsyncStreamingOutput() {
+                    @Override
+                    public CompletionStage<Void> asyncWrite(AsyncOutputStream output) {
+                        return output.asyncWrite(out.toByteArray());
+                    }
+
+                }, MediaType.APPLICATION_OCTET_STREAM_TYPE);
+            }
+        } catch (Exception e) {
+            throw new WebApplicationException(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
+        }
+    }
+    
+    private void buildRenderedFrameResponse(List<DicomEntityResult> results, RenderService.Viewport viewport, int[] frameList, AsyncResponse ar) {
+        if (results == null || results.size() == 0  || frameList == null) {
+            Response.ResponseBuilder responseBuilder = Response.status(Response.Status.NOT_FOUND);
+            ar.resume(responseBuilder.build());
+            return;
+        }
+        if (results.size() == 1) {
+            Date lastModified = new Date();
+            try {
+                ByteArrayOutputStream baos = s3Service.getObject(results.get(0).getResource().getObjectName());
+                DicomInputStream dis = new DicomInputStream(new ByteArrayInputStream(baos.toByteArray()));
+                
+                int frameLength = new ImageDescriptor(dis.readDatasetUntilPixelData()).getFrameLength();
+                if (dis.tag() != Tag.PixelData) {
+                    throw new IOException("Missing pixel data in requested object");
+                }
+                
+                int frame = 1;
+                while (frame < frameList[0]) {
+                    dis.skip(frameLength);
+                    frame++;
+                }
+                if (frameList.length == 1) {
+                    ByteArrayOutputStream out = new ByteArrayOutputStream();
+                    StreamUtils.copy(dis, out, frameLength);
+                    Object frameOutput = renderService.render(new ByteArrayInputStream(out.toByteArray()), viewport);
+                    Response.ResponseBuilder responseBuilder = Response.status(Response.Status.OK)
+                            .lastModified(lastModified).tag(String.valueOf(lastModified.hashCode())).entity(frameOutput)
+                            .type(IMAGE_JPEG_TYPE);
+                    ar.resume(responseBuilder.build());
+                } else {
+                    MultipartRelatedOutput output = new MultipartRelatedOutput();
+                    for (int requestedFrame : frameList) {
+                        while (frame < requestedFrame) {
+                            dis.skip(frameLength);
+                            frame++;
+                        }
+                        ByteArrayOutputStream out = new ByteArrayOutputStream();
+                        StreamUtils.copy(dis, out, frameLength);
+                        Object frameOutput = renderService.render(new ByteArrayInputStream(out.toByteArray()), viewport);
+                        
+                        output.addPart(frameOutput, IMAGE_JPEG_TYPE);
+                    } 
+                    Response.ResponseBuilder responseBuilder = Response.status(Response.Status.OK).lastModified(lastModified)
+                            .tag(String.valueOf(lastModified.hashCode())).entity(output).type(MULTIPART_RELATED_TYPE);
+                    ar.resume(responseBuilder.build());
+                }
+            } catch (IOException e) {
+                Response.ResponseBuilder responseBuilder = Response.status(Response.Status.NO_CONTENT);
+                ar.resume(responseBuilder.build());
+            }
+        }
     }
 
     private Object getDicom(String objectKey) {
@@ -381,6 +508,20 @@ public class WadoResource {
         public OutputStream newOutputStream(Transcoder transcoder, Attributes dataset) throws IOException {
             storeContext.setAttributes(dataset);
             return OutputStream.nullOutputStream();
+        }
+    }
+
+    public static class FrameList {
+        final int[] frames;
+
+        public FrameList(String s) {
+            String[] split = StringUtils.split(s, ',');
+            int[] frames = new int[split.length];
+            for (int i = 0; i < split.length; i++) {
+                if ((frames[i] = Integer.parseInt(split[i])) <= 0)
+                    throw new IllegalArgumentException(s);
+            }
+            this.frames = frames;
         }
     }
 }
