@@ -1,12 +1,12 @@
 # DICOMweb Ingestion Service
 
 ## Overview
-  DICOMweb is the DICOM Standard for web-based medical imaging.  The *DICOMweb Ingestion Service* resides within *Kubernetes* and provides RESTful services for DICOM storage (STOW-RS) into and retrieval (WADO-RS) from a storage space.  This subcomponent is mandatory for each storage space as all stored DICOM, regardless of storage service (DICOMweb or DIMSE), are retrieved by downstream subcomponents using the provided WADO-RS.
+  DICOMweb is the DICOM Standard for web-based medical imaging.  The *DICOMweb Ingestion Service* resides within *Kubernetes* and provides RESTful services for DICOM storage (STOW-RS), DICOM search (QIDO-RS), and DICOM retrieve (WADO-RS) from a storage space.  This subcomponent is mandatory for each storage space as all stored DICOM, regardless of storage service (DICOMweb or DIMSE), are retrieved by downstream subcomponents using the provided WADO-RS.
 
 ## Subcomponent Architecture
 ![DICOMweb Ingestion Service](../images/dicomweb-ingestion-service.png)
 
-The *DICOMWeb Ingestion Service* provides two containers that are bound to a common storage space.  The *dicomweb-stow-service* provides the ability to write DICOM objects to the storage space using STOW-RS.   The *dicomweb-wado-service* provides the ability to retrieve DICOM objects from the storage space using WADO-RS. 
+The *DICOMWeb Ingestion Service* provides two containers that are bound to a common storage space.  The *dicomweb-stow-service* provides the ability to write DICOM to a storage space using STOW-RS.   The *dicomweb-wado-service* provides the ability to search DICOM within a storage space using QIDO-RS and retrieve DICOM from a storage space using WADO-RS. 
 
 **dicomweb-stow-service**
 
@@ -14,7 +14,8 @@ Provides the STOW-RS implementation.  When the STOW-RS service is pushed DICOM o
 
 **dicomweb-wado-service**
 
-Provides the WADO-RS implementation.  When data is stored in the storage space, the *DICOMweb Ingestion Service* has no record of where that data is placed.  Therefore, when the WADO-RS needs to serve resources it first needs to retrieve the storage space details from the *DICOM Event Driven Ingestion*.  This binding is provided by the *Ingestion Query Endpoint*.  Once the storage space details have been retrieved, the WADO-RS serves the appropriate data from the storage space.  
+Provides the QIDO-RS and WADO-RS implementations.  When DICOM is stored in the storage space, the *DICOMweb Ingestion Service* has no record of where that data is placed or it's DICOM study context.  The *Ingestion Query Endpoint* provides the binding to the 
+*DICOM Event Driven Ingestion* for searching for raw DICOM resources within the storage space.   
 
 ## Deployment  
   The *DICOMweb Ingestion Service* is intended to be consumed within a *Kubernetes* cluster with *Knative Serving* and *Knative Eventing*.  The provided [operator](../operator/overview.md) provides a single *Custom Resource Definition* for creating and managing instances of the *DICOMweb Ingestion Service* subcomponent.  The provided operator will deploy the *DICOMweb Ingestion Service* as two *Knative* service configurations with an ingress to each service.  There are also Cluster Local addresses provided for accessing the services from within the local *Kubernetes* cluster.  The provided *Custom Resource* exposes the elastic behavior of the services with the ability to specify concurrency and both upper and lower replica counts for scaling.  The operator performs all of the wiring of the *KSINK Endpoint* to the event broker and the *Ingestion Query Endpoint* to the *DICOM Event Driven Ingestion Service*.
@@ -87,9 +88,10 @@ spec:
 
 ## Usage
 
-The operator will create knative services for each of the STOW-RS and WADO-RS.  These service URLs will have the following naming pattern.
+The operator will create knative services for each of the STOW-RS, and QIDO-RS/WADO-RS.  These service URLs will have the following naming pattern.
 
 |Service       | Naming Pattern                                    | Example         |
 |--------------|:--------------------------------------------------|:----------------|
 |STOW-RS       | https://&lt;custom-resource-name&gt;-stow.&lt;namespace&gt;.&lt;domain&gt;/stow-rs | `https://img-ingest-stow.imaging-ingestion.mycluster.net/stow-rs` |
-|WADO-RS       | https://&lt;custom-resource-name&gt;-wado.&lt;namespace&gt;.&lt;domain&gt;/wado-rs | `https://img-ingest-stow.imaging-ingestion.mycluster.net/wado-rs` |
+|WADO-RS/QIDO-RS       | https://&lt;custom-resource-name&gt;-wado.&lt;namespace&gt;.&lt;domain&gt;/wado-rs | `https://img-ingest-stow.imaging-ingestion.mycluster.net/wado-rs` |
+
