@@ -6,7 +6,9 @@
 package org.alvearie.imaging.ingestion;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.enterprise.context.ApplicationScoped;
 
@@ -140,7 +142,7 @@ public class RetrieveService {
             List<DicomSeriesEntity> studySeries = studyInstance.series;
             
             int instancesInStudy = 0;
-            List<String> modalitiesInStudy = new ArrayList<String>();
+            Set<String> modalitiesInStudy = new HashSet<String>();
             for (DicomSeriesEntity series : studySeries) {
                 instancesInStudy += series.instances.size();
                 modalitiesInStudy.add(series.modality);
@@ -148,7 +150,7 @@ public class RetrieveService {
             
             addAttributeToEntity(searchResult, Tag.NumberOfStudyRelatedSeries, VR.IS, studySeries.size());
             addAttributeToEntity(searchResult, Tag.NumberOfStudyRelatedInstances, VR.IS, instancesInStudy);        
-            addAttributeToEntity(searchResult, Tag.ModalitiesInStudy, VR.CS, modalitiesInStudy);
+            addAttributeToEntity(searchResult, Tag.ModalitiesInStudy, VR.CS, modalitiesInStudy.toArray(new String[0]));
             addAttributeToEntity(searchResult, Tag.RetrieveURL, VR.UR, studyInstance.provider.wadoExternalEndpoint 
                     + "/studies/" + studyInstance.studyInstanceUID);
               
@@ -225,13 +227,15 @@ public class RetrieveService {
         return result;
     }
     
-    private DicomEntityResult addAttributeToEntity(DicomEntityResult result, int tag, VR valueRepresentation, List<String> values) {
-        DicomAttribute instanceNumberAttribute = new DicomAttribute();
-        for (String value : values) {
-            instanceNumberAttribute.addValue(value);
+    private DicomEntityResult addAttributeToEntity(DicomEntityResult result, int tag, VR valueRepresentation, String[]  values) {
+        DicomAttribute attribute = new DicomAttribute();
+        if (values != null) {
+            for (String value : values) {
+                attribute.addValue(value);
+            }
         }
-        instanceNumberAttribute.setVr(valueRepresentation.name());
-        result.addElement(tag, instanceNumberAttribute);
+        attribute.setVr(valueRepresentation.name());
+        result.addElement(tag, attribute);
         return result;
     }
 }
