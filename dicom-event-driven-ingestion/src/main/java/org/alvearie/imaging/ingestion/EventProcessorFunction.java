@@ -196,6 +196,7 @@ public class EventProcessorFunction {
                         case Tag.ModalitiesInStudy:
                         case Tag.ReferringPhysicianName:
                         case Tag.PatientName:
+                        case Tag.StudyDescription:
                         case Tag.PatientID:
                         case Tag.PatientBirthDate:
                         case Tag.PatientSex:
