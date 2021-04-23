@@ -28,7 +28,7 @@ The imaging ingestion component is currently comprised of six (6) subcomponents:
   
   1. [DIMSE Proxy](docs/dimse-proxy/overview.md) enables a DIMSE Application Entity (AE) point-of-presence in the enterprise imaging zone and/or within the *Kubernetes* cluster.  
   2. [DIMSE Ingestion Service](docs/dimse-ingestion-service/overview.md) provides a proxied DIMSE Application Entity (AE) in the *Kubernetes* cluster for C-STORE operations to a storage space.
-  3. [DICOMweb Ingestion Service](docs/dicomweb-ingestion-service/overview.md) for DICOMweb WADO-RS and STOW-RS access to a storage space.
+  3. [DICOMweb Ingestion Service](docs/dicomweb-ingestion-service/overview.md) for DICOMweb QIDO-RS, WADO-RS, and STOW-RS access to a storage space.
   4. [DICOM Event Driven Ingestion](docs/event-driven-ingestion/overview.md) maintains a manifest of all DICOM data across all ingestion storage spaces.
   5. [DICOM Instance Binding](docs/dicom-instance-binding/overview.md) for fan-out notification of DICOM instance data.
   6. [DICOM Study Binding](docs/dicom-study-binding/overview.md) for fan-out notification of DICOM studies.

@@ -29,8 +29,6 @@
 -  Add DIMSE C-GET capability to the *dimse-ingestion-service* container.  This could allow the *DimseProxy* to retrieve DICOM from the services storage space. A DIMSE C-FIND may also be of interest.
 
 
--  Add a QIDO-RS container to the *DICOMwebIngestionService* custom resource for searching a storage space using DICOMweb.
-
 
 -  Allow updating the location of a DICOM resource in the *DicomEventDrivenIngestion* manifest.  This would allow DICOM resources to be moved from the ingestion storage space to an alternative external storage location (ie. vender neutral archive or long term archive).  The ingestion DICOMweb services would HTTP 301 to the new storage location WADO-RS. 
 
@@ -42,5 +40,6 @@
 
 
 -  Evaluate if NATS Streaming would be helpful for some composite DIMSE operations.
+
 
 -  Evaluate adding support to the operator to generate *NatsServiceRole* custom resources for NATS subject access control.
