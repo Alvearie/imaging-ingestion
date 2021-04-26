@@ -99,6 +99,26 @@ public class WadoResourceTest {
                 .headers().statusCode(200);
     }
 
+    @Test
+    public void testRetrieveContentEncoding() {
+        Mockito.when(s3Service.getObject(Mockito.anyString())).thenReturn(getObject(TEST_FILENAME));
+        Mockito.when(queryClient.getResults(Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+                .thenReturn(getResults(TEST_FILENAME));
+        given().log().all(true).header("Accept-Encoding", "gzip")
+                .get("/wado-rs/studies/123/series/1234/instances/12345").then().log().headers().statusCode(200).and()
+                .header("Content-Encoding", "gzip");
+    }
+
+    @Test
+    public void testMetadataContentEncoding() {
+        Mockito.when(s3Service.getObject(Mockito.anyString())).thenReturn(getObject(TEST_FILENAME));
+        Mockito.when(queryClient.getResults(Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+                .thenReturn(getResults(TEST_FILENAME));
+        given().log().all(true).header("Accept-Encoding", "gzip")
+                .get("/wado-rs/studies/123/series/1234/instances/12345/metadata").then().log().headers().statusCode(200)
+                .and().header("Content-Encoding", "gzip");
+    }
+
     private List<DicomEntityResult> getResults(String objectName) {
         List<DicomEntityResult> results = new ArrayList<>();
         DicomEntityResult result = new DicomEntityResult();

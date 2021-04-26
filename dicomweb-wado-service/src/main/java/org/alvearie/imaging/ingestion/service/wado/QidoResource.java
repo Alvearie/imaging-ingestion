@@ -33,9 +33,11 @@ import org.alvearie.imaging.ingestion.service.s3.S3Service;
 import org.dcm4che3.data.Tag;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.jboss.logging.Logger;
+import org.jboss.resteasy.annotations.GZIP;
 
 @RequestScoped
 @Path("/wado-rs")
+@GZIP
 public class QidoResource {
     private static final Logger LOG = Logger.getLogger(QidoResource.class);
 
@@ -54,22 +56,20 @@ public class QidoResource {
     public static final String QUERY_PARAM_OFFSET = "offset";
     public static final String QUERY_PARAM_LIMIT = "limit";
     public static final String QUERY_PARAM_INCLUDEFIELD = "includefield";
-    
-    
+
     public enum ValidPatientTags {
-        PatientName(Tag.PatientName),
-        PatientId(Tag.PatientID);
-        
+        PatientName(Tag.PatientName), PatientId(Tag.PatientID);
+
         int value;
-        
+
         ValidPatientTags(int value) {
             this.value = value;
         }
-        
+
         public int getValue() {
             return value;
         }
-        
+
         public static ValidPatientTags lookupTag(int tagValue) {
             for (ValidPatientTags value : values()) {
                 if (value.getValue() == tagValue) {
@@ -87,7 +87,7 @@ public class QidoResource {
             }
             return null;
         }
-        
+
     }
 
     public enum ValidStudyTags {
@@ -214,8 +214,8 @@ public class QidoResource {
     @GET
     @Path("/studies/{studyUID}/series")
     @Produces(APPLICATION_DICOM_JSON)
-    public void searchSeries(@PathParam("studyUID") String studyUID,
-            @Context UriInfo uriInfo, @Suspended AsyncResponse ar) {
+    public void searchSeries(@PathParam("studyUID") String studyUID, @Context UriInfo uriInfo,
+            @Suspended AsyncResponse ar) {
         DicomQueryModel model = new DicomQueryModel();
         model.setScope(DicomQueryModel.Scope.SERIES);
         model.setStudyUid(studyUID);
@@ -281,9 +281,9 @@ public class QidoResource {
             }
             responseBuilder = Response.ok(castedResults);
         } else {
-           responseBuilder = Response.status(Status.NOT_FOUND);
+            responseBuilder = Response.status(Status.NOT_FOUND);
         }
-       
+
         ar.resume(responseBuilder.build());
     }
 
@@ -344,7 +344,7 @@ public class QidoResource {
             }
         }
     }
-    
+
     private void getPatientQueryAttributes(String attribute, String value, Map<Integer, String> results) {
         try {
             int tagValue = Integer.parseUnsignedInt(attribute, 16);

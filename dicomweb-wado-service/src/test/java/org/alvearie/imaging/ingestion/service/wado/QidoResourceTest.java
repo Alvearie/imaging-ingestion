@@ -55,6 +55,13 @@ public class QidoResourceTest {
                 .statusCode(200);
     }
 
+    @Test
+    public void testSearchStudiesContentEncoding() {
+        Mockito.when(queryClient.getResults(Mockito.any(DicomQueryModel.class))).thenReturn(generateTestData());
+        given().log().all(true).header("Accept-Encoding", "gzip").get("/wado-rs/studies").then().log().all()
+                .statusCode(200).and().header("Content-Encoding", "gzip");
+    }
+
     private List<DicomEntityResult> generateTestData() {
         List<DicomEntityResult> searchResult = new ArrayList<DicomEntityResult>();
 
