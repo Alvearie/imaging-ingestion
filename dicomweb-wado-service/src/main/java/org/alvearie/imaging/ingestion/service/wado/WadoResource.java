@@ -116,7 +116,7 @@ public class WadoResource {
     @Produces("multipart/related")
     public void retrieveSeries(@PathParam("studyUID") String studyUID, @PathParam("seriesUID") String seriesUID,
             @Suspended AsyncResponse ar) {
-        buildDicomResponse(queryClient.getResults(studyUID, seriesUID), null, ar);
+        buildDicomResponse(queryClient.getResults(studyUID, seriesUID, source), null, ar);
     }
 
     @GET
@@ -124,7 +124,7 @@ public class WadoResource {
     @Produces(APPLICATION_DICOM_JSON)
     public void retrieveSeriesMetadata(@PathParam("studyUID") String studyUID, @PathParam("seriesUID") String seriesUID,
             @QueryParam("includefields") String includefields, @Suspended AsyncResponse ar) {
-        buildMetadataResponse(queryClient.getResults(studyUID, seriesUID), ar);
+        buildMetadataResponse(queryClient.getResults(studyUID, seriesUID, source), ar);
     }
 
     @GET
@@ -134,14 +134,14 @@ public class WadoResource {
             @QueryParam("viewport") String viewportSpec, @QueryParam("window") String window,
             @Suspended AsyncResponse ar) {
         RenderService.Viewport viewport = creatViewportFromQueryParam(viewportSpec);
-        buildRenderedResponse(queryClient.getResults(studyUID, seriesUID), viewport, ar);
+        buildRenderedResponse(queryClient.getResults(studyUID, seriesUID, source), viewport, ar);
     }
 
     @GET
     @Path("/studies/{studyUID}/series/{seriesUID}/instances/{objectUID}")
     public void retrieveInstance(@PathParam("studyUID") String studyUID, @PathParam("seriesUID") String seriesUID,
             @PathParam("objectUID") String objectUID, @Suspended AsyncResponse ar) {
-        buildDicomResponse(queryClient.getResults(studyUID, seriesUID, objectUID), null, ar);
+        buildDicomResponse(queryClient.getResults(studyUID, seriesUID, objectUID, source), null, ar);
     }
 
     @GET
@@ -150,7 +150,7 @@ public class WadoResource {
     public void retrieveInstanceMetadata(@PathParam("studyUID") String studyUID,
             @PathParam("seriesUID") String seriesUID, @PathParam("objectUID") String objectUID,
             @Suspended AsyncResponse ar) {
-        buildMetadataResponse(queryClient.getResults(studyUID, seriesUID, objectUID), ar);
+        buildMetadataResponse(queryClient.getResults(studyUID, seriesUID, objectUID, source), ar);
     }
 
     @GET
@@ -158,7 +158,8 @@ public class WadoResource {
     public void retrieveFrames(@PathParam("studyUID") String studyUID, @PathParam("seriesUID") String seriesUID,
             @PathParam("objectUID") String objectUID, @PathParam("frameList") String frameList,
             @Suspended AsyncResponse ar) {
-        buildDicomResponse(queryClient.getResults(studyUID, seriesUID, objectUID), new FrameList(frameList).frames, ar);
+        buildDicomResponse(queryClient.getResults(studyUID, seriesUID, objectUID, source),
+                new FrameList(frameList).frames, ar);
     }
 
     @GET
@@ -166,7 +167,7 @@ public class WadoResource {
     public void retrieveRenderedFrame(@PathParam("studyUID") String studyUID, @PathParam("seriesUID") String seriesUID,
             @PathParam("objectUID") String objectUID, @PathParam("frameList") String frameList,
             @Suspended AsyncResponse ar) {
-        buildRenderedFrameResponse(queryClient.getResults(studyUID, seriesUID, objectUID), null,
+        buildRenderedFrameResponse(queryClient.getResults(studyUID, seriesUID, objectUID, source), null,
                 new FrameList(frameList).frames, ar);
     }
 
@@ -178,7 +179,7 @@ public class WadoResource {
             @QueryParam("viewport") String viewportSpec, @QueryParam("window") String window,
             @Suspended AsyncResponse ar) {
         RenderService.Viewport viewport = creatViewportFromQueryParam(viewportSpec);
-        buildRenderedResponse(queryClient.getResults(studyUID, seriesUID, objectUID), viewport, ar);
+        buildRenderedResponse(queryClient.getResults(studyUID, seriesUID, objectUID, source), viewport, ar);
     }
 
     @GET
@@ -193,7 +194,7 @@ public class WadoResource {
             viewport.vh = THUMBNAIL_HEIGHT;
         }
         viewport.sx = viewport.sy = viewport.sw = viewport.sh = 0;
-        buildRenderedResponse(queryClient.getResults(studyUID, seriesUID, objectUID), viewport, ar);
+        buildRenderedResponse(queryClient.getResults(studyUID, seriesUID, objectUID, source), viewport, ar);
     }
 
     private void buildRenderedResponse(List<DicomEntityResult> results, RenderService.Viewport viewport,

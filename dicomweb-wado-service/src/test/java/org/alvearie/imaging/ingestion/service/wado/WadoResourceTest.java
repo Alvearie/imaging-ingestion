@@ -46,8 +46,8 @@ public class WadoResourceTest {
     @Test
     public void testBasicRender() {
         Mockito.when(s3Service.getObject(Mockito.anyString())).thenReturn(getObject(TEST_FILENAME));
-        Mockito.when(queryClient.getResults(Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
-                .thenReturn(getResults(TEST_FILENAME));
+        Mockito.when(queryClient.getResults(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(),
+                Mockito.anyString())).thenReturn(getResults(TEST_FILENAME));
         given().log().all(true).get("/wado-rs/studies/123/series/1234/instances/12345/rendered").then().log().headers()
                 .statusCode(200);
     }
@@ -55,8 +55,8 @@ public class WadoResourceTest {
     @Test
     public void testThumbnail() {
         Mockito.when(s3Service.getObject(Mockito.anyString())).thenReturn(getObject(TEST_FILENAME));
-        Mockito.when(queryClient.getResults(Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
-                .thenReturn(getResults(TEST_FILENAME));
+        Mockito.when(queryClient.getResults(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(),
+                Mockito.anyString())).thenReturn(getResults(TEST_FILENAME));
         given().log().all(true).get("/wado-rs/studies/123/series/1234/instances/12345/thumbnail").then().log().headers()
                 .statusCode(200);
     }
@@ -64,8 +64,8 @@ public class WadoResourceTest {
     @Test
     public void testScaledThumbnail() {
         Mockito.when(s3Service.getObject(Mockito.anyString())).thenReturn(getObject(TEST_FILENAME));
-        Mockito.when(queryClient.getResults(Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
-                .thenReturn(getResults(TEST_FILENAME));
+        Mockito.when(queryClient.getResults(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(),
+                Mockito.anyString())).thenReturn(getResults(TEST_FILENAME));
         given().log().all(true).get("/wado-rs/studies/123/series/1234/instances/12345/thumbnail?viewport=75,100").then()
                 .log().headers().statusCode(200);
     }
@@ -73,8 +73,8 @@ public class WadoResourceTest {
     @Test
     public void testBasicViewport() {
         Mockito.when(s3Service.getObject(Mockito.anyString())).thenReturn(getObject(TEST_FILENAME));
-        Mockito.when(queryClient.getResults(Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
-                .thenReturn(getResults(TEST_FILENAME));
+        Mockito.when(queryClient.getResults(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(),
+                Mockito.anyString())).thenReturn(getResults(TEST_FILENAME));
         given().log().all(true).get("/wado-rs/studies/123/series/1234/instances/12345/rendered?viewport=200,200").then()
                 .log().headers().statusCode(200);
     }
@@ -82,8 +82,8 @@ public class WadoResourceTest {
     @Test
     public void testTopLeftViewportRegion() {
         Mockito.when(s3Service.getObject(Mockito.anyString())).thenReturn(getObject(TEST_FILENAME));
-        Mockito.when(queryClient.getResults(Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
-                .thenReturn(getResults(TEST_FILENAME));
+        Mockito.when(queryClient.getResults(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(),
+                Mockito.anyString())).thenReturn(getResults(TEST_FILENAME));
         given().log().all(true)
                 .get("/wado-rs/studies/123/series/1234/instances/12345/rendered?viewport=200,200,,,200,200").then()
                 .log().headers().statusCode(200);
@@ -92,8 +92,8 @@ public class WadoResourceTest {
     @Test
     public void testBottomRightViewportRegion() {
         Mockito.when(s3Service.getObject(Mockito.anyString())).thenReturn(getObject(TEST_FILENAME));
-        Mockito.when(queryClient.getResults(Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
-                .thenReturn(getResults(TEST_FILENAME));
+        Mockito.when(queryClient.getResults(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(),
+                Mockito.anyString())).thenReturn(getResults(TEST_FILENAME));
         given().log().all(true)
                 .get("/wado-rs/studies/123/series/1234/instances/12345/rendered?viewport=256,256,256,256").then().log()
                 .headers().statusCode(200);
@@ -102,8 +102,8 @@ public class WadoResourceTest {
     @Test
     public void testRetrieveContentEncoding() {
         Mockito.when(s3Service.getObject(Mockito.anyString())).thenReturn(getObject(TEST_FILENAME));
-        Mockito.when(queryClient.getResults(Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
-                .thenReturn(getResults(TEST_FILENAME));
+        Mockito.when(queryClient.getResults(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(),
+                Mockito.anyString())).thenReturn(getResults(TEST_FILENAME));
         given().log().all(true).header("Accept-Encoding", "gzip")
                 .get("/wado-rs/studies/123/series/1234/instances/12345").then().log().headers().statusCode(200).and()
                 .header("Content-Encoding", "gzip");
@@ -112,8 +112,8 @@ public class WadoResourceTest {
     @Test
     public void testMetadataContentEncoding() {
         Mockito.when(s3Service.getObject(Mockito.anyString())).thenReturn(getObject(TEST_FILENAME));
-        Mockito.when(queryClient.getResults(Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
-                .thenReturn(getResults(TEST_FILENAME));
+        Mockito.when(queryClient.getResults(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(),
+                Mockito.anyString())).thenReturn(getResults(TEST_FILENAME));
         given().log().all(true).header("Accept-Encoding", "gzip")
                 .get("/wado-rs/studies/123/series/1234/instances/12345/metadata").then().log().headers().statusCode(200)
                 .and().header("Content-Encoding", "gzip");
