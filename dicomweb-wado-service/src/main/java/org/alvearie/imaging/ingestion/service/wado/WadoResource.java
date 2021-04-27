@@ -46,6 +46,7 @@ import org.dcm4che3.io.DicomInputStream;
 import org.dcm4che3.json.JSONWriter;
 import org.dcm4che3.util.StreamUtils;
 import org.dcm4che3.util.StringUtils;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.jboss.logging.Logger;
 import org.jboss.resteasy.annotations.GZIP;
@@ -68,6 +69,9 @@ public class WadoResource {
     public final static int THUMBNAIL_WIDTH = 100;
     public final static int THUMBNAIL_HEIGHT = 150;
 
+    @ConfigProperty(name = "provider.name")
+    String source;
+
     @Inject
     S3Service s3Service;
 
@@ -85,7 +89,7 @@ public class WadoResource {
     @Path("/studies/{studyUID}")
     @Produces("multipart/related")
     public void retrieveStudy(@PathParam("studyUID") String studyUID, @Suspended AsyncResponse ar) throws IOException {
-        buildDicomResponse(queryClient.getResults(studyUID), null, ar);
+        buildDicomResponse(queryClient.getResults(studyUID, source), null, ar);
     }
 
     @GET
@@ -93,7 +97,7 @@ public class WadoResource {
     @Produces(APPLICATION_DICOM_JSON)
     public void retrieveStudyMetadata(@PathParam("studyUID") String studyUID,
             @QueryParam("includefields") String includefields, @Suspended AsyncResponse ar) {
-        buildMetadataResponse(queryClient.getResults(studyUID), ar);
+        buildMetadataResponse(queryClient.getResults(studyUID, source), ar);
     }
 
     @GET
@@ -104,7 +108,7 @@ public class WadoResource {
             @QueryParam("viewport") String viewportSpec, @QueryParam("window") String window,
             @Suspended AsyncResponse ar) {
         RenderService.Viewport viewport = creatViewportFromQueryParam(viewportSpec);
-        buildRenderedResponse(queryClient.getResults(studyUID), viewport, ar);
+        buildRenderedResponse(queryClient.getResults(studyUID, source), viewport, ar);
     }
 
     @GET

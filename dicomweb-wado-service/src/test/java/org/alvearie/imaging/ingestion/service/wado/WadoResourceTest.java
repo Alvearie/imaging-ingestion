@@ -39,7 +39,7 @@ public class WadoResourceTest {
 
     @Test
     public void testRetrieveStudy() {
-        Mockito.when(queryClient.getResults(Mockito.anyString())).thenReturn(new ArrayList<>());
+        Mockito.when(queryClient.getResults(Mockito.anyString(), Mockito.anyString())).thenReturn(new ArrayList<>());
         given().log().all(true).get("/wado-rs/studies/123").then().statusCode(404);
     }
 

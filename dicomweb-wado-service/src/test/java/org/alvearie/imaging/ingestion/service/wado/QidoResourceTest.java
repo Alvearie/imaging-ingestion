@@ -31,33 +31,38 @@ public class QidoResourceTest {
 
     @Test
     public void testSearchStudiesByPatientIdAttribute() {
-        Mockito.when(queryClient.getResults(Mockito.any(DicomQueryModel.class))).thenReturn(generateTestData());
+        Mockito.when(queryClient.getResults(Mockito.any(DicomQueryModel.class), Mockito.anyString()))
+                .thenReturn(generateTestData());
         given().log().all(true).get("/wado-rs/studies?PatientID=xxx").then().log().all().statusCode(200);
     }
 
     @Test
     public void testSearchSeriesByPatientIdTag() {
-        Mockito.when(queryClient.getResults(Mockito.any(DicomQueryModel.class))).thenReturn(generateTestData());
+        Mockito.when(queryClient.getResults(Mockito.any(DicomQueryModel.class), Mockito.anyString()))
+                .thenReturn(generateTestData());
         given().log().all(true).get("/wado-rs/series?00100020=xxx").then().log().all().statusCode(200);
     }
 
     @Test
     public void testSearchInstancesBySopClassUid() {
-        Mockito.when(queryClient.getResults(Mockito.any(DicomQueryModel.class))).thenReturn(generateTestData());
+        Mockito.when(queryClient.getResults(Mockito.any(DicomQueryModel.class), Mockito.anyString()))
+                .thenReturn(generateTestData());
         given().log().all(true).get("/wado-rs/instances?00080016=1.2.840.10008.5.1.4.1.1.2").then().log().all()
                 .statusCode(200);
     }
 
     @Test
     public void testSearchStudiesByPatientIdAndStudyDateRange() {
-        Mockito.when(queryClient.getResults(Mockito.any(DicomQueryModel.class))).thenReturn(generateTestData());
+        Mockito.when(queryClient.getResults(Mockito.any(DicomQueryModel.class), Mockito.anyString()))
+                .thenReturn(generateTestData());
         given().log().all(true).get("/wado-rs/studies?PatientID=xxx&00080020=20200101-20201231").then().log().all()
                 .statusCode(200);
     }
 
     @Test
     public void testSearchStudiesContentEncoding() {
-        Mockito.when(queryClient.getResults(Mockito.any(DicomQueryModel.class))).thenReturn(generateTestData());
+        Mockito.when(queryClient.getResults(Mockito.any(DicomQueryModel.class), Mockito.anyString()))
+                .thenReturn(generateTestData());
         given().log().all(true).header("Accept-Encoding", "gzip").get("/wado-rs/studies").then().log().all()
                 .statusCode(200).and().header("Content-Encoding", "gzip");
     }

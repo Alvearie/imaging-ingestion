@@ -9,12 +9,14 @@ import java.util.List;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.validation.constraints.NotBlank;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
@@ -32,8 +34,8 @@ public class QueryResource {
 
     @GET
     @Path("/studies/{studyUID}")
-    public Response getResults(@PathParam("studyUID") String studyUID) {
-        List<DicomEntityResult> instances = retrieveService.getResults(studyUID);
+    public Response getResults(@PathParam("studyUID") String studyUID, @NotBlank @QueryParam("source") String source) {
+        List<DicomEntityResult> instances = retrieveService.getResults(studyUID, source);
         if (instances == null) {
             return Response.status(Status.NOT_FOUND).build();
         }
@@ -42,8 +44,9 @@ public class QueryResource {
 
     @GET
     @Path("/studies/{studyUID}/series/{seriesUID}")
-    public Response getResults(@PathParam("studyUID") String studyUID, @PathParam("seriesUID") String seriesUID) {
-        List<DicomEntityResult> instances = retrieveService.getResults(studyUID, seriesUID);
+    public Response getResults(@PathParam("studyUID") String studyUID, @PathParam("seriesUID") String seriesUID,
+            @NotBlank @QueryParam("source") String source) {
+        List<DicomEntityResult> instances = retrieveService.getResults(studyUID, seriesUID, source);
         if (instances == null) {
             return Response.status(Status.NOT_FOUND).build();
         }
@@ -53,21 +56,21 @@ public class QueryResource {
     @GET
     @Path("/studies/{studyUID}/series/{seriesUID}/instances/{instanceUID}")
     public Response getResults(@PathParam("studyUID") String studyUID, @PathParam("seriesUID") String seriesUID,
-            @PathParam("instanceUID") String instanceUID) {
-        List<DicomEntityResult> instances = retrieveService.getResults(studyUID, seriesUID, instanceUID);
+            @PathParam("instanceUID") String instanceUID, @NotBlank @QueryParam("source") String source) {
+        List<DicomEntityResult> instances = retrieveService.getResults(studyUID, seriesUID, instanceUID, source);
         if (instances == null) {
             return Response.status(Status.NOT_FOUND).build();
         }
         return Response.ok(instances).build();
     }
-    
+
     @POST
     @Path("/studies")
     @Consumes("application/json")
     @Produces("application/json")
-    public Response getResults(DicomQueryModel model) {
+    public Response getResults(DicomQueryModel model, @NotBlank @QueryParam("source") String source) {
         LOG.info("QUERY MODEL " + model.toString());
-        List<DicomEntityResult> instances = retrieveService.getResults(model);
-        return Response.ok(instances).build(); 
+        List<DicomEntityResult> instances = retrieveService.getResults(model, source);
+        return Response.ok(instances).build();
     }
 }
