@@ -52,9 +52,9 @@ public class RetrieveService {
         return study;
     }
 
-    public List<DicomEntityResult> getResults(String studyId) {
+    public List<DicomEntityResult> getResults(String studyId, String source) {
         List<DicomEntityResult> results = new ArrayList<>();
-        DicomStudyEntity study = DicomStudyEntity.findByStudyInstanceUID(studyId, false);
+        DicomStudyEntity study = DicomStudyEntity.findByStudyInstanceUID(studyId, source, false);
         if (study != null) {
             if (study.series != null) {
                 for (DicomSeriesEntity series : study.series) {
@@ -78,9 +78,9 @@ public class RetrieveService {
         return results;
     }
 
-    public List<DicomEntityResult> getResults(String studyId, String seriesId) {
+    public List<DicomEntityResult> getResults(String studyId, String seriesId, String source) {
         List<DicomEntityResult> results = new ArrayList<>();
-        DicomSeriesEntity series = DicomSeriesEntity.findBySeriesInstanceUID(seriesId, false);
+        DicomSeriesEntity series = DicomSeriesEntity.findBySeriesInstanceUID(seriesId, source, false);
         if (series != null && studyId.equals(series.study.studyInstanceUID)) {
             if (series.instances != null) {
                 for (DicomInstanceEntity instance : series.instances) {
@@ -98,7 +98,7 @@ public class RetrieveService {
         return results;
     }
 
-    public List<DicomEntityResult> getResults(String studyId, String seriesId, String instanceId) {
+    public List<DicomEntityResult> getResults(String studyId, String seriesId, String instanceId, String source) {
         List<DicomEntityResult> results = new ArrayList<>();
         DicomInstanceEntity instance = DicomInstanceEntity.findBySopInstanceUID(instanceId);
         if (instance != null && seriesId.equals(instance.series.seriesInstanceUID)
@@ -114,108 +114,109 @@ public class RetrieveService {
 
         return results;
     }
-    
-    public List<DicomEntityResult> getResults(DicomQueryModel model) {
+
+    public List<DicomEntityResult> getResults(DicomQueryModel model, String source) {
         switch (model.getScope()) {
         case SERIES:
-            return handleSeriesQuery(model);
+            return handleSeriesQuery(model, source);
         case INSTANCE:
-            return handleInstanceQuery(model);
-        case STUDY: 
+            return handleInstanceQuery(model, source);
+        case STUDY:
         default:
-            return handleStudyQuery(model);
+            return handleStudyQuery(model, source);
         }
     }
-    
-    public List<DicomEntityResult> handleStudyQuery(DicomQueryModel model) {
+
+    public List<DicomEntityResult> handleStudyQuery(DicomQueryModel model, String source) {
         List<DicomEntityResult> results = new ArrayList<>();
-        
-        List<DicomStudyEntity> studyInstances = new QueryHelper().queryStudies(model);
-        
+
+        List<DicomStudyEntity> studyInstances = new QueryHelper().queryStudies(model, source);
+
         for (DicomStudyEntity studyInstance : studyInstances) {
             DicomEntityResult searchResult = new DicomEntityResult();
             addAttributeToEntity(searchResult, Tag.StudyDate, VR.DA, studyInstance.studyDate);
             addAttributeToEntity(searchResult, Tag.StudyTime, VR.TM, studyInstance.studyTime);
             addAttributeToEntity(searchResult, Tag.StudyInstanceUID, VR.UI, studyInstance.studyInstanceUID);
             addAttributeToEntity(searchResult, Tag.StudyID, VR.SH, studyInstance.studyID);
-            
+
             List<DicomSeriesEntity> studySeries = studyInstance.series;
-            
+
             int instancesInStudy = 0;
             Set<String> modalitiesInStudy = new HashSet<String>();
             for (DicomSeriesEntity series : studySeries) {
                 instancesInStudy += series.instances.size();
                 modalitiesInStudy.add(series.modality);
             }
-            
+
             addAttributeToEntity(searchResult, Tag.NumberOfStudyRelatedSeries, VR.IS, studySeries.size());
-            addAttributeToEntity(searchResult, Tag.NumberOfStudyRelatedInstances, VR.IS, instancesInStudy);        
+            addAttributeToEntity(searchResult, Tag.NumberOfStudyRelatedInstances, VR.IS, instancesInStudy);
             addAttributeToEntity(searchResult, Tag.ModalitiesInStudy, VR.CS, modalitiesInStudy.toArray(new String[0]));
-            addAttributeToEntity(searchResult, Tag.RetrieveURL, VR.UR, studyInstance.provider.wadoExternalEndpoint 
-                    + "/studies/" + studyInstance.studyInstanceUID);
-              
+            addAttributeToEntity(searchResult, Tag.RetrieveURL, VR.UR,
+                    studyInstance.provider.wadoExternalEndpoint + "/studies/" + studyInstance.studyInstanceUID);
+
             List<DicomStudyAttributesEntity> studyAttributes = studyInstance.attributes;
             for (DicomStudyAttributesEntity studyAttribute : studyAttributes) {
-                addAttributeToEntity(searchResult, studyAttribute.tag.intValue(), VR.valueOf(studyAttribute.vr), studyAttribute.value);
+                addAttributeToEntity(searchResult, studyAttribute.tag.intValue(), VR.valueOf(studyAttribute.vr),
+                        studyAttribute.value);
             }
             results.add(searchResult);
         }
         return results;
     }
-    
-    public List<DicomEntityResult> handleSeriesQuery(DicomQueryModel model) {
+
+    public List<DicomEntityResult> handleSeriesQuery(DicomQueryModel model, String source) {
         List<DicomEntityResult> results = new ArrayList<>();
-        
-        List<DicomSeriesEntity> seriesInstances =  new QueryHelper().querySeries(model);
-        
-        for (DicomSeriesEntity series: seriesInstances) {
+
+        List<DicomSeriesEntity> seriesInstances = new QueryHelper().querySeries(model, source);
+
+        for (DicomSeriesEntity series : seriesInstances) {
             DicomEntityResult searchResult = new DicomEntityResult();
             addAttributeToEntity(searchResult, Tag.Modality, VR.CS, series.modality);
             addAttributeToEntity(searchResult, Tag.SeriesInstanceUID, VR.UI, series.seriesInstanceUID);
             addAttributeToEntity(searchResult, Tag.SeriesNumber, VR.IS, series.number);
             addAttributeToEntity(searchResult, Tag.NumberOfSeriesRelatedInstances, VR.IS, series.instances.size());
-            addAttributeToEntity(searchResult, Tag.RetrieveURL, VR.UR
-                    , series.study.provider.wadoExternalEndpoint 
-                    + "/studies/" + series.study.studyInstanceUID 
-                    + "/series/" + series.seriesInstanceUID);
-            
+            addAttributeToEntity(searchResult, Tag.RetrieveURL, VR.UR, series.study.provider.wadoExternalEndpoint
+                    + "/studies/" + series.study.studyInstanceUID + "/series/" + series.seriesInstanceUID);
+
             for (DicomSeriesAttributesEntity seriesAttribute : series.attributes) {
-                addAttributeToEntity(searchResult, seriesAttribute.tag.intValue(), VR.valueOf(seriesAttribute.vr), seriesAttribute.value);
+                addAttributeToEntity(searchResult, seriesAttribute.tag.intValue(), VR.valueOf(seriesAttribute.vr),
+                        seriesAttribute.value);
             }
-            
+
             results.add(searchResult);
-        } 
+        }
         return results;
     }
-    
-    public List<DicomEntityResult> handleInstanceQuery(DicomQueryModel model) {
+
+    public List<DicomEntityResult> handleInstanceQuery(DicomQueryModel model, String source) {
         List<DicomEntityResult> results = new ArrayList<>();
-        
-        // TODO:  Implement the query string
-        List<DicomInstanceEntity> instances = new QueryHelper().queryInstances(model);
+
+        // TODO: Implement the query string
+        List<DicomInstanceEntity> instances = new QueryHelper().queryInstances(model, source);
         for (DicomInstanceEntity instance : instances) {
             DicomEntityResult searchResult = new DicomEntityResult();
             addAttributeToEntity(searchResult, Tag.SOPClassUID, VR.UI, instance.sopClassUID);
             addAttributeToEntity(searchResult, Tag.SOPInstanceUID, VR.UI, instance.sopInstanceUID);
             addAttributeToEntity(searchResult, Tag.SeriesNumber, VR.IS, instance.number);
-            addAttributeToEntity(searchResult, Tag.RetrieveURL, VR.UR 
-                    , instance.series.study.provider.wadoExternalEndpoint 
-                    + "/studies/" + instance.series.study.studyInstanceUID 
-                    + "/series/" + instance.series.seriesInstanceUID
-                    + "/instances/" + instance.sopInstanceUID);        
+            addAttributeToEntity(searchResult, Tag.RetrieveURL, VR.UR,
+                    instance.series.study.provider.wadoExternalEndpoint + "/studies/"
+                            + instance.series.study.studyInstanceUID + "/series/" + instance.series.seriesInstanceUID
+                            + "/instances/" + instance.sopInstanceUID);
             results.add(searchResult);
         }
         return results;
     }
-    
-    private DicomEntityResult addAttributeToEntity(DicomEntityResult result, int tag, VR valueRepresentation, int value) {
+
+    private DicomEntityResult addAttributeToEntity(DicomEntityResult result, int tag, VR valueRepresentation,
+            int value) {
         return addAttributeToEntity(result, tag, valueRepresentation, Integer.valueOf(value).toString());
     }
-    
-    private DicomEntityResult addAttributeToEntity(DicomEntityResult result, int tag, VR valueRepresentation, String value) {
+
+    private DicomEntityResult addAttributeToEntity(DicomEntityResult result, int tag, VR valueRepresentation,
+            String value) {
         DicomAttribute attribute = new DicomAttribute();
         if (value != null && VR.CS == valueRepresentation) {
-            String[] values = value.split(","); 
+            String[] values = value.split(",");
             for (String singleValue : values) {
                 attribute.addValue(singleValue);
             }
@@ -226,8 +227,9 @@ public class RetrieveService {
         result.addElement(tag, attribute);
         return result;
     }
-    
-    private DicomEntityResult addAttributeToEntity(DicomEntityResult result, int tag, VR valueRepresentation, String[]  values) {
+
+    private DicomEntityResult addAttributeToEntity(DicomEntityResult result, int tag, VR valueRepresentation,
+            String[] values) {
         DicomAttribute attribute = new DicomAttribute();
         if (values != null) {
             for (String value : values) {

@@ -1083,6 +1083,7 @@ spec:
             fieldRef:
               fieldPath: metadata.namespace
         image: alvearie/imaging-ingestion-operator:0.0.1
+        imagePullPolicy: Always
         livenessProbe:
           httpGet:
             path: /healthz

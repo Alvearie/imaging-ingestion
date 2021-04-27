@@ -31,6 +31,7 @@ import org.alvearie.imaging.ingestion.model.result.DicomQueryModel;
 import org.alvearie.imaging.ingestion.model.result.DicomSearchResult;
 import org.alvearie.imaging.ingestion.service.s3.S3Service;
 import org.dcm4che3.data.Tag;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.jboss.logging.Logger;
 import org.jboss.resteasy.annotations.GZIP;
@@ -40,6 +41,9 @@ import org.jboss.resteasy.annotations.GZIP;
 @GZIP
 public class QidoResource {
     private static final Logger LOG = Logger.getLogger(QidoResource.class);
+
+    @ConfigProperty(name = "provider.name")
+    String source;
 
     @Inject
     S3Service s3Service;
@@ -270,7 +274,7 @@ public class QidoResource {
         queryParams.entrySet().iterator().forEachRemaining(e -> handleQueryParameter(model, e));
         LOG.info("Qido Model: " + model.toString());
 
-        List<DicomEntityResult> results = queryClient.getResults(model);
+        List<DicomEntityResult> results = queryClient.getResults(model, source);
         Response.ResponseBuilder responseBuilder;
         if (results != null) {
             List<DicomSearchResult> castedResults = new ArrayList<DicomSearchResult>();

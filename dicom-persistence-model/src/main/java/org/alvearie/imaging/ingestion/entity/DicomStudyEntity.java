@@ -73,6 +73,15 @@ public class DicomStudyEntity extends PanacheEntity {
         }
     }
 
+    public static DicomStudyEntity findByStudyInstanceUID(String id, String source, boolean lock) {
+        if (lock) {
+            return find("studyInstanceUID = ?1 and provider.name = ?2", id, source)
+                    .withLock(LockModeType.PESSIMISTIC_WRITE).firstResult();
+        } else {
+            return find("studyInstanceUID = ?1 and provider.name = ?2", id, source).firstResult();
+        }
+    }
+
     @Override
     public String toString() {
         return "DicomStudyEntity [provider=" + provider + ", series=" + series + ", attributes=" + attributes

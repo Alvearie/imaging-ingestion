@@ -65,6 +65,15 @@ public class DicomSeriesEntity extends PanacheEntity {
         }
     }
 
+    public static DicomSeriesEntity findBySeriesInstanceUID(String id, String source, boolean lock) {
+        if (lock) {
+            return find("seriesInstanceUID = ?1 and study.provider.name = ?2", id, source)
+                    .withLock(LockModeType.PESSIMISTIC_WRITE).firstResult();
+        } else {
+            return find("seriesInstanceUID = ?1 and study.provider.name = ?2", id, source).firstResult();
+        }
+    }
+
     @Override
     public boolean equals(Object object) {
         if (object == this) {

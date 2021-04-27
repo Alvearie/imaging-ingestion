@@ -41,6 +41,10 @@ public class DicomInstanceEntity extends PanacheEntity {
         return find("sopInstanceUID", id).firstResult();
     }
 
+    public static DicomInstanceEntity findBySopInstanceUID(String id, String source) {
+        return find("sopInstanceUID = ?1 and series.study.provider.name = ?2", id, source).firstResult();
+    }
+
     @Override
     public boolean equals(Object object) {
         if (object == this) {

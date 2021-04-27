@@ -53,6 +53,10 @@ func WadoService(cr *v1alpha1.DicomwebIngestionService, eventProcessorServiceEnd
 											Value: "/etc/bucket/secret",
 										},
 										{
+											Name:  "PROVIDER_NAME",
+											Value: cr.Spec.ProviderName,
+										},
+										{
 											Name:  "QUERY_ENDPOINT",
 											Value: eventProcessorServiceEndpoint + "/query",
 										},
