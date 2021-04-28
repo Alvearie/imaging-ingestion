@@ -43,24 +43,7 @@ func WadoService(cr *v1alpha1.DicomwebIngestionService, eventProcessorServiceEnd
 											ContainerPort: 8080,
 										},
 									},
-									Env: []corev1.EnvVar{
-										{
-											Name:  "BUCKET_CONFIG_PATH",
-											Value: "/etc/bucket/config",
-										},
-										{
-											Name:  "BUCKET_SECRET_PATH",
-											Value: "/etc/bucket/secret",
-										},
-										{
-											Name:  "PROVIDER_NAME",
-											Value: cr.Spec.ProviderName,
-										},
-										{
-											Name:  "QUERY_ENDPOINT",
-											Value: eventProcessorServiceEndpoint + "/query",
-										},
-									},
+									Env: GetWadoServiceEnv(cr, []corev1.EnvVar{}, eventProcessorServiceEndpoint),
 									VolumeMounts: []corev1.VolumeMount{
 										{
 											Name:      "bucket-config-volume",
@@ -110,13 +93,15 @@ func WadoServiceSelector(cr *v1alpha1.DicomwebIngestionService) client.ObjectKey
 	}
 }
 
-func WadoServiceReconciled(cr *v1alpha1.DicomwebIngestionService, currentState *kservingv1.Service) *kservingv1.Service {
+func WadoServiceReconciled(cr *v1alpha1.DicomwebIngestionService, currentState *kservingv1.Service, eventProcessorServiceEndpoint string) *kservingv1.Service {
 	reconciled := currentState.DeepCopy()
 	reconciled.Spec.ConfigurationSpec.Template.ObjectMeta.Annotations = map[string]string{
 		common.MinScaleAnnotation: strconv.Itoa(int(cr.Spec.WadoService.MinReplicas)),
 		common.MaxScaleAnnotation: strconv.Itoa(int(cr.Spec.WadoService.MaxReplicas)),
 	}
-	reconciled.Spec.ConfigurationSpec.Template.Spec.PodSpec.Containers[0].Image = GetImage(cr.Spec.WadoService.Image, common.WadoServiceImage)
+	container := reconciled.Spec.ConfigurationSpec.Template.Spec.PodSpec.Containers[0]
+	container.Image = GetImage(cr.Spec.WadoService.Image, common.WadoServiceImage)
+	container.Env = GetWadoServiceEnv(cr, container.Env, eventProcessorServiceEndpoint)
 	reconciled.Spec.ConfigurationSpec.Template.Spec.PodSpec.ImagePullSecrets = cr.Spec.ImagePullSecrets
 	reconciled.Spec.ConfigurationSpec.Template.Spec.ContainerConcurrency = &cr.Spec.WadoService.Concurrency
 
@@ -125,4 +110,28 @@ func WadoServiceReconciled(cr *v1alpha1.DicomwebIngestionService, currentState *
 
 func GetWadoServiceName(cr *v1alpha1.DicomwebIngestionService) string {
 	return cr.Name + "-wado"
+}
+
+func GetWadoServiceEnv(cr *v1alpha1.DicomwebIngestionService, existing []corev1.EnvVar, eventProcessorServiceEndpoint string) []corev1.EnvVar {
+	env := []corev1.EnvVar{
+		{
+			Name:  "BUCKET_CONFIG_PATH",
+			Value: "/etc/bucket/config",
+		},
+		{
+			Name:  "BUCKET_SECRET_PATH",
+			Value: "/etc/bucket/secret",
+		},
+		{
+			Name:  "PROVIDER_NAME",
+			Value: cr.Spec.ProviderName,
+		},
+		{
+			Name:  "QUERY_ENDPOINT",
+			Value: eventProcessorServiceEndpoint + "/query",
+		},
+	}
+	env = MergeEnvs(existing, env)
+
+	return env
 }
