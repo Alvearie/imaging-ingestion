@@ -72,7 +72,8 @@ func (i *DicomwebIngestionServiceReconciler) GetWadoServiceDesiredState(state *D
 		}
 	}
 
-	service := model.WadoService(cr, GetEventProcessorServiceEndpoint(eventDrivenIngestionResource))
+	eventProcessorServiceEndpoint := GetEventProcessorServiceEndpoint(eventDrivenIngestionResource)
+	service := model.WadoService(cr, eventProcessorServiceEndpoint)
 	if state.WadoService == nil {
 		return common.GenericCreateAction{
 			Ref: service,
@@ -81,7 +82,7 @@ func (i *DicomwebIngestionServiceReconciler) GetWadoServiceDesiredState(state *D
 	}
 
 	return common.GenericUpdateAction{
-		Ref: model.WadoServiceReconciled(cr, state.WadoService),
+		Ref: model.WadoServiceReconciled(cr, state.WadoService, eventProcessorServiceEndpoint),
 		Msg: "Update WADO Service",
 	}
 }
