@@ -52,6 +52,7 @@ public class CStoreSCPImpl extends AbstractDicomService {
     protected void store(Association as, PresentationContext pc, Attributes rq, PDVInputStream data, Attributes rsp)
             throws IOException {
         StoreContext ctx = new SimpleStoreContext();
+        ctx.setTransferSyntaxUID(pc.getTransferSyntax());
         storeService.store(ctx, data);
     }
 

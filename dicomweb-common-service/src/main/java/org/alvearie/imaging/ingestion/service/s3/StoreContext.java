@@ -19,4 +19,8 @@ public interface StoreContext {
     String getObjectName();
 
     void setObjectName(String name);
+    
+    String getTransferSyntaxUID();
+    
+    void setTransferSyntaxUID(String tsuid);
 }

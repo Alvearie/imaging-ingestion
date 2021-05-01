@@ -36,7 +36,7 @@ public class RetrieveService {
                 for (DicomSeriesEntity series : study.series) {
                     if (series != null) {
                         if (series.instances != null) {
-                            for (DicomInstanceEntity instance : series.instances) {
+                            for (@SuppressWarnings("unused") DicomInstanceEntity instance : series.instances) {
                                 // Trigger lazzy load
                             }
                         }
@@ -65,8 +65,8 @@ public class RetrieveService {
 
                                 DicomResource resource = new DicomResource();
                                 resource.setObjectName(instance.objectName);
-
                                 result.setResource(resource);
+                                result.setLastModified(instance.lastModified);
                                 results.add(result);
                             }
                         }
@@ -88,8 +88,8 @@ public class RetrieveService {
 
                     DicomResource resource = new DicomResource();
                     resource.setObjectName(instance.objectName);
-
                     result.setResource(resource);
+                    result.setLastModified(instance.lastModified);
                     results.add(result);
                 }
             }
@@ -107,8 +107,8 @@ public class RetrieveService {
 
             DicomResource resource = new DicomResource();
             resource.setObjectName(instance.objectName);
-
             result.setResource(resource);
+            result.setLastModified(instance.lastModified);
             results.add(result);
         }
 
@@ -191,12 +191,12 @@ public class RetrieveService {
     public List<DicomEntityResult> handleInstanceQuery(DicomQueryModel model, String source) {
         List<DicomEntityResult> results = new ArrayList<>();
 
-        // TODO: Implement the query string
         List<DicomInstanceEntity> instances = new QueryHelper().queryInstances(model, source);
         for (DicomInstanceEntity instance : instances) {
             DicomEntityResult searchResult = new DicomEntityResult();
             addAttributeToEntity(searchResult, Tag.SOPClassUID, VR.UI, instance.sopClassUID);
             addAttributeToEntity(searchResult, Tag.SOPInstanceUID, VR.UI, instance.sopInstanceUID);
+            addAttributeToEntity(searchResult, Tag.TransferSyntaxUID, VR.UI, instance.transferSyntaxUID);
             addAttributeToEntity(searchResult, Tag.SeriesNumber, VR.IS, instance.number);
             addAttributeToEntity(searchResult, Tag.RetrieveURL, VR.UR,
                     instance.series.study.provider.wadoExternalEndpoint + "/studies/"

@@ -11,12 +11,17 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.alvearie.imaging.ingestion.model.result.DicomAttribute;
 import org.alvearie.imaging.ingestion.model.result.DicomEntityResult;
 import org.alvearie.imaging.ingestion.model.result.DicomResource;
 import org.alvearie.imaging.ingestion.service.s3.S3Service;
+import org.dcm4che3.data.Tag;
+import org.dcm4che3.data.UID;
+import org.dcm4che3.data.VR;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -30,8 +35,6 @@ public class WadoResourceTest {
     S3Service s3Service;
 
     private static final String TEST_FILENAME = "../test-data/dicom/file1.dcm";
-
-    RenderService renderService;
 
     @InjectMock
     @RestClient
@@ -49,7 +52,7 @@ public class WadoResourceTest {
         Mockito.when(queryClient.getResults(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(),
                 Mockito.anyString())).thenReturn(getResults(TEST_FILENAME));
         given().log().all(true).get("/wado-rs/studies/123/series/1234/instances/12345/rendered").then().log().headers()
-                .statusCode(200);
+                .statusCode(501);
     }
 
     @Test
@@ -58,7 +61,7 @@ public class WadoResourceTest {
         Mockito.when(queryClient.getResults(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(),
                 Mockito.anyString())).thenReturn(getResults(TEST_FILENAME));
         given().log().all(true).get("/wado-rs/studies/123/series/1234/instances/12345/thumbnail").then().log().headers()
-                .statusCode(200);
+                .statusCode(501);
     }
 
     @Test
@@ -67,7 +70,7 @@ public class WadoResourceTest {
         Mockito.when(queryClient.getResults(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(),
                 Mockito.anyString())).thenReturn(getResults(TEST_FILENAME));
         given().log().all(true).get("/wado-rs/studies/123/series/1234/instances/12345/thumbnail?viewport=75,100").then()
-                .log().headers().statusCode(200);
+                .log().headers().statusCode(501);
     }
 
     @Test
@@ -76,7 +79,7 @@ public class WadoResourceTest {
         Mockito.when(queryClient.getResults(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(),
                 Mockito.anyString())).thenReturn(getResults(TEST_FILENAME));
         given().log().all(true).get("/wado-rs/studies/123/series/1234/instances/12345/rendered?viewport=200,200").then()
-                .log().headers().statusCode(200);
+                .log().headers().statusCode(501);
     }
 
     @Test
@@ -86,7 +89,7 @@ public class WadoResourceTest {
                 Mockito.anyString())).thenReturn(getResults(TEST_FILENAME));
         given().log().all(true)
                 .get("/wado-rs/studies/123/series/1234/instances/12345/rendered?viewport=200,200,,,200,200").then()
-                .log().headers().statusCode(200);
+                .log().headers().statusCode(501);
     }
 
     @Test
@@ -96,7 +99,7 @@ public class WadoResourceTest {
                 Mockito.anyString())).thenReturn(getResults(TEST_FILENAME));
         given().log().all(true)
                 .get("/wado-rs/studies/123/series/1234/instances/12345/rendered?viewport=256,256,256,256").then().log()
-                .headers().statusCode(200);
+                .headers().statusCode(501);
     }
 
     @Test
@@ -122,11 +125,16 @@ public class WadoResourceTest {
     private List<DicomEntityResult> getResults(String objectName) {
         List<DicomEntityResult> results = new ArrayList<>();
         DicomEntityResult result = new DicomEntityResult();
+        DicomAttribute tsuid = new DicomAttribute();
+        tsuid.setVr(VR.UI.name());
+        tsuid.addValue(UID.ExplicitVRLittleEndian);
+        result.addElement(Tag.TransferSyntaxUID, tsuid);
 
         DicomResource resource = new DicomResource();
         resource.setObjectName(objectName);
 
         result.setResource(resource);
+        result.setLastModified(OffsetDateTime.now());
         results.add(result);
 
         return results;

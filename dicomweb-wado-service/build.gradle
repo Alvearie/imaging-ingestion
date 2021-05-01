@@ -26,6 +26,7 @@ dependencies {
 
     implementation "org.dcm4che:dcm4che-imageio:${dcm4cheVersion}"
     implementation "org.dcm4che:dcm4che-json:${dcm4cheVersion}"
+    implementation "org.dcm4che:dcm4che-ws-rs:${dcm4cheVersion}"
 
     testImplementation 'io.quarkus:quarkus-junit5'
     testImplementation 'io.quarkus:quarkus-junit5-mockito'

@@ -128,7 +128,7 @@ public class StowResource {
                 if (!MediaTypes.equalsIgnoreParameters(mediaType, MediaTypes.APPLICATION_DICOM_TYPE))
                     return false;
 
-                stowResource.storeDicomObject(in);
+                stowResource.storeDicomObject(in, MediaTypes.transferSyntaxOf(mediaType));
                 return true;
             }
         };
@@ -137,8 +137,9 @@ public class StowResource {
                 String contentLocation) throws Exception;
     }
 
-    private void storeDicomObject(MultipartInputStream in) throws IOException {
+    private void storeDicomObject(MultipartInputStream in, String transferSyntaxUID) throws IOException {
         StoreContext ctx = new SimpleStoreContext();
+        ctx.setTransferSyntaxUID(transferSyntaxUID);
         storeService.store(ctx, in);
     }
 }
