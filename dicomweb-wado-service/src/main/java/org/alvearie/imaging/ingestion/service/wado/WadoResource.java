@@ -321,6 +321,8 @@ public class WadoResource {
                 } catch (IOException e) {
                     LOG.error(e);
                 }
+                service.lastModified = lastModified;
+                service.eTag = Integer.toString(lastModified.hashCode());
                 return output;
             }
             
