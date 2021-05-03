@@ -19,6 +19,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.container.AsyncResponse;
 import javax.ws.rs.container.Suspended;
+import javax.ws.rs.core.CacheControl;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
@@ -29,7 +30,6 @@ import javax.ws.rs.core.UriInfo;
 import org.alvearie.imaging.ingestion.model.result.DicomEntityResult;
 import org.alvearie.imaging.ingestion.model.result.DicomQueryModel;
 import org.alvearie.imaging.ingestion.model.result.DicomSearchResult;
-import org.alvearie.imaging.ingestion.service.s3.S3Service;
 import org.dcm4che3.data.Tag;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
@@ -44,9 +44,6 @@ public class QidoResource {
 
     @ConfigProperty(name = "provider.name")
     String source;
-
-    @Inject
-    S3Service s3Service;
 
     @Inject
     @RestClient
@@ -236,7 +233,6 @@ public class QidoResource {
         model.setStudyUid(studyUID);
         model.setSeriesUid(seriesUID);
         buildQidoResponse(model, uriInfo.getQueryParameters(), ar);
-
     }
 
     @GET
@@ -248,7 +244,6 @@ public class QidoResource {
         model.setScope(DicomQueryModel.Scope.INSTANCE);
         model.setStudyUid(studyUID);
         buildQidoResponse(model, uriInfo.getQueryParameters(), ar);
-
     }
 
     @GET
@@ -277,13 +272,16 @@ public class QidoResource {
         List<DicomEntityResult> results = queryClient.getResults(model, source);
         Response.ResponseBuilder responseBuilder;
         if (results != null) {
-            List<DicomSearchResult> castedResults = new ArrayList<DicomSearchResult>();
+            List<DicomSearchResult> narrowedResults = new ArrayList<DicomSearchResult>();
             for (DicomEntityResult result : results) {
                 DicomSearchResult searchResult = new DicomSearchResult();
                 searchResult.setAttributes(result.getAttributes());
-                castedResults.add(searchResult);
+                narrowedResults.add(searchResult);
             }
-            responseBuilder = Response.ok(castedResults);
+            CacheControl cc = new CacheControl();
+            cc.setNoCache(true);
+            cc.setPrivate(true);
+            responseBuilder = Response.ok(narrowedResults).cacheControl(cc);
         } else {
             responseBuilder = Response.status(Status.NOT_FOUND);
         }

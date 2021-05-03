@@ -11,6 +11,7 @@ public class SimpleStoreContext implements StoreContext {
     private Attributes attributes;
     private String filePath;
     private String objectName;
+    private String transferSyntaxUID;
 
     @Override
     public Attributes getAttributes() {
@@ -40,5 +41,15 @@ public class SimpleStoreContext implements StoreContext {
     @Override
     public void setObjectName(String name) {
         this.objectName = name;
+    }
+    
+    @Override
+    public String getTransferSyntaxUID() {
+        return transferSyntaxUID;
+    }
+
+    @Override
+    public void setTransferSyntaxUID(String transferSyntaxUID) {
+        this.transferSyntaxUID = transferSyntaxUID;
     }
 }

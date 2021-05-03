@@ -5,6 +5,8 @@
  */
 package org.alvearie.imaging.ingestion.model.result;
 
+import java.time.OffsetDateTime;
+
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import io.quarkus.runtime.annotations.RegisterForReflection;
@@ -13,6 +15,7 @@ import io.quarkus.runtime.annotations.RegisterForReflection;
 @JsonSerialize(using = DicomEntityResultSerializer.class)
 public class DicomEntityResult extends DicomSearchResult {
     private DicomResource resource;
+    private OffsetDateTime lastModified;
 
     public DicomEntityResult() {
         super();
@@ -29,5 +32,13 @@ public class DicomEntityResult extends DicomSearchResult {
     @Override
     public String toString() {
         return "DicomEntityResult [resource=" + resource + "]";
+    }
+
+    public OffsetDateTime getLastModified() {
+        return lastModified;
+    }
+
+    public void setLastModified(OffsetDateTime lastModified) {
+        this.lastModified = lastModified;
     }
 }

@@ -24,6 +24,7 @@ public class DicomEntityResultSerializer extends JsonSerializer<Object> {
         gen.writeStartObject();
         gen.writeObjectField("attributes", obj.getAttributes());
         gen.writeObjectField("resource", obj.getResource());
+        gen.writeObjectField("lastModified", obj.getLastModified());
         gen.writeEndObject();
     }
 }

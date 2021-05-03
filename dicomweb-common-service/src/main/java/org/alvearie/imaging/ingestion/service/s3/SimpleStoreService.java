@@ -100,6 +100,7 @@ public class SimpleStoreService implements StoreService {
 
         Image image = new Image();
         image.setElements(elements);
+        image.setTransferSyntaxUID(ctx.getTransferSyntaxUID());
 
         Store store = new Store();
         store.setProvider(providerName);
@@ -111,6 +112,7 @@ public class SimpleStoreService implements StoreService {
         ImageStoredEvent event = new ImageStoredEvent();
         event.setImage(image);
         event.setStore(store);
+       
 
         return event;
     }

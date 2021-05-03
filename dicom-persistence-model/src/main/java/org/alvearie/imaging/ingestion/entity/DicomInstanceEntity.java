@@ -29,6 +29,9 @@ public class DicomInstanceEntity extends PanacheEntity {
 
     @Column(name = "sop_class_uid")
     public String sopClassUID;
+    
+    @Column(name = "transfer_syntax_uid")
+    public String transferSyntaxUID;
 
     public Integer number;
 

@@ -117,7 +117,7 @@ public class EventProcessorFunction {
 
     @Transactional
     public DicomInstanceEntity storeInstance(String seriesId, String instanceId, String sopClassId,
-            Integer instanceNumber, String objectName) {
+            String transferSyntaxUID, Integer instanceNumber, String objectName) {
         DicomSeriesEntity series = DicomSeriesEntity.findBySeriesInstanceUID(seriesId, false);
         DicomInstanceEntity instance = DicomInstanceEntity.findBySopInstanceUID(instanceId);
 
@@ -129,6 +129,7 @@ public class EventProcessorFunction {
             log.info("Instance exists: " + instanceId);
         }
         instance.sopClassUID = sopClassId;
+        instance.transferSyntaxUID = transferSyntaxUID;
         instance.number = instanceNumber;
         instance.objectName = objectName;
         instance.lastModified = OffsetDateTime.now(ZoneOffset.UTC);
@@ -155,6 +156,7 @@ public class EventProcessorFunction {
             String providerName = null;
 
             if (e.getImage() != null) {
+                String transferSyntaxUID = e.getImage().getTransferSyntaxUID();
                 String studyInstanceUID = null;
                 String studyID = null;
                 String studyDate = null;
@@ -275,8 +277,13 @@ public class EventProcessorFunction {
                     log.error("Instance ID is null");
                     return null;
                 }
+                
+                if (transferSyntaxUID == null) {
+                    log.error("TransferSyntaxUID is null");
+                    return null;
+                }
 
-                instance = storeInstance(seriesId, instanceId, sopClassId, instanceNumber, objectName);
+                instance = storeInstance(seriesId, instanceId, sopClassId, transferSyntaxUID, instanceNumber, objectName);
                 log.info("Instance ID: " + instance.id);
 
                 studyManager.markLastUpdated(studyInstanceUID);

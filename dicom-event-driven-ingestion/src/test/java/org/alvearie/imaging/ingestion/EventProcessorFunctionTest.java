@@ -52,6 +52,7 @@ public class EventProcessorFunctionTest {
         elements.add(buildElement(Tag.Modality, "CT"));
 
         Image image = new Image();
+        image.setTransferSyntaxUID("tsuid");
         image.setElements(elements);
 
         data.setImage(image);

@@ -92,6 +92,7 @@ public class QueryResourceTest {
 
         Image image = new Image();
         image.setElements(elements);
+        image.setTransferSyntaxUID("tsuid");
 
         data.setImage(image);
 
