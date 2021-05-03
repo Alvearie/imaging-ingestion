@@ -28,6 +28,7 @@ import org.mockito.Mockito;
 
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.mockito.InjectMock;
+import io.restassured.response.Response;
 
 @QuarkusTest
 public class WadoResourceTest {
@@ -120,6 +121,19 @@ public class WadoResourceTest {
         given().log().all(true).header("Accept-Encoding", "gzip")
                 .get("/wado-rs/studies/123/series/1234/instances/12345/metadata").then().log().headers().statusCode(200)
                 .and().header("Content-Encoding", "gzip");
+    }
+
+    @Test
+    public void testBulkFrameCache() {
+        Mockito.when(s3Service.getObject(Mockito.anyString())).thenReturn(getObject(TEST_FILENAME));
+        Mockito.when(queryClient.getResults(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(),
+                Mockito.anyString())).thenReturn(getResults(TEST_FILENAME));
+        Response response = given().log().all(true).get("/wado-rs/studies/123/series/1234/instances/12345/frames/1");
+
+        given().log().all(true).header("If-Modified-Since", response.getHeader("last-modified"))
+                .header("If-None-Match", response.getHeader("ETag"))
+                .get("/wado-rs/studies/123/series/1234/instances/12345/frames/1").then().log().headers()
+                .statusCode(304);
     }
 
     private List<DicomEntityResult> getResults(String objectName) {

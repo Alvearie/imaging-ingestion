@@ -27,8 +27,9 @@ import javax.ws.rs.container.AsyncResponse;
 import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.CacheControl;
 import javax.ws.rs.core.Context;
-import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.EntityTag;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
 
 import org.alvearie.imaging.ingestion.model.result.DicomAttribute;
@@ -54,6 +55,7 @@ import org.jboss.logging.Logger;
 import org.jboss.resteasy.annotations.GZIP;
 import org.jboss.resteasy.plugins.providers.multipart.MultipartRelatedOutput;
 
+
 @RequestScoped
 @Path("/wado-rs")
 @GZIP
@@ -72,12 +74,14 @@ public class WadoResource {
     @Context
     private HttpServletRequest request;
 
+    @Context
+    private Request req;
+
     @Inject
     S3Service s3Service;
 
     int[] frameList;
     Date lastModified;
-    String eTag;
     boolean clientUseCache = false;
 
     @GET
@@ -219,7 +223,6 @@ public class WadoResource {
                             MediaTypes.forTransferSyntax(tsuid));
                 }
                 service.lastModified = lastModified;
-                service.eTag = Integer.toString(lastModified.hashCode());
                 return output;
             }
         },
@@ -243,7 +246,6 @@ public class WadoResource {
 
                     Date lastModified = new Date();
                     service.lastModified = lastModified;
-                    service.eTag = Integer.toString(lastModified.hashCode());
 
                     return baos.toByteArray();
                 } catch (IOException e) {
@@ -310,11 +312,6 @@ public class WadoResource {
                 DicomEntityResult result = results.get(0);
                 Date lastModified = Date.from(result.getLastModified().toInstant());
 
-                if (service.isClientCacheValid(service.request, lastModified)) {
-                    service.clientUseCache = true;
-                    return null;
-                }
-
                 MultipartRelatedOutput output = new MultipartRelatedOutput();
                 try {
                     addDicomFramesPart(service, output, result.getResource().getObjectName(), service.frameList);
@@ -322,12 +319,11 @@ public class WadoResource {
                     LOG.error(e);
                 }
                 service.lastModified = lastModified;
-                service.eTag = Integer.toString(lastModified.hashCode());
                 return output;
             }
-            
-            private void addDicomFramesPart(WadoResource service, MultipartRelatedOutput output, String objectKey, int[] frameList)
-                    throws IOException {
+
+            private void addDicomFramesPart(WadoResource service, MultipartRelatedOutput output, String objectKey,
+                    int[] frameList) throws IOException {
                 ByteArrayOutputStream baos = service.getDicomStream(objectKey);
                 DicomInputStream dis = new DicomInputStream(new ByteArrayInputStream(baos.toByteArray()));
                 ImageDescriptor imgDesc = new ImageDescriptor(dis.readDatasetUntilPixelData());
@@ -343,8 +339,8 @@ public class WadoResource {
                         frame++;
                     }
                     long offset = dis.getPosition();
-                    LOG.info(String.format("Extracting frame %d (%d bytes)from inputstream at position %d", frame, frameLength,
-                            offset));
+                    LOG.info(String.format("Extracting frame %d (%d bytes)from inputstream at position %d", frame,
+                            frameLength, offset));
                     ByteArrayOutputStream out = new ByteArrayOutputStream();
                     try {
                         StreamUtils.copy(dis, out, frameLength);
@@ -398,24 +394,24 @@ public class WadoResource {
         LOG.info(String.format("Found %d instances", results.size()));
 
         Object response = output.buildResponse(this, results, ar);
+        Response.ResponseBuilder responseBuilder = null;
         if (response == null) {
-            if (clientUseCache) {
-                Response.ResponseBuilder responseBuilder = Response.status(Response.Status.NOT_MODIFIED);
-                ar.resume(responseBuilder.build());
-            } else {
-                Response.ResponseBuilder responseBuilder = Response.status(Response.Status.BAD_REQUEST);
-                ar.resume(responseBuilder.build());
-            }
+            responseBuilder = Response.status(Response.Status.BAD_REQUEST);
         } else {
-            CacheControl cc = new CacheControl();
-            cc.setNoCache(true);
-            cc.setPrivate(true);
-            cc.setMustRevalidate(true);
-            cc.setMaxAge(output.getCacheDuration());
-            Response.ResponseBuilder responseBuilder = Response.status(Response.Status.OK).entity(response)
-                    .type(output.getMediaType()).cacheControl(cc).lastModified(lastModified).tag(eTag);
-            ar.resume(responseBuilder.build());
+            if (lastModified != null) {
+                responseBuilder = req.evaluatePreconditions(lastModified, new EntityTag(String.valueOf(lastModified.hashCode())));
+            }
+            if (responseBuilder == null) {
+                CacheControl cc = new CacheControl();
+                cc.setNoCache(true);
+                cc.setPrivate(true);
+                cc.setMustRevalidate(true);
+                cc.setMaxAge(output.getCacheDuration());
+                responseBuilder = Response.status(Response.Status.OK).entity(response).type(output.getMediaType())
+                        .cacheControl(cc).lastModified(lastModified).tag(String.valueOf(lastModified.hashCode()));
+            }
         }
+        ar.resume(responseBuilder.build());
     }
 
     public int[] createFrameListFromPathParam(String frameList) {
@@ -452,22 +448,6 @@ public class WadoResource {
             return attribute.getValue().get(0);
         }
         return null;
-    }
-
-    private boolean isClientCacheValid(HttpServletRequest request, Date lastModified) {
-        String clientModifiedSince = request.getHeader(HttpHeaders.IF_MODIFIED_SINCE);
-        // String clientEtag = request.getHeader(HEADER_IF_NONE_MATCH);
-        if (clientModifiedSince != null) {
-            try {
-                Date clientMillis = new Date(Long.parseLong(clientModifiedSince));
-                if (clientMillis.after(lastModified)) {
-                    return true;
-                }
-            } catch (NumberFormatException e) {
-
-            }
-        }
-        return false;
     }
 
     public final class TranscoderHandler implements Transcoder.Handler {
