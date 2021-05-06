@@ -39,6 +39,8 @@ public class EventProcessorFunctionTest {
 
         String resource = processor.imageStoredEventChain(data, event);
         Assertions.assertNotNull(resource);
+        Assertions.assertEquals(String.format("%s/studies/%s/series/%s/instances/%s", "wadoInternalEndpoint", "study1",
+                "series1", "instance1"), resource);
     }
 
     private ImageStoredEvent createData() {
