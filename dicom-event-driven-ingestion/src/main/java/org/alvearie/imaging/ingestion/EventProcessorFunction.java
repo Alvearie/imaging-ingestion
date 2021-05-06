@@ -277,20 +277,24 @@ public class EventProcessorFunction {
                     log.error("Instance ID is null");
                     return null;
                 }
-                
+
                 if (transferSyntaxUID == null) {
                     log.error("TransferSyntaxUID is null");
                     return null;
                 }
 
-                instance = storeInstance(seriesId, instanceId, sopClassId, transferSyntaxUID, instanceNumber, objectName);
+                instance = storeInstance(seriesId, instanceId, sopClassId, transferSyntaxUID, instanceNumber,
+                        objectName);
                 log.info("Instance ID: " + instance.id);
 
                 studyManager.markLastUpdated(studyInstanceUID);
+
+                return String.format("%s/studies/%s/series/%s/instances/%s", study.provider.wadoInternalEndpoint,
+                        study.studyInstanceUID, series.seriesInstanceUID, instance.sopInstanceUID);
             }
         }
 
-        return study == null || study.provider == null ? null : study.provider.wadoInternalEndpoint;
+        return null;
     }
 
     private DicomSeriesEntity storeSeriesWithRetry(String studyId, String seriesId, Integer seriesNumber,
