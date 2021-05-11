@@ -13,9 +13,9 @@
                         "sopClassUID": "1.2.840.10008.5.1.4.1.1.2",
                         "number": 1
                     }
-                ]
+                ],
+                "endpoint": "http://127.0.0.1.nip.io"
             }
         ]
-    },
-    "endpoint": "http://127.0.0.1.nip.io"
+    }
 }

@@ -75,6 +75,11 @@ public class StudyRevisonEventBuilder {
                             s.setInstances(instances);
                         }
 
+                        if (se.provider != null) {
+                            s.setEndpoint(String.format("%s/studies/%s/series/%s", se.provider.wadoExternalEndpoint,
+                                    study.getStudyInstanceUID(), s.getSeriesInstanceUID()));
+                        }
+
                         series.add(s);
                     }
                 }
@@ -82,9 +87,6 @@ public class StudyRevisonEventBuilder {
             }
 
             event.setStudy(study);
-            if (studyEntity.provider != null) {
-                event.setEndpoint(studyEntity.provider.wadoExternalEndpoint);
-            }
         }
 
         return event;

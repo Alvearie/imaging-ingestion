@@ -7,8 +7,7 @@ package events
 
 // StudyRevisionEvent is the Study Revision Event
 type StudyRevisionEvent struct {
-	Study    DicomStudy `json:"study"`
-	Endpoint string     `json:"endpoint"`
+	Study DicomStudy `json:"study"`
 }
 
 // DicomStudy is Dicom Study
@@ -24,6 +23,7 @@ type DicomSeries struct {
 	Modality          string                 `json:"modality"`
 	Attributes        []DicomSeriesAttribute `json:"attributes"`
 	Instances         []DicomInstance        `json:"instances"`
+	Endpoint          string                 `json:"endpoint"`
 }
 
 // DicomSeriesAttribute is Dicom Series Attribute

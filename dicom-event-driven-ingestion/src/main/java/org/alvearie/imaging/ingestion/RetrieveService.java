@@ -21,6 +21,7 @@ import org.alvearie.imaging.ingestion.model.result.DicomAttribute;
 import org.alvearie.imaging.ingestion.model.result.DicomEntityResult;
 import org.alvearie.imaging.ingestion.model.result.DicomQueryModel;
 import org.alvearie.imaging.ingestion.model.result.DicomResource;
+import org.apache.commons.lang3.StringUtils;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.VR;
 import org.jboss.logging.Logger;
@@ -36,16 +37,17 @@ public class RetrieveService {
                 for (DicomSeriesEntity series : study.series) {
                     if (series != null) {
                         if (series.instances != null) {
-                            for (@SuppressWarnings("unused") DicomInstanceEntity instance : series.instances) {
+                            for (@SuppressWarnings("unused")
+                            DicomInstanceEntity instance : series.instances) {
                                 // Trigger lazzy load
                             }
                         }
+
+                        if (series.provider != null) {
+                            // Trigger lazzy load
+                        }
                     }
                 }
-            }
-
-            if (study.provider != null) {
-                // Trigger lazzy load
             }
         }
 
@@ -142,17 +144,21 @@ public class RetrieveService {
             List<DicomSeriesEntity> studySeries = studyInstance.series;
 
             int instancesInStudy = 0;
+            String endpoint = null;
             Set<String> modalitiesInStudy = new HashSet<String>();
             for (DicomSeriesEntity series : studySeries) {
                 instancesInStudy += series.instances.size();
                 modalitiesInStudy.add(series.modality);
+                if (StringUtils.isBlank(endpoint) && series.provider != null) {
+                    endpoint = series.provider.wadoExternalEndpoint;
+                }
             }
 
             addAttributeToEntity(searchResult, Tag.NumberOfStudyRelatedSeries, VR.IS, studySeries.size());
             addAttributeToEntity(searchResult, Tag.NumberOfStudyRelatedInstances, VR.IS, instancesInStudy);
             addAttributeToEntity(searchResult, Tag.ModalitiesInStudy, VR.CS, modalitiesInStudy.toArray(new String[0]));
             addAttributeToEntity(searchResult, Tag.RetrieveURL, VR.UR,
-                    studyInstance.provider.wadoExternalEndpoint + "/studies/" + studyInstance.studyInstanceUID);
+                    String.format("%s/studies/%s", endpoint, studyInstance.studyInstanceUID));
 
             List<DicomStudyAttributesEntity> studyAttributes = studyInstance.attributes;
             for (DicomStudyAttributesEntity studyAttribute : studyAttributes) {
@@ -175,8 +181,8 @@ public class RetrieveService {
             addAttributeToEntity(searchResult, Tag.SeriesInstanceUID, VR.UI, series.seriesInstanceUID);
             addAttributeToEntity(searchResult, Tag.SeriesNumber, VR.IS, series.number);
             addAttributeToEntity(searchResult, Tag.NumberOfSeriesRelatedInstances, VR.IS, series.instances.size());
-            addAttributeToEntity(searchResult, Tag.RetrieveURL, VR.UR, series.study.provider.wadoExternalEndpoint
-                    + "/studies/" + series.study.studyInstanceUID + "/series/" + series.seriesInstanceUID);
+            addAttributeToEntity(searchResult, Tag.RetrieveURL, VR.UR, String.format("%s/studies/%s/series/%s",
+                    series.provider.wadoExternalEndpoint, series.study.studyInstanceUID, series.seriesInstanceUID));
 
             for (DicomSeriesAttributesEntity seriesAttribute : series.attributes) {
                 addAttributeToEntity(searchResult, seriesAttribute.tag.intValue(), VR.valueOf(seriesAttribute.vr),
@@ -199,9 +205,9 @@ public class RetrieveService {
             addAttributeToEntity(searchResult, Tag.TransferSyntaxUID, VR.UI, instance.transferSyntaxUID);
             addAttributeToEntity(searchResult, Tag.SeriesNumber, VR.IS, instance.number);
             addAttributeToEntity(searchResult, Tag.RetrieveURL, VR.UR,
-                    instance.series.study.provider.wadoExternalEndpoint + "/studies/"
-                            + instance.series.study.studyInstanceUID + "/series/" + instance.series.seriesInstanceUID
-                            + "/instances/" + instance.sopInstanceUID);
+                    String.format("%s/studies/%s/series/%s/instances/%s", instance.series.provider.wadoExternalEndpoint,
+                            instance.series.study.studyInstanceUID, instance.series.seriesInstanceUID,
+                            instance.sopInstanceUID));
             results.add(searchResult);
         }
         return results;

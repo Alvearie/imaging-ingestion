@@ -76,7 +76,7 @@ public class QueryHelper {
         QueryBuilder queryBuilder = new QueryBuilder(DicomStudyEntity.class, "e", "attributes", "a", "series", "s");
         handlePatientIeAttributes(queryBuilder, "a", model);
         handleStudyIeAttributes(queryBuilder, "e", "a", "s", model);
-        queryBuilder.addParameter("e.provider.name", "source", source);
+        queryBuilder.addParameter("s.provider.name", "source", source);
         LOG.info("Study Query: " + queryBuilder.getQueryString());
         PanacheQuery<DicomStudyEntity> query = queryBuilder.getParameters().isEmpty() ? DicomStudyEntity.findAll()
                 : DicomStudyEntity.find(queryBuilder.getQueryString(), queryBuilder.getParameters());
@@ -96,7 +96,7 @@ public class QueryHelper {
             handleStudyIeAttributes(queryBuilder, "e.study", "sa", "e", model);
         }
         handleSeriesIeAttributes(queryBuilder, "e", "a", model);
-        queryBuilder.addParameter("e.study.provider.name", "source", source);
+        queryBuilder.addParameter("e.provider.name", "source", source);
         LOG.info("Series Query: " + queryBuilder.getQueryString());
         PanacheQuery<DicomSeriesEntity> query = queryBuilder.getParameters().isEmpty() ? DicomSeriesEntity.findAll()
                 : DicomSeriesEntity.find(queryBuilder.getQueryString(), queryBuilder.getParameters());
@@ -120,7 +120,7 @@ public class QueryHelper {
         handleStudyIeAttributes(queryBuilder, "e.series.study", "sa", "e.series", model);
         handleSeriesIeAttributes(queryBuilder, "series", "a", model);
         handleInstanceIeAttributes(queryBuilder, "e", model);
-        queryBuilder.addParameter("e.series.study.provider.name", "source", source);
+        queryBuilder.addParameter("e.series.provider.name", "source", source);
         LOG.info("Instances Query: " + queryBuilder.getQueryString());
         PanacheQuery<DicomInstanceEntity> query = queryBuilder.getParameters().isEmpty() ? DicomInstanceEntity.findAll()
                 : DicomInstanceEntity.find(queryBuilder.getQueryString(), queryBuilder.getParameters());

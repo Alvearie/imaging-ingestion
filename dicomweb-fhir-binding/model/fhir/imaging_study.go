@@ -30,11 +30,12 @@ type Coding struct {
 
 // ImagingSeries is Series of a Study
 type ImagingSeries struct {
-	UID               string            `json:"uid"`
-	Number            int               `json:"number"`
-	Modality          Coding            `json:"modality"`
-	NumberOfInstances int               `json:"numberOfInstances"`
-	Instance          []ImagingInstance `json:"instance"`
+	UID               string              `json:"uid"`
+	Number            int                 `json:"number"`
+	Modality          Coding              `json:"modality"`
+	NumberOfInstances int                 `json:"numberOfInstances"`
+	Endpoint          []EndpointReference `json:"endpoint"`
+	Instance          []ImagingInstance   `json:"instance"`
 }
 
 // ImagingInstance is Instance of a Series

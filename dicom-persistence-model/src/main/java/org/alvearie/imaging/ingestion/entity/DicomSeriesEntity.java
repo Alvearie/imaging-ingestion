@@ -15,6 +15,7 @@ import javax.persistence.FetchType;
 import javax.persistence.LockModeType;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.OrderBy;
 import javax.persistence.Table;
 
@@ -25,6 +26,9 @@ import io.quarkus.hibernate.orm.panache.PanacheEntity;
 @Entity
 @Table(name = "DICOM_SERIES")
 public class DicomSeriesEntity extends PanacheEntity {
+    @OneToOne(cascade = CascadeType.ALL, mappedBy = "series", fetch = FetchType.LAZY)
+    public ProviderEntity provider;
+
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     public DicomStudyEntity study;
@@ -67,10 +71,10 @@ public class DicomSeriesEntity extends PanacheEntity {
 
     public static DicomSeriesEntity findBySeriesInstanceUID(String id, String source, boolean lock) {
         if (lock) {
-            return find("seriesInstanceUID = ?1 and study.provider.name = ?2", id, source)
+            return find("seriesInstanceUID = ?1 and provider.name = ?2", id, source)
                     .withLock(LockModeType.PESSIMISTIC_WRITE).firstResult();
         } else {
-            return find("seriesInstanceUID = ?1 and study.provider.name = ?2", id, source).firstResult();
+            return find("seriesInstanceUID = ?1 and provider.name = ?2", id, source).firstResult();
         }
     }
 
@@ -94,7 +98,8 @@ public class DicomSeriesEntity extends PanacheEntity {
 
     @Override
     public String toString() {
-        return "DicomSeriesEntity [instances=" + instances + ", attributes=" + attributes + ", seriesInstanceUID="
-                + seriesInstanceUID + ", number=" + number + ", modality=" + modality + ", id=" + id + "]";
+        return "DicomSeriesEntity [provider=" + provider + ", instances=" + instances + ", attributes=" + attributes
+                + ", seriesInstanceUID=" + seriesInstanceUID + ", number=" + number + ", modality=" + modality + ", id="
+                + id + "]";
     }
 }

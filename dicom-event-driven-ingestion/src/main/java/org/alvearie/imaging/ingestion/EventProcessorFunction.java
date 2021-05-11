@@ -12,6 +12,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 import javax.transaction.Transactional;
+import javax.ws.rs.BadRequestException;
 
 import org.alvearie.imaging.ingestion.entity.DicomInstanceEntity;
 import org.alvearie.imaging.ingestion.entity.DicomSeriesAttributesEntity;
@@ -59,8 +60,7 @@ public class EventProcessorFunction {
 
     @Transactional
     public DicomStudyEntity storeStudy(String studyInstanceUID, String studyID, String studyDate, String studyTime,
-            String providerName, String endpoint, String region, String bucket, String wadoInternalEndpoint,
-            String wadoExternalEndpoint, List<DicomStudyAttributesEntity> studyAttributes) {
+            List<DicomStudyAttributesEntity> studyAttributes) {
         DicomStudyEntity study = DicomStudyEntity.findByStudyInstanceUID(studyInstanceUID, false);
 
         if (study == null) {
@@ -69,19 +69,12 @@ public class EventProcessorFunction {
             study.studyID = studyID;
             study.revision = 0;
             study.revisionTime = OffsetDateTime.now(ZoneOffset.UTC);
-            study.provider = new ProviderEntity();
-            study.provider.study = study;
-        }
-        study.studyDate = studyDate;
-        study.studyTime = studyTime;
-        study.provider.name = providerName;
-        study.provider.bucketEndpoint = endpoint;
-        study.provider.bucketRegion = region;
-        study.provider.bucketName = bucket;
-        study.provider.wadoInternalEndpoint = wadoInternalEndpoint;
-        study.provider.wadoExternalEndpoint = wadoExternalEndpoint;
-        for (DicomStudyAttributesEntity attr : studyAttributes) {
-            study.addAttribute(attr);
+            study.studyDate = studyDate;
+            study.studyTime = studyTime;
+
+            for (DicomStudyAttributesEntity attr : studyAttributes) {
+                study.addAttribute(attr);
+            }
         }
 
         if (!study.isPersistent()) {
@@ -93,15 +86,30 @@ public class EventProcessorFunction {
 
     @Transactional
     public DicomSeriesEntity storeSeries(String studyId, String seriesId, Integer seriesNumber, String modality,
-            List<DicomSeriesAttributesEntity> attributes) {
+            List<DicomSeriesAttributesEntity> attributes, String providerName, String endpoint, String region,
+            String bucket, String wadoInternalEndpoint, String wadoExternalEndpoint) {
         DicomStudyEntity study = DicomStudyEntity.findByStudyInstanceUID(studyId, false);
         DicomSeriesEntity series = DicomSeriesEntity.findBySeriesInstanceUID(seriesId, false);
 
         if (series == null) {
             series = new DicomSeriesEntity();
             series.seriesInstanceUID = seriesId;
+
+            series.provider = new ProviderEntity();
+            series.provider.name = providerName;
+            series.provider.bucketEndpoint = endpoint;
+            series.provider.bucketRegion = region;
+            series.provider.bucketName = bucket;
+            series.provider.wadoInternalEndpoint = wadoInternalEndpoint;
+            series.provider.wadoExternalEndpoint = wadoExternalEndpoint;
+            series.provider.series = series;
+
             study.addSeries(series);
+        } else if (!providerName.equals(series.provider.name)) {
+            throw new BadRequestException(String.format("Provider name: %s doesn't match with stored name: %s",
+                    providerName, series.provider.name));
         }
+
         series.number = seriesNumber;
         series.modality = modality;
         for (DicomSeriesAttributesEntity attr : attributes) {
@@ -260,9 +268,7 @@ public class EventProcessorFunction {
                     return null;
                 }
 
-                study = storeStudyWithRetry(studyInstanceUID, studyID, studyDate, studyTime, providerName,
-                        bucketEndpoint, bucketRegion, bucketName, wadoInternalEndpoint, wadoExternalEndpoint,
-                        studyAttributes);
+                study = storeStudyWithRetry(studyInstanceUID, studyID, studyDate, studyTime, studyAttributes);
                 log.info("Study ID: " + study.id);
 
                 if (seriesId == null) {
@@ -270,7 +276,9 @@ public class EventProcessorFunction {
                     return null;
                 }
 
-                series = storeSeriesWithRetry(studyInstanceUID, seriesId, seriesNumber, modality, seriesAttributes);
+                series = storeSeriesWithRetry(studyInstanceUID, seriesId, seriesNumber, modality, seriesAttributes,
+                        providerName, bucketEndpoint, bucketRegion, bucketName, wadoInternalEndpoint,
+                        wadoExternalEndpoint);
                 log.info("Series ID: " + series.id);
 
                 if (instanceId == null) {
@@ -289,7 +297,7 @@ public class EventProcessorFunction {
 
                 studyManager.markLastUpdated(studyInstanceUID);
 
-                return String.format("%s/studies/%s/series/%s/instances/%s", study.provider.wadoInternalEndpoint,
+                return String.format("%s/studies/%s/series/%s/instances/%s", series.provider.wadoInternalEndpoint,
                         study.studyInstanceUID, series.seriesInstanceUID, instance.sopInstanceUID);
             }
         }
@@ -298,10 +306,12 @@ public class EventProcessorFunction {
     }
 
     private DicomSeriesEntity storeSeriesWithRetry(String studyId, String seriesId, Integer seriesNumber,
-            String modality, List<DicomSeriesAttributesEntity> attributes) {
+            String modality, List<DicomSeriesAttributesEntity> attributes, String providerName, String endpoint,
+            String region, String bucket, String wadoInternalEndpoint, String wadoExternalEndpoint) {
         DicomSeriesEntity series = null;
         try {
-            series = storeSeries(studyId, seriesId, seriesNumber, modality, attributes);
+            series = storeSeries(studyId, seriesId, seriesNumber, modality, attributes, providerName, endpoint, region,
+                    bucket, wadoInternalEndpoint, wadoExternalEndpoint);
         } catch (Exception e) {
             // Check for ConstraintViolationException for seriesId when there is high
             // concurrency. ConstraintViolationException is wrapped under RollbackException.
@@ -310,7 +320,8 @@ public class EventProcessorFunction {
                     && e.getCause().getCause() instanceof javax.persistence.PersistenceException && e.getCause()
                             .getCause().getCause() instanceof org.hibernate.exception.ConstraintViolationException) {
                 log.error("ConstraintViolationException, retrying storeSeries ...");
-                series = storeSeries(studyId, seriesId, seriesNumber, modality, attributes);
+                series = storeSeries(studyId, seriesId, seriesNumber, modality, attributes, providerName, endpoint,
+                        region, bucket, wadoInternalEndpoint, wadoExternalEndpoint);
             } else {
                 throw e;
             }
@@ -320,12 +331,10 @@ public class EventProcessorFunction {
     }
 
     private DicomStudyEntity storeStudyWithRetry(String studyInstanceUID, String studyID, String studyDate,
-            String studyTime, String providerName, String endpoint, String region, String bucket,
-            String wadoInternalEndpoint, String wadoExternalEndpoint, List<DicomStudyAttributesEntity> attributes) {
+            String studyTime, List<DicomStudyAttributesEntity> attributes) {
         DicomStudyEntity study = null;
         try {
-            study = storeStudy(studyInstanceUID, studyID, studyDate, studyTime, providerName, endpoint, region, bucket,
-                    wadoInternalEndpoint, wadoExternalEndpoint, attributes);
+            study = storeStudy(studyInstanceUID, studyID, studyDate, studyTime, attributes);
         } catch (Exception e) {
             // Check for ConstraintViolationException for studyId when there is high
             // concurrency. ConstraintViolationException is wrapped under RollbackException.
@@ -334,8 +343,7 @@ public class EventProcessorFunction {
                     && e.getCause().getCause() instanceof javax.persistence.PersistenceException && e.getCause()
                             .getCause().getCause() instanceof org.hibernate.exception.ConstraintViolationException) {
                 log.error("ConstraintViolationException, retrying storeStudy ...");
-                study = storeStudy(studyInstanceUID, studyID, studyDate, studyTime, providerName, endpoint, region,
-                        bucket, wadoInternalEndpoint, wadoExternalEndpoint, attributes);
+                study = storeStudy(studyInstanceUID, studyID, studyDate, studyTime, attributes);
             } else {
                 throw e;
             }
