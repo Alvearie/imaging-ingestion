@@ -19,7 +19,7 @@ import io.quarkus.hibernate.orm.panache.PanacheEntity;
 public class ProviderEntity extends PanacheEntity {
     @JsonIgnore
     @OneToOne(fetch = FetchType.LAZY)
-    public DicomStudyEntity study;
+    public DicomSeriesEntity series;
 
     public String name;
 

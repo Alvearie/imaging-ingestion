@@ -7,6 +7,7 @@ package org.alvearie.imaging.ingestion;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import javax.inject.Inject;
 
@@ -31,6 +32,10 @@ public class EventProcessorFunctionTest {
     @Inject
     EventProcessorFunction processor;
 
+    private static final String STUDY_ID = UUID.randomUUID().toString();
+    private static final String SERIES_ID = UUID.randomUUID().toString();
+    private static final String INSTANCE_ID = UUID.randomUUID().toString();
+
     @Test
     public void testImageStoredEventChain() {
         ImageStoredEvent data = createData();
@@ -39,8 +44,8 @@ public class EventProcessorFunctionTest {
 
         String resource = processor.imageStoredEventChain(data, event);
         Assertions.assertNotNull(resource);
-        Assertions.assertEquals(String.format("%s/studies/%s/series/%s/instances/%s", "wadoInternalEndpoint", "study1",
-                "series1", "instance1"), resource);
+        Assertions.assertEquals(String.format("%s/studies/%s/series/%s/instances/%s", "wadoInternalEndpoint", STUDY_ID,
+                SERIES_ID, INSTANCE_ID), resource);
     }
 
     private ImageStoredEvent createData() {
@@ -48,9 +53,9 @@ public class EventProcessorFunctionTest {
 
         List<Element> elements = new ArrayList<>();
 
-        elements.add(buildElement(Tag.StudyInstanceUID, "study1"));
-        elements.add(buildElement(Tag.SeriesInstanceUID, "series1"));
-        elements.add(buildElement(Tag.SOPInstanceUID, "instance1"));
+        elements.add(buildElement(Tag.StudyInstanceUID, STUDY_ID));
+        elements.add(buildElement(Tag.SeriesInstanceUID, SERIES_ID));
+        elements.add(buildElement(Tag.SOPInstanceUID, INSTANCE_ID));
         elements.add(buildElement(Tag.Modality, "CT"));
 
         Image image = new Image();

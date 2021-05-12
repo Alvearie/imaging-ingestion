@@ -15,7 +15,6 @@ import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.LockModeType;
 import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
 import javax.persistence.OrderBy;
 import javax.persistence.Table;
 
@@ -24,9 +23,6 @@ import io.quarkus.hibernate.orm.panache.PanacheEntity;
 @Entity
 @Table(name = "DICOM_STUDY")
 public class DicomStudyEntity extends PanacheEntity {
-    @OneToOne(cascade = CascadeType.ALL, mappedBy = "study", fetch = FetchType.LAZY)
-    public ProviderEntity provider;
-
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "study", fetch = FetchType.LAZY)
     @OrderBy("number")
     public List<DicomSeriesEntity> series = new ArrayList<>();
@@ -75,18 +71,20 @@ public class DicomStudyEntity extends PanacheEntity {
 
     public static DicomStudyEntity findByStudyInstanceUID(String id, String source, boolean lock) {
         if (lock) {
-            return find("studyInstanceUID = ?1 and provider.name = ?2", id, source)
-                    .withLock(LockModeType.PESSIMISTIC_WRITE).firstResult();
+            return find(
+                    "select distinct e from DicomStudyEntity e join e.series s WHERE study_instance_uid = ?1 and s.provider.name = ?2",
+                    id, source).withLock(LockModeType.PESSIMISTIC_WRITE).firstResult();
         } else {
-            return find("studyInstanceUID = ?1 and provider.name = ?2", id, source).firstResult();
+            return find(
+                    "select distinct e from DicomStudyEntity e join e.series s WHERE study_instance_uid = ?1 and s.provider.name = ?2",
+                    id, source).firstResult();
         }
     }
 
     @Override
     public String toString() {
-        return "DicomStudyEntity [provider=" + provider + ", series=" + series + ", attributes=" + attributes
-                + ", studyInstanceUID=" + studyInstanceUID + ", studyID=" + studyID + ", studyDate=" + studyDate
-                + ", studyTime=" + studyTime + ", revision=" + revision + ", revisionTime=" + revisionTime + ", id="
-                + id + "]";
+        return "DicomStudyEntity [series=" + series + ", attributes=" + attributes + ", studyInstanceUID="
+                + studyInstanceUID + ", studyID=" + studyID + ", studyDate=" + studyDate + ", studyTime=" + studyTime
+                + ", revision=" + revision + ", revisionTime=" + revisionTime + ", id=" + id + "]";
     }
 }

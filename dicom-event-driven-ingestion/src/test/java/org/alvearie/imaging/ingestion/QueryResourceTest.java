@@ -10,6 +10,7 @@ import static org.hamcrest.Matchers.is;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import javax.inject.Inject;
 import javax.ws.rs.core.MediaType;
@@ -34,6 +35,10 @@ public class QueryResourceTest {
     @Inject
     EventProcessorFunction processor;
 
+    private static final String STUDY_ID = UUID.randomUUID().toString();
+    private static final String SERIES_ID = UUID.randomUUID().toString();
+    private static final String INSTANCE_ID = UUID.randomUUID().toString();
+
     @BeforeEach
     public void setup() {
         createData();
@@ -46,7 +51,14 @@ public class QueryResourceTest {
 
     @Test
     public void testGetResultsSourceQueryParam() {
-        given().log().all(true).get("/query/studies/123?source=test").then().log().all(true).statusCode(200);
+        given().log().all(true).get("/query/studies/" + STUDY_ID + "?source=test").then().log().all(true)
+                .statusCode(200).body("size()", is(1));
+    }
+
+    @Test
+    public void testGetResultsInvalidSourceQueryParam() {
+        given().log().all(true).get("/query/studies/" + STUDY_ID + "?source=invalid").then().log().all(true)
+                .statusCode(200).body("size()", is(0));
     }
 
     @Test
@@ -58,22 +70,49 @@ public class QueryResourceTest {
     }
 
     @Test
+    public void testGetStudyNoResults() {
+        DicomQueryModel model = new DicomQueryModel();
+        model.setScope(Scope.STUDY);
+        given().log().all(true).headers("Content-Type", MediaType.APPLICATION_JSON).body(model)
+                .post("/query/studies?source=invalid").then().log().all(true).statusCode(200).body("size()", is(0));
+    }
+
+    @Test
     public void testGetSeriesResults() {
         DicomQueryModel model = new DicomQueryModel();
-        model.setStudyUid("study1");
+        model.setStudyUid(STUDY_ID);
         model.setScope(Scope.SERIES);
         given().log().all(true).headers("Content-Type", MediaType.APPLICATION_JSON).body(model)
                 .post("/query/studies?source=test").then().log().all(true).statusCode(200).body("size()", is(1));
     }
 
     @Test
+    public void testGetSeriesNoResults() {
+        DicomQueryModel model = new DicomQueryModel();
+        model.setStudyUid(STUDY_ID);
+        model.setScope(Scope.SERIES);
+        given().log().all(true).headers("Content-Type", MediaType.APPLICATION_JSON).body(model)
+                .post("/query/studies?source=invalid").then().log().all(true).statusCode(200).body("size()", is(0));
+    }
+
+    @Test
     public void testGetInstanceResults() {
         DicomQueryModel model = new DicomQueryModel();
-        model.setStudyUid("study1");
-        model.setSeriesUid("series1");
+        model.setStudyUid(STUDY_ID);
+        model.setSeriesUid(SERIES_ID);
         model.setScope(Scope.INSTANCE);
         given().log().all(true).headers("Content-Type", MediaType.APPLICATION_JSON).body(model)
                 .post("/query/studies?source=test").then().log().all(true).statusCode(200).body("size()", is(1));
+    }
+
+    @Test
+    public void testGetInstanceNoResults() {
+        DicomQueryModel model = new DicomQueryModel();
+        model.setStudyUid(STUDY_ID);
+        model.setSeriesUid(SERIES_ID);
+        model.setScope(Scope.INSTANCE);
+        given().log().all(true).headers("Content-Type", MediaType.APPLICATION_JSON).body(model)
+                .post("/query/studies?source=invalid").then().log().all(true).statusCode(200).body("size()", is(0));
     }
 
     private void createData() {
@@ -81,9 +120,9 @@ public class QueryResourceTest {
 
         List<Element> elements = new ArrayList<>();
 
-        elements.add(buildElement(Tag.StudyInstanceUID, VR.UI, "study1"));
-        elements.add(buildElement(Tag.SeriesInstanceUID, VR.UI, "series1"));
-        elements.add(buildElement(Tag.SOPInstanceUID, VR.UI, "instance1"));
+        elements.add(buildElement(Tag.StudyInstanceUID, VR.UI, STUDY_ID));
+        elements.add(buildElement(Tag.SeriesInstanceUID, VR.UI, SERIES_ID));
+        elements.add(buildElement(Tag.SOPInstanceUID, VR.UI, INSTANCE_ID));
         elements.add(buildElement(Tag.Modality, VR.CS, "CT"));
         elements.add(buildElement(Tag.PatientID, VR.LO, "patient1"));
         elements.add(buildElement(Tag.SeriesDescription, VR.LO, "series desc"));

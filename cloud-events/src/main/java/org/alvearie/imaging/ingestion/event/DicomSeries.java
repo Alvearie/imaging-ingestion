@@ -13,6 +13,7 @@ public class DicomSeries {
     private String modality;
     private List<DicomSeriesAttribute> attributes;
     private List<DicomInstance> instances;
+    private String endpoint;
 
     public String getSeriesInstanceUID() {
         return seriesInstanceUID;
@@ -52,5 +53,13 @@ public class DicomSeries {
 
     public void setModality(String modality) {
         this.modality = modality;
+    }
+
+    public String getEndpoint() {
+        return endpoint;
+    }
+
+    public void setEndpoint(String endpoint) {
+        this.endpoint = endpoint;
     }
 }

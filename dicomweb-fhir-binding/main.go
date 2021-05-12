@@ -80,67 +80,70 @@ func (recv *Receiver) Receive(ctx context.Context, event cloudevents.Event) {
 }
 
 func convert(event events.StudyRevisionEvent) fhir.ImagingStudy {
+	var contained []interface{}
+
 	study := fhir.ImagingStudy{
 		ResourceIdentifier: fhir.ResourceIdentifier{
 			ResourceType: "ImagingStudy",
 			ID:           uuid.New().String(),
 		},
-		Contained: getContained(
-			fhir.Patient{
-				ResourceIdentifier: fhir.ResourceIdentifier{
-					ResourceType: "Patient",
-					ID:           "patient.contained.inline",
-				},
-			},
-			fhir.Endpoint{
-				ResourceIdentifier: fhir.ResourceIdentifier{
-					ResourceType: "Endpoint",
-					ID:           "study.endpoint.inline",
-				},
-				Status: "active",
-				ConnectionType: fhir.Coding{
-					System: "http://terminology.hl7.org/CodeSystem/endpoint-connection-type",
-					Code:   "dicom-wado-rs",
-				},
-				PayloadType: []fhir.PayloadType{
-					{
-						Text: "DICOM WADO-RS",
-					},
-				},
-				Address: event.Endpoint,
-			},
-		),
 		Identifier: []fhir.Identifier{
 			{
 				System: "urn:dicom:uid",
 				Value:  "urn:oid:" + event.Study.StudyInstanceUID,
 			},
 		},
-		Status: "available",
-		Subject: fhir.PatientReference{
-			Reference: "#patient.contained.inline",
-		},
+		Status:  "available",
+		Subject: addSubject(&contained),
 		Endpoint: []fhir.EndpointReference{
 			{
 				Reference: "#study.endpoint.inline",
 			},
 		},
-		Series: getSeries(event.Study.Series),
+		Series:    getSeries(&contained, event.Study.Series),
+		Contained: contained,
 	}
 
 	return study
 }
 
-func getContained(p fhir.Patient, e fhir.Endpoint) []interface{} {
-	var contained []interface{}
-	contained = append(contained, p, e)
+func addSubject(contained *[]interface{}) fhir.PatientReference {
+	id := "patient.contained.inline"
+	*contained = append(*contained,
+		fhir.Patient{
+			ResourceIdentifier: fhir.ResourceIdentifier{
+				ResourceType: "Patient",
+				ID:           id,
+			},
+		},
+	)
 
-	return contained
+	return fhir.PatientReference{
+		Reference: "#" + id,
+	}
 }
 
-func getSeries(eventSeries []events.DicomSeries) []fhir.ImagingSeries {
+func getSeries(contained *[]interface{}, eventSeries []events.DicomSeries) []fhir.ImagingSeries {
 	series := []fhir.ImagingSeries{}
 	for _, s := range eventSeries {
+		endpointID := uuid.New().String()
+		*contained = append(*contained, fhir.Endpoint{
+			ResourceIdentifier: fhir.ResourceIdentifier{
+				ResourceType: "Endpoint",
+				ID:           endpointID,
+			},
+			Status: "active",
+			ConnectionType: fhir.Coding{
+				System: "http://terminology.hl7.org/CodeSystem/endpoint-connection-type",
+				Code:   "dicom-wado-rs",
+			},
+			PayloadType: []fhir.PayloadType{
+				{
+					Text: "DICOM WADO-RS",
+				},
+			},
+			Address: s.Endpoint,
+		})
 		series = append(series, fhir.ImagingSeries{
 			UID:    s.SeriesInstanceUID,
 			Number: s.Number,
@@ -150,6 +153,11 @@ func getSeries(eventSeries []events.DicomSeries) []fhir.ImagingSeries {
 			},
 			NumberOfInstances: len(s.Instances),
 			Instance:          getInstances(s.Instances),
+			Endpoint: []fhir.EndpointReference{
+				{
+					Reference: "#" + endpointID,
+				},
+			},
 		})
 	}
 

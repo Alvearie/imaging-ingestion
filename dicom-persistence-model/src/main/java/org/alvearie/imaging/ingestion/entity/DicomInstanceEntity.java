@@ -29,7 +29,7 @@ public class DicomInstanceEntity extends PanacheEntity {
 
     @Column(name = "sop_class_uid")
     public String sopClassUID;
-    
+
     @Column(name = "transfer_syntax_uid")
     public String transferSyntaxUID;
 
@@ -45,7 +45,7 @@ public class DicomInstanceEntity extends PanacheEntity {
     }
 
     public static DicomInstanceEntity findBySopInstanceUID(String id, String source) {
-        return find("sopInstanceUID = ?1 and series.study.provider.name = ?2", id, source).firstResult();
+        return find("sopInstanceUID = ?1 and series.provider.name = ?2", id, source).firstResult();
     }
 
     @Override
