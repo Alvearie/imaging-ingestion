@@ -8,12 +8,11 @@ package fhir
 // ImagingStudy is minimal version of ImagingStudy FHIR resource
 type ImagingStudy struct {
 	ResourceIdentifier `json:",inline"`
-	Contained          []interface{}       `json:"contained"`
-	Identifier         []Identifier        `json:"identifier"`
-	Status             string              `json:"status"`
-	Subject            PatientReference    `json:"subject"`
-	Endpoint           []EndpointReference `json:"endpoint"`
-	Series             []ImagingSeries     `json:"series"`
+	Contained          []interface{}    `json:"contained"`
+	Identifier         []Identifier     `json:"identifier"`
+	Status             string           `json:"status"`
+	Subject            PatientReference `json:"subject"`
+	Series             []ImagingSeries  `json:"series"`
 }
 
 // Identifier is Identifier for the whole study
