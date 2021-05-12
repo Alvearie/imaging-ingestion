@@ -15,6 +15,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
 
 	"github.com/Alvearie/imaging-ingestion/dicomweb-fhir-binding/model/events"
 	"github.com/Alvearie/imaging-ingestion/dicomweb-fhir-binding/model/fhir"
@@ -30,11 +31,12 @@ const (
 
 // Receiver is a struct
 type Receiver struct {
-	client    cloudevents.Client
-	Endpoint  string `envconfig:"FHIR_ENDPOINT"`
-	AuthToken string `envconfig:"FHIR_AUTH_TOKEN"`
-	Username  string `envconfig:"FHIR_AUTH_USERNAME"`
-	Password  string `envconfig:"FHIR_AUTH_PASSWORD"`
+	client               cloudevents.Client
+	FhirEndpoint         string `envconfig:"FHIR_ENDPOINT"`
+	AuthToken            string `envconfig:"FHIR_AUTH_TOKEN"`
+	Username             string `envconfig:"FHIR_AUTH_USERNAME"`
+	Password             string `envconfig:"FHIR_AUTH_PASSWORD"`
+	ImagingStudyEndpoint string `envconfig:"IMAGINGSTUDY_ENDPOINT"`
 }
 
 func main() {
@@ -62,7 +64,7 @@ func (recv *Receiver) Receive(ctx context.Context, event cloudevents.Event) {
 
 	fmt.Printf("StudyRevisionEvent: %v\n", studyRevisionEvent)
 
-	resource := convert(studyRevisionEvent)
+	resource := recv.Convert(studyRevisionEvent)
 
 	b, err := json.Marshal(resource)
 	if err != nil {
@@ -79,7 +81,7 @@ func (recv *Receiver) Receive(ctx context.Context, event cloudevents.Event) {
 	}
 }
 
-func convert(event events.StudyRevisionEvent) fhir.ImagingStudy {
+func (recv *Receiver) Convert(event events.StudyRevisionEvent) fhir.ImagingStudy {
 	var contained []interface{}
 
 	study := fhir.ImagingStudy{
@@ -94,15 +96,15 @@ func convert(event events.StudyRevisionEvent) fhir.ImagingStudy {
 			},
 		},
 		Status:    "available",
-		Subject:   addSubject(&contained),
-		Series:    getSeries(&contained, event.Study.Series),
+		Subject:   recv.AddSubject(&contained),
+		Series:    recv.GetSeries(&contained, event.Study.Series),
 		Contained: contained,
 	}
 
 	return study
 }
 
-func addSubject(contained *[]interface{}) fhir.PatientReference {
+func (recv *Receiver) AddSubject(contained *[]interface{}) fhir.PatientReference {
 	id := "patient.contained.inline"
 	*contained = append(*contained,
 		fhir.Patient{
@@ -118,7 +120,7 @@ func addSubject(contained *[]interface{}) fhir.PatientReference {
 	}
 }
 
-func getSeries(contained *[]interface{}, eventSeries []events.DicomSeries) []fhir.ImagingSeries {
+func (recv *Receiver) GetSeries(contained *[]interface{}, eventSeries []events.DicomSeries) []fhir.ImagingSeries {
 	series := []fhir.ImagingSeries{}
 	for _, s := range eventSeries {
 		endpointID := uuid.New().String()
@@ -137,7 +139,7 @@ func getSeries(contained *[]interface{}, eventSeries []events.DicomSeries) []fhi
 					Text: "DICOM WADO-RS",
 				},
 			},
-			Address: s.Endpoint,
+			Address: recv.GetImagingStudyEndpoint(s.Endpoint),
 		})
 		series = append(series, fhir.ImagingSeries{
 			UID:    s.SeriesInstanceUID,
@@ -157,6 +159,17 @@ func getSeries(contained *[]interface{}, eventSeries []events.DicomSeries) []fhi
 	}
 
 	return series
+}
+
+func (recv *Receiver) GetImagingStudyEndpoint(ep string) string {
+	if recv.ImagingStudyEndpoint != "" {
+		idx := strings.Index(ep, "/studies")
+		if idx != -1 {
+			ep = recv.ImagingStudyEndpoint + ep[idx:]
+		}
+	}
+
+	return ep
 }
 
 func getInstances(eventInstances []events.DicomInstance) []fhir.ImagingInstance {
@@ -185,7 +198,7 @@ func (recv *Receiver) Post(b []byte) error {
 	}
 	client := &http.Client{Transport: tr}
 
-	req, err := http.NewRequest(http.MethodPost, recv.Endpoint, bytes.NewBuffer(b))
+	req, err := http.NewRequest(http.MethodPost, recv.FhirEndpoint, bytes.NewBuffer(b))
 	if err != nil {
 		log.Printf("Error creating new http request: %s", err.Error())
 		return err
