@@ -93,13 +93,8 @@ func convert(event events.StudyRevisionEvent) fhir.ImagingStudy {
 				Value:  "urn:oid:" + event.Study.StudyInstanceUID,
 			},
 		},
-		Status:  "available",
-		Subject: addSubject(&contained),
-		Endpoint: []fhir.EndpointReference{
-			{
-				Reference: "#study.endpoint.inline",
-			},
-		},
+		Status:    "available",
+		Subject:   addSubject(&contained),
 		Series:    getSeries(&contained, event.Study.Series),
 		Contained: contained,
 	}

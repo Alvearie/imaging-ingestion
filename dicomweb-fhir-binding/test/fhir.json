@@ -1,6 +1,6 @@
 {
     "resourceType": "ImagingStudy",
-    "id": "761ba7c4-130c-4fe5-abb8-3a45552fcd1b",
+    "id": "30844e62-c7e5-436f-9cb3-16e1f7dab355",
     "contained": [
         {
             "resourceType": "Patient",
@@ -8,7 +8,7 @@
         },
         {
             "resourceType": "Endpoint",
-            "id": "02457b71-c004-4aa1-aa67-ce5ab35d9a0f",
+            "id": "da5eddd1-f979-4518-a370-376d1410e8a4",
             "status": "active",
             "connectionType": {
                 "system": "http://terminology.hl7.org/CodeSystem/endpoint-connection-type",
@@ -32,11 +32,6 @@
     "subject": {
         "reference": "#patient.contained.inline"
     },
-    "endpoint": [
-        {
-            "reference": "#study.endpoint.inline"
-        }
-    ],
     "series": [
         {
             "uid": "2.16.124.113531.1.1.10241360029058.20160106.122820.111",
@@ -48,7 +43,7 @@
             "numberOfInstances": 1,
             "endpoint": [
                 {
-                    "reference": "#02457b71-c004-4aa1-aa67-ce5ab35d9a0f"
+                    "reference": "#da5eddd1-f979-4518-a370-376d1410e8a4"
                 }
             ],
             "instance": [
