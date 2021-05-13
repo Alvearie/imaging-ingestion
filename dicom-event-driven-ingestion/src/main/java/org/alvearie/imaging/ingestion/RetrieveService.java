@@ -135,6 +135,9 @@ public class RetrieveService {
         List<DicomStudyEntity> studyInstances = new QueryHelper().queryStudies(model, source);
 
         for (DicomStudyEntity studyInstance : studyInstances) {
+            
+            
+            
             DicomEntityResult searchResult = new DicomEntityResult();
             addAttributeToEntity(searchResult, Tag.StudyDate, VR.DA, studyInstance.studyDate);
             addAttributeToEntity(searchResult, Tag.StudyTime, VR.TM, studyInstance.studyTime);
@@ -146,17 +149,25 @@ public class RetrieveService {
             int instancesInStudy = 0;
             String endpoint = null;
             Set<String> modalitiesInStudy = new HashSet<String>();
+            Set<String> sopClassesInStudy = new HashSet<String>();
             for (DicomSeriesEntity series : studySeries) {
                 instancesInStudy += series.instances.size();
                 modalitiesInStudy.add(series.modality);
                 if (StringUtils.isBlank(endpoint) && series.provider != null) {
                     endpoint = series.provider.wadoExternalEndpoint;
                 }
+                for (DicomInstanceEntity instance : series.instances) {
+                    sopClassesInStudy.add(instance.sopClassUID);
+                }
             }
 
+            // Build out the Query/Retrieve attributes as defined in Part 4, Table C.3-1 
+            // Missing Tag.AlternateRepresentationSequence 
             addAttributeToEntity(searchResult, Tag.NumberOfStudyRelatedSeries, VR.IS, studySeries.size());
             addAttributeToEntity(searchResult, Tag.NumberOfStudyRelatedInstances, VR.IS, instancesInStudy);
             addAttributeToEntity(searchResult, Tag.ModalitiesInStudy, VR.CS, modalitiesInStudy.toArray(new String[0]));
+            addAttributeToEntity(searchResult, Tag.SOPClassesInStudy, VR.CS, sopClassesInStudy.toArray(new String[0]));
+            
             addAttributeToEntity(searchResult, Tag.RetrieveURL, VR.UR,
                     String.format("%s/studies/%s", endpoint, studyInstance.studyInstanceUID));
 
