@@ -13,6 +13,8 @@ The *DICOM Study Binding* has a single container that is invoked by the event br
 ## Provided Bindings
   There is currently only one provided binding container.  The provided container transforms the data within the *StudyRevisionEvent* into a FHIRv4 *ImagingStudy* resource with the FHIRv4 *EndpointReference* for the study data being the external WADO-RS for the storage space containing the study data. It pushes the generated resource to a configured downstream FHIRv4 consumer.
   
+  By default, the *ImagingStudy.endpoint* resource will use the WADO-RS within by the *DICOMweb Ingestion Service* that was used for ingestion.  If the images have been pushed to a downstream archive using the *DICOM Instance Binding*, the provided binding container can update the *Imaging.endpoint* resource with the address of the downstream WADO-RS using the *IMAGINGSTUDY_ENDPOINT* environment variable.  See the *ConfigMap* below for an example
+  
 ## Deployment
 
 **Target Service Endpoint Details**
@@ -26,6 +28,8 @@ metadata:
   name: study-binding-config
 data:
   FHIR_ENDPOINT: 'https://fhir-server.0a0527d6.nip.io/fhir-server/api/v4/ImagingStudy'
+  # Optionally update the ImagingStudy.endpoint reference to use a downstream archive the images have been pushed to using the DICOM Instance Binding
+  # IMAGING_STUDY_ENDPOINT: 'https://dcm4chee.0a0527d6.nip.io/dcm4chee-arc/aets/DCM4CHEE/wado'
 ```
 
 **Target Service Security Details**
