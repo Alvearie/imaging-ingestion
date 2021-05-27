@@ -7,6 +7,7 @@ package org.alvearie.imaging.ingestion.service.wado;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.core.StringContains.containsString;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -23,6 +24,7 @@ import org.alvearie.imaging.ingestion.service.s3.S3Service;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.UID;
 import org.dcm4che3.data.VR;
+import org.dcm4che3.ws.rs.MediaTypes;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -138,13 +140,26 @@ public class WadoResourceTest {
     }
 
     @Test
-    public void testMetadata() {
+    public void testMetadataBulkDataURI() {
         Mockito.when(s3Service.getObject(Mockito.anyString())).thenReturn(getObject(TEST_FILENAME));
         Mockito.when(queryClient.getResults(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(),
                 Mockito.anyString())).thenReturn(getResults(TEST_FILENAME));
         given().log().all(true).get("/wado-rs/studies/123/series/1234/instances/12345/metadata").then().log().headers()
                 .statusCode(200).body(containsString("7FE00010"), containsString("BulkDataURI"),
                         containsString("studies/123/series/1234/instances/12345"));
+    }
+
+    @Test
+    public void testMetadataBulkDataURIXML() {
+        Mockito.when(s3Service.getObject(Mockito.anyString())).thenReturn(getObject(TEST_FILENAME));
+        Mockito.when(queryClient.getResults(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(),
+                Mockito.anyString())).thenReturn(getResults(TEST_FILENAME));
+        Response response = given().log().all(true).header("Accept", MediaTypes.MULTIPART_RELATED_APPLICATION_DICOM_XML)
+                .get("/wado-rs/studies/123/series/1234/instances/12345/metadata");
+        String body = response.asString();
+        assertTrue(body.contains("7FE00010"));
+        assertTrue(body.contains("BulkData"));
+        assertTrue(body.contains("studies/123/series/1234/instances/12345"));
     }
 
     private List<DicomEntityResult> getResults(String objectName) {
