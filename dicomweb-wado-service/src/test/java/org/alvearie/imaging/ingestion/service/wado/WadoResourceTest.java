@@ -6,6 +6,7 @@
 package org.alvearie.imaging.ingestion.service.wado;
 
 import static io.restassured.RestAssured.given;
+import static org.hamcrest.core.StringContains.containsString;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -134,6 +135,16 @@ public class WadoResourceTest {
                 .header("If-None-Match", response.getHeader("ETag"))
                 .get("/wado-rs/studies/123/series/1234/instances/12345/frames/1").then().log().headers()
                 .statusCode(304);
+    }
+
+    @Test
+    public void testMetadata() {
+        Mockito.when(s3Service.getObject(Mockito.anyString())).thenReturn(getObject(TEST_FILENAME));
+        Mockito.when(queryClient.getResults(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(),
+                Mockito.anyString())).thenReturn(getResults(TEST_FILENAME));
+        given().log().all(true).get("/wado-rs/studies/123/series/1234/instances/12345/metadata").then().log().headers()
+                .statusCode(200).body(containsString("7FE00010"), containsString("BulkDataURI"),
+                        containsString("studies/123/series/1234/instances/12345"));
     }
 
     private List<DicomEntityResult> getResults(String objectName) {
