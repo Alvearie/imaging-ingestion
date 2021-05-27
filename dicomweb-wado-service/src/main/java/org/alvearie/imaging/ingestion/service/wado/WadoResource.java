@@ -9,7 +9,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.EOFException;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.Date;
 import java.util.List;
 
@@ -35,15 +34,11 @@ import javax.ws.rs.core.Response;
 import org.alvearie.imaging.ingestion.model.result.DicomAttribute;
 import org.alvearie.imaging.ingestion.model.result.DicomEntityResult;
 import org.alvearie.imaging.ingestion.service.s3.S3Service;
-import org.alvearie.imaging.ingestion.service.s3.SimpleStoreContext;
-import org.alvearie.imaging.ingestion.service.s3.StoreContext;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.BulkData;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.UID;
-import org.dcm4che3.data.VR;
 import org.dcm4che3.imageio.codec.ImageDescriptor;
-import org.dcm4che3.imageio.codec.Transcoder;
 import org.dcm4che3.io.DicomInputStream;
 import org.dcm4che3.json.JSONWriter;
 import org.dcm4che3.util.StreamUtils;
@@ -54,7 +49,6 @@ import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.jboss.logging.Logger;
 import org.jboss.resteasy.annotations.GZIP;
 import org.jboss.resteasy.plugins.providers.multipart.MultipartRelatedOutput;
-
 
 @RequestScoped
 @Path("/wado-rs")
@@ -256,17 +250,13 @@ public class WadoResource {
 
             private Attributes loadMetadata(WadoResource service, String objectKey) throws IOException {
                 ByteArrayOutputStream baos = service.getDicomStream(objectKey);
-                try (Transcoder transcoder = new Transcoder(new ByteArrayInputStream(baos.toByteArray()))) {
-                    StoreContext ctx = new SimpleStoreContext();
-                    transcoder.transcode(service.new TranscoderHandler(ctx));
-
-                    Attributes metadata = ctx.getAttributes();
+                try (DicomInputStream dis = new DicomInputStream(new ByteArrayInputStream(baos.toByteArray()))) {
+                    Attributes metadata = dis.readDatasetUntilPixelData();
                     String url = determineUrl(service, metadata);
-                    replacePixelDataWithBulkDataUrl(metadata, url);
-
+                    if (dis.tag() == Tag.PixelData) {
+                        metadata.setValue(Tag.PixelData, dis.vr(), new BulkData(null, url, dis.bigEndian()));
+                    }
                     return metadata;
-                } catch (IOException e) {
-                    throw e;
                 }
             }
 
@@ -280,22 +270,6 @@ public class WadoResource {
                     sb.append("/instances/").append(attr.getString(Tag.SOPInstanceUID));
                 }
                 return sb.toString();
-            }
-
-            private void replacePixelDataWithBulkDataUrl(Attributes attrs, String retrieveURL) {
-                try {
-                    attrs.accept(new Attributes.ItemPointerVisitor() {
-                        @Override
-                        public boolean visit(Attributes attrs, int tag, VR vr, Object value) {
-                            if (tag == Tag.PixelData) {
-                                attrs.setValue(tag, vr, new BulkData(null, retrieveURL, false));
-                            }
-                            return true;
-                        }
-                    }, true);
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
             }
         },
 
@@ -399,7 +373,8 @@ public class WadoResource {
             responseBuilder = Response.status(Response.Status.BAD_REQUEST);
         } else {
             if (lastModified != null) {
-                responseBuilder = req.evaluatePreconditions(lastModified, new EntityTag(String.valueOf(lastModified.hashCode())));
+                responseBuilder = req.evaluatePreconditions(lastModified,
+                        new EntityTag(String.valueOf(lastModified.hashCode())));
             }
             if (responseBuilder == null) {
                 CacheControl cc = new CacheControl();
@@ -448,19 +423,5 @@ public class WadoResource {
             return attribute.getValue().get(0);
         }
         return null;
-    }
-
-    public final class TranscoderHandler implements Transcoder.Handler {
-        private final StoreContext storeContext;
-
-        private TranscoderHandler(StoreContext storeContext) {
-            this.storeContext = storeContext;
-        }
-
-        @Override
-        public OutputStream newOutputStream(Transcoder transcoder, Attributes dataset) throws IOException {
-            storeContext.setAttributes(dataset);
-            return OutputStream.nullOutputStream();
-        }
     }
 }
