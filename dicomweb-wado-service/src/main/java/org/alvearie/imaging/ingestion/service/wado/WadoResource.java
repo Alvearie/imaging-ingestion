@@ -22,6 +22,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.container.AsyncResponse;
 import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.CacheControl;
@@ -30,6 +31,7 @@ import javax.ws.rs.core.EntityTag;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
+import javax.xml.transform.stream.StreamResult;
 
 import org.alvearie.imaging.ingestion.model.result.DicomAttribute;
 import org.alvearie.imaging.ingestion.model.result.DicomEntityResult;
@@ -40,6 +42,7 @@ import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.UID;
 import org.dcm4che3.imageio.codec.ImageDescriptor;
 import org.dcm4che3.io.DicomInputStream;
+import org.dcm4che3.io.SAXTransformer;
 import org.dcm4che3.json.JSONWriter;
 import org.dcm4che3.util.StreamUtils;
 import org.dcm4che3.util.StringUtils;
@@ -87,10 +90,10 @@ public class WadoResource {
 
     @GET
     @Path("/studies/{studyUID}/metadata")
-    @Produces(MediaTypes.APPLICATION_DICOM_JSON)
+    @Produces({ MediaTypes.APPLICATION_DICOM_JSON, MediaTypes.MULTIPART_RELATED_APPLICATION_DICOM_XML })
     public void retrieveStudyMetadata(@PathParam("studyUID") String studyUID,
             @QueryParam("includefields") String includefields, @Suspended AsyncResponse ar) {
-        retrieve(queryClient.getResults(studyUID, source), Output.METADATA_JSON, ar);
+        retrieve(queryClient.getResults(studyUID, source), getMetadataOutputType(), ar);
     }
 
     @GET
@@ -114,10 +117,10 @@ public class WadoResource {
 
     @GET
     @Path("/studies/{studyUID}/series/{seriesUID}/metadata")
-    @Produces(MediaTypes.APPLICATION_DICOM_JSON)
+    @Produces({ MediaTypes.APPLICATION_DICOM_JSON, MediaTypes.MULTIPART_RELATED_APPLICATION_DICOM_XML })
     public void retrieveSeriesMetadata(@PathParam("studyUID") String studyUID, @PathParam("seriesUID") String seriesUID,
             @QueryParam("includefields") String includefields, @Suspended AsyncResponse ar) {
-        retrieve(queryClient.getResults(studyUID, seriesUID, source), Output.METADATA_JSON, ar);
+        retrieve(queryClient.getResults(studyUID, seriesUID, source), getMetadataOutputType(), ar);
     }
 
     @GET
@@ -139,11 +142,11 @@ public class WadoResource {
 
     @GET
     @Path("/studies/{studyUID}/series/{seriesUID}/instances/{objectUID}/metadata")
-    @Produces(MediaTypes.APPLICATION_DICOM_JSON)
+    @Produces({ MediaTypes.APPLICATION_DICOM_JSON, MediaTypes.MULTIPART_RELATED_APPLICATION_DICOM_XML })
     public void retrieveInstanceMetadata(@PathParam("studyUID") String studyUID,
             @PathParam("seriesUID") String seriesUID, @PathParam("objectUID") String objectUID,
             @Suspended AsyncResponse ar) {
-        retrieve(queryClient.getResults(studyUID, seriesUID, objectUID, source), Output.METADATA_JSON, ar);
+        retrieve(queryClient.getResults(studyUID, seriesUID, objectUID, source), getMetadataOutputType(), ar);
     }
 
     @GET
@@ -233,7 +236,7 @@ public class WadoResource {
                     JSONWriter writer = new JSONWriter(gen);
                     gen.writeStartArray();
                     for (DicomEntityResult rslt : results) {
-                        writer.write(loadMetadata(service, rslt.getResource().getObjectName()));
+                        writer.write(service.loadMetadata(rslt.getResource().getObjectName()));
                     }
                     gen.writeEnd();
                     gen.flush();
@@ -247,34 +250,27 @@ public class WadoResource {
                 }
                 return null;
             }
-
-            private Attributes loadMetadata(WadoResource service, String objectKey) throws IOException {
-                ByteArrayOutputStream baos = service.getDicomStream(objectKey);
-                try (DicomInputStream dis = new DicomInputStream(new ByteArrayInputStream(baos.toByteArray()))) {
-                    Attributes metadata = dis.readDatasetUntilPixelData();
-                    String url = determineUrl(service, metadata);
-                    if (dis.tag() == Tag.PixelData) {
-                        metadata.setValue(Tag.PixelData, dis.vr(), new BulkData(null, url, dis.bigEndian()));
-                    }
-                    return metadata;
-                }
-            }
-
-            private String determineUrl(WadoResource service, Attributes attr) {
-                StringBuffer sb = new StringBuffer(service.request.getRequestURL().toString());
-                sb.setLength(sb.lastIndexOf("/metadata"));
-                if (sb.lastIndexOf("/instances/") < 0) {
-                    if (sb.lastIndexOf("/series/") < 0) {
-                        sb.append("/series/").append(attr.getString(Tag.SeriesInstanceUID));
-                    }
-                    sb.append("/instances/").append(attr.getString(Tag.SOPInstanceUID));
-                }
-                return sb.toString();
-            }
         },
 
-        METADATA_XML(MediaType.APPLICATION_XML_TYPE, -1) {
+        METADATA_XML(MediaTypes.MULTIPART_RELATED_APPLICATION_DICOM_XML_TYPE, -1) {
+            @Override
+            public Object buildResponse(WadoResource service, List<DicomEntityResult> results, AsyncResponse ar) {
+                MultipartRelatedOutput output = new MultipartRelatedOutput();
 
+                for (DicomEntityResult rslt : results) {
+                    try {
+                        ByteArrayOutputStream out = new ByteArrayOutputStream();
+                        Attributes metadata = service.loadMetadata(rslt.getResource().getObjectName());
+                        SAXTransformer.getSAXWriter(new StreamResult(out)).write(metadata);
+                        output.addPart(out.toByteArray(), MediaTypes.APPLICATION_DICOM_XML_TYPE);
+                    } catch (Exception e) {
+                        throw new WebApplicationException("Error retrieving metadata", Response.Status.NOT_FOUND);
+                    }
+                }
+                Date lastModified = new Date();
+                service.lastModified = lastModified;
+                return output;
+            }
         },
         BULKDATA_FRAME(MediaTypes.MULTIPART_RELATED_APPLICATION_DICOM_TYPE, 3600 * 24) {
             @Override
@@ -413,6 +409,30 @@ public class WadoResource {
         return s3Service.getObject(objectKey);
     }
 
+    private Attributes loadMetadata(String objectKey) throws IOException {
+        ByteArrayOutputStream baos = getDicomStream(objectKey);
+        try (DicomInputStream dis = new DicomInputStream(new ByteArrayInputStream(baos.toByteArray()))) {
+            Attributes metadata = dis.readDatasetUntilPixelData();
+            String url = determineUrl(metadata);
+            if (dis.tag() == Tag.PixelData) {
+                metadata.setValue(Tag.PixelData, dis.vr(), new BulkData(null, url, dis.bigEndian()));
+            }
+            return metadata;
+        }
+    }
+
+    private String determineUrl(Attributes attr) {
+        StringBuffer sb = new StringBuffer(request.getRequestURL().toString());
+        sb.setLength(sb.lastIndexOf("/metadata"));
+        if (sb.lastIndexOf("/instances/") < 0) {
+            if (sb.lastIndexOf("/series/") < 0) {
+                sb.append("/series/").append(attr.getString(Tag.SeriesInstanceUID));
+            }
+            sb.append("/instances/").append(attr.getString(Tag.SOPInstanceUID));
+        }
+        return sb.toString();
+    }
+
     private String getTransferSyntaxUID(DicomEntityResult inst) {
         return getDicomAttributeValue(inst, Tag.TransferSyntaxUID);
     }
@@ -423,5 +443,21 @@ public class WadoResource {
             return attribute.getValue().get(0);
         }
         return null;
+    }
+
+    private Output getMetadataOutputType() {
+        MediaType accept = MediaType.valueOf(request.getHeader("Accept"));
+
+        Output output = null;
+        if (MediaTypes.equalsIgnoreParameters(MediaType.WILDCARD_TYPE, accept)
+                || MediaTypes.equalsIgnoreParameters(MediaTypes.APPLICATION_DICOM_JSON_TYPE, accept)) {
+            output = Output.METADATA_JSON;
+        } else if (MediaTypes.equalsIgnoreParameters(MediaTypes.MULTIPART_RELATED_APPLICATION_DICOM_XML_TYPE, accept)) {
+            output = Output.METADATA_XML;
+        } else {
+            throw new WebApplicationException("Invalid Accept Header", Response.Status.BAD_REQUEST);
+        }
+
+        return output;
     }
 }
