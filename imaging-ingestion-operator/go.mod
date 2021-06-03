@@ -3,6 +3,7 @@ module github.com/Alvearie/imaging-ingestion/imaging-ingestion-operator
 go 1.15
 
 require (
+	github.com/coderanger/controller-utils v0.0.0-20201221100905-e26c5734ecc9
 	github.com/go-logr/logr v0.3.0
 	github.com/onsi/ginkgo v1.14.1
 	github.com/onsi/gomega v1.10.2

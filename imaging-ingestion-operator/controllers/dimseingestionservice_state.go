@@ -4,7 +4,7 @@
 SPDX-License-Identifier: Apache-2.0
 */
 
-package dimseingestionservice
+package controllers
 
 import (
 	"context"
@@ -17,6 +17,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	apiErrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/meta"
+	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
@@ -150,25 +151,8 @@ func (i *DimseIngestionServiceState) readDimseConfigCurrentState(context context
 	return nil
 }
 
-func GetEventDrivenIngestionResource(context context.Context, cr *v1alpha1.DimseIngestionService, controllerClient client.Client) (*v1alpha1.DicomEventDrivenIngestion, error) {
-	resource := model.EventDrivenIngestionResource()
-	resourceSelector := model.EventDrivenIngestionResourceSelector(cr.Spec.DicomEventDrivenIngestionName, cr.Namespace)
-
-	err := controllerClient.Get(context, resourceSelector, resource)
-	if err != nil {
-		// If the resource type doesn't exist on the cluster or does exist but is not found
-		if meta.IsNoMatchError(err) || apiErrors.IsNotFound(err) {
-			return nil, nil
-		} else {
-			return nil, err
-		}
-	} else {
-		return resource.DeepCopy(), nil
-	}
-}
-
 func (i *DimseIngestionServiceState) readDimseServiceCurrentState(context context.Context, cr *v1alpha1.DimseIngestionService, controllerClient client.Client) error {
-	eventDrivenIngestionResource, err := GetEventDrivenIngestionResource(context, cr, controllerClient)
+	eventDrivenIngestionResource, err := GetEventDrivenIngestionResource(context, types.NamespacedName{Name: cr.Spec.DicomEventDrivenIngestionName, Namespace: cr.Namespace}, controllerClient)
 	if eventDrivenIngestionResource == nil || err != nil {
 		return errors.New("Error getting DicomEventDrivenIngestion")
 	}

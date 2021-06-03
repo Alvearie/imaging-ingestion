@@ -4,7 +4,7 @@
 SPDX-License-Identifier: Apache-2.0
 */
 
-package dimseproxy
+package controllers
 
 import (
 	"github.com/Alvearie/imaging-ingestion/imaging-ingestion-operator/api/v1alpha1"

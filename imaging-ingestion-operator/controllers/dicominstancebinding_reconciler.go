@@ -4,7 +4,7 @@
 SPDX-License-Identifier: Apache-2.0
 */
 
-package dicominstancebinding
+package controllers
 
 import (
 	"context"
@@ -13,6 +13,7 @@ import (
 	"github.com/Alvearie/imaging-ingestion/imaging-ingestion-operator/api/v1alpha1"
 	"github.com/Alvearie/imaging-ingestion/imaging-ingestion-operator/common"
 	"github.com/Alvearie/imaging-ingestion/imaging-ingestion-operator/model"
+	"k8s.io/apimachinery/pkg/types"
 )
 
 func (r *DicomInstanceBindingReconciler) reconcileInternal(currentState *DicomInstanceBindingState, cr *v1alpha1.DicomInstanceBinding) common.DesiredResourceState {
@@ -63,7 +64,7 @@ func (i *DicomInstanceBindingReconciler) GetInstanceBindingServiceDesiredState(s
 }
 
 func (i *DicomInstanceBindingReconciler) GetInstanceBindingTriggerDesiredState(state *DicomInstanceBindingState, cr *v1alpha1.DicomInstanceBinding) common.ControllerAction {
-	eventDrivenIngestionResource, err := GetEventDrivenIngestionResource(context.Background(), cr, i.Client)
+	eventDrivenIngestionResource, err := GetEventDrivenIngestionResource(context.Background(), types.NamespacedName{Name: cr.Spec.DicomEventDrivenIngestionName, Namespace: cr.Namespace}, i.Client)
 	if eventDrivenIngestionResource == nil || err != nil {
 		return common.GenericErrorAction{
 			Ref: errors.New("Missing DicomEventDrivenIngestion"),

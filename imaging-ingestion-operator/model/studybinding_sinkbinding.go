@@ -19,7 +19,7 @@ import (
 func StudyBindingSinkBinding(cr *v1alpha1.DicomStudyBinding, source, sink string) *ksourcesv1alpha2.SinkBinding {
 	return &ksourcesv1alpha2.SinkBinding{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      GetStudyBindingSinkBinding(cr),
+			Name:      GetStudyBindingSinkBindingName(cr),
 			Namespace: cr.Namespace,
 		},
 
@@ -46,7 +46,7 @@ func StudyBindingSinkBinding(cr *v1alpha1.DicomStudyBinding, source, sink string
 
 func StudyBindingSinkBindingSelector(cr *v1alpha1.DicomStudyBinding) client.ObjectKey {
 	return client.ObjectKey{
-		Name:      GetStudyBindingSinkBinding(cr),
+		Name:      GetStudyBindingSinkBindingName(cr),
 		Namespace: cr.Namespace,
 	}
 }
@@ -57,6 +57,6 @@ func StudyBindingSinkBindingReconciled(cr *v1alpha1.DicomStudyBinding, currentSt
 	return reconciled
 }
 
-func GetStudyBindingSinkBinding(cr *v1alpha1.DicomStudyBinding) string {
+func GetStudyBindingSinkBindingName(cr *v1alpha1.DicomStudyBinding) string {
 	return cr.Name + "-study-sink-binding"
 }
