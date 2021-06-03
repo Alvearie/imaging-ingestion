@@ -30,12 +30,7 @@ import (
 
 	imagingingestionv1alpha1 "github.com/Alvearie/imaging-ingestion/imaging-ingestion-operator/api/v1alpha1"
 	"github.com/Alvearie/imaging-ingestion/imaging-ingestion-operator/common"
-	"github.com/Alvearie/imaging-ingestion/imaging-ingestion-operator/controllers/dicomeventdriveningestion"
-	"github.com/Alvearie/imaging-ingestion/imaging-ingestion-operator/controllers/dicominstancebinding"
-	"github.com/Alvearie/imaging-ingestion/imaging-ingestion-operator/controllers/dicomstudybinding"
-	"github.com/Alvearie/imaging-ingestion/imaging-ingestion-operator/controllers/dicomwebingestionservice"
-	"github.com/Alvearie/imaging-ingestion/imaging-ingestion-operator/controllers/dimseingestionservice"
-	"github.com/Alvearie/imaging-ingestion/imaging-ingestion-operator/controllers/dimseproxy"
+	"github.com/Alvearie/imaging-ingestion/imaging-ingestion-operator/controllers"
 	//+kubebuilder:scaffold:imports
 )
 
@@ -109,7 +104,7 @@ func main() {
 		}
 	}
 
-	if err = (&dicomeventdriveningestion.DicomEventDrivenIngestionReconciler{
+	if err = (&controllers.DicomEventDrivenIngestionReconciler{
 		Client: mgr.GetClient(),
 		Log:    ctrl.Log.WithName("controllers").WithName("DicomEventDrivenIngestion"),
 		Scheme: mgr.GetScheme(),
@@ -117,7 +112,7 @@ func main() {
 		setupLog.Error(err, "unable to create controller", "controller", "DicomEventDrivenIngestion")
 		os.Exit(1)
 	}
-	if err = (&dicomwebingestionservice.DicomwebIngestionServiceReconciler{
+	if err = (&controllers.DicomwebIngestionServiceReconciler{
 		Client: mgr.GetClient(),
 		Log:    ctrl.Log.WithName("controllers").WithName("DicomwebIngestionService"),
 		Scheme: mgr.GetScheme(),
@@ -125,7 +120,7 @@ func main() {
 		setupLog.Error(err, "unable to create controller", "controller", "DicomwebIngestionService")
 		os.Exit(1)
 	}
-	if err = (&dicominstancebinding.DicomInstanceBindingReconciler{
+	if err = (&controllers.DicomInstanceBindingReconciler{
 		Client: mgr.GetClient(),
 		Log:    ctrl.Log.WithName("controllers").WithName("DicomInstanceBinding"),
 		Scheme: mgr.GetScheme(),
@@ -133,7 +128,7 @@ func main() {
 		setupLog.Error(err, "unable to create controller", "controller", "DicomInstanceBinding")
 		os.Exit(1)
 	}
-	if err = (&dicomstudybinding.DicomStudyBindingReconciler{
+	if err = (&controllers.DicomStudyBindingReconciler{
 		Client: mgr.GetClient(),
 		Log:    ctrl.Log.WithName("controllers").WithName("DicomStudyBinding"),
 		Scheme: mgr.GetScheme(),
@@ -141,7 +136,7 @@ func main() {
 		setupLog.Error(err, "unable to create controller", "controller", "DicomStudyBinding")
 		os.Exit(1)
 	}
-	if err = (&dimseingestionservice.DimseIngestionServiceReconciler{
+	if err = (&controllers.DimseIngestionServiceReconciler{
 		Client: mgr.GetClient(),
 		Log:    ctrl.Log.WithName("controllers").WithName("DimseIngestionService"),
 		Scheme: mgr.GetScheme(),
@@ -149,7 +144,7 @@ func main() {
 		setupLog.Error(err, "unable to create controller", "controller", "DimseIngestionService")
 		os.Exit(1)
 	}
-	if err = (&dimseproxy.DimseProxyReconciler{
+	if err = (&controllers.DimseProxyReconciler{
 		Client: mgr.GetClient(),
 		Log:    ctrl.Log.WithName("controllers").WithName("DimseProxy"),
 		Scheme: mgr.GetScheme(),

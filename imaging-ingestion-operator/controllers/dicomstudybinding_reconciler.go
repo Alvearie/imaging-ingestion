@@ -4,7 +4,7 @@
 SPDX-License-Identifier: Apache-2.0
 */
 
-package dicomstudybinding
+package controllers
 
 import (
 	"context"
@@ -13,6 +13,7 @@ import (
 	"github.com/Alvearie/imaging-ingestion/imaging-ingestion-operator/api/v1alpha1"
 	"github.com/Alvearie/imaging-ingestion/imaging-ingestion-operator/common"
 	"github.com/Alvearie/imaging-ingestion/imaging-ingestion-operator/model"
+	"k8s.io/apimachinery/pkg/types"
 )
 
 func (r *DicomStudyBindingReconciler) reconcileInternal(currentState *DicomStudyBindingState, cr *v1alpha1.DicomStudyBinding) common.DesiredResourceState {
@@ -64,7 +65,7 @@ func (i *DicomStudyBindingReconciler) GetStudyBindingServiceDesiredState(state *
 }
 
 func (i *DicomStudyBindingReconciler) GetStudyBindingSinkBindingDesiredState(state *DicomStudyBindingState, cr *v1alpha1.DicomStudyBinding) common.ControllerAction {
-	eventDrivenIngestionResource, err := GetEventDrivenIngestionResource(context.Background(), cr, i.Client)
+	eventDrivenIngestionResource, err := GetEventDrivenIngestionResource(context.Background(), types.NamespacedName{Name: cr.Spec.DicomEventDrivenIngestionName, Namespace: cr.Namespace}, i.Client)
 	if eventDrivenIngestionResource == nil || err != nil {
 		return common.GenericErrorAction{
 			Ref: errors.New("Missing DicomEventDrivenIngestion"),
@@ -84,7 +85,7 @@ func (i *DicomStudyBindingReconciler) GetStudyBindingSinkBindingDesiredState(sta
 }
 
 func (i *DicomStudyBindingReconciler) GetStudyBindingTriggerDesiredState(state *DicomStudyBindingState, cr *v1alpha1.DicomStudyBinding) common.ControllerAction {
-	eventDrivenIngestionResource, err := GetEventDrivenIngestionResource(context.Background(), cr, i.Client)
+	eventDrivenIngestionResource, err := GetEventDrivenIngestionResource(context.Background(), types.NamespacedName{Name: cr.Spec.DicomEventDrivenIngestionName, Namespace: cr.Namespace}, i.Client)
 	if eventDrivenIngestionResource == nil || err != nil {
 		return common.GenericErrorAction{
 			Ref: errors.New("Missing DicomEventDrivenIngestion"),

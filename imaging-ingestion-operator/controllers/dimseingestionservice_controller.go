@@ -4,56 +4,51 @@
 SPDX-License-Identifier: Apache-2.0
 */
 
-package dicomstudybinding
+package controllers
 
 import (
 	"context"
 
 	"github.com/go-logr/logr"
+	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
-	keventingv1 "knative.dev/eventing/pkg/apis/eventing/v1"
-	ksourcesv1alpha2 "knative.dev/eventing/pkg/apis/sources/v1alpha2"
-	kservingv1 "knative.dev/serving/pkg/apis/serving/v1"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
-	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 
 	"github.com/Alvearie/imaging-ingestion/imaging-ingestion-operator/api/v1alpha1"
 	"github.com/Alvearie/imaging-ingestion/imaging-ingestion-operator/common"
 )
 
-var logger = logf.Log.WithName("dicomstudybinding")
-
-// DicomStudyBindingReconciler reconciles a DicomStudyBinding object
-type DicomStudyBindingReconciler struct {
+// DimseIngestionServiceReconciler reconciles a DimseIngestionService object
+type DimseIngestionServiceReconciler struct {
 	client.Client
 	Log    logr.Logger
 	Scheme *runtime.Scheme
 }
 
-//+kubebuilder:rbac:groups=imaging-ingestion.alvearie.org,namespace=system,resources=dicomstudybindings,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups=imaging-ingestion.alvearie.org,namespace=system,resources=dicomstudybindings/status,verbs=get;update;patch
-//+kubebuilder:rbac:groups=imaging-ingestion.alvearie.org,namespace=system,resources=dicomstudybindings/finalizers,verbs=update
+//+kubebuilder:rbac:groups=imaging-ingestion.alvearie.org,namespace=system,resources=dimseingestionservices,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=imaging-ingestion.alvearie.org,namespace=system,resources=dimseingestionservices/status,verbs=get;update;patch
+//+kubebuilder:rbac:groups=imaging-ingestion.alvearie.org,namespace=system,resources=dimseingestionservices/finalizers,verbs=update
 
-//+kubebuilder:rbac:groups=core,namespace=system,resources=configmaps,verbs=get;list;watch
+//+kubebuilder:rbac:groups=core,namespace=system,resources=configmaps,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=core,namespace=system,resources=secrets,verbs=get;list;watch
+//+kubebuilder:rbac:groups=apps,namespace=system,resources=deployments,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=core,namespace=system,resources=pods,verbs=get;list;
 //+kubebuilder:rbac:groups=serving.knative.dev,namespace=system,resources=services,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups=sources.knative.dev,namespace=system,resources=sinkbindings,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups=eventing.knative.dev,namespace=system,resources=triggers,verbs=get;list;watch;create;update;patch;delete
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.
 //
 // For more details, check Reconcile and its Result here:
 // - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.7.2/pkg/reconcile
-func (r *DicomStudyBindingReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	log := r.Log.WithValues("dicomstudybinding", req.NamespacedName)
-	log.Info("Reconciling DicomStudyBinding")
+func (r *DimseIngestionServiceReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
+	log := r.Log.WithValues("dimseingestionservice", req.NamespacedName)
+	log.Info("Reconciling DimseIngestionService")
 
-	instance := &v1alpha1.DicomStudyBinding{}
+	instance := &v1alpha1.DimseIngestionService{}
 	err := r.Get(ctx, req.NamespacedName, instance)
 	if err != nil {
 		if errors.IsNotFound(err) {
@@ -66,7 +61,7 @@ func (r *DicomStudyBindingReconciler) Reconcile(ctx context.Context, req ctrl.Re
 		return reconcile.Result{}, err
 	}
 
-	currentState := NewDicomStudyBindingState()
+	currentState := NewDimseIngestionServiceState()
 
 	// Read current state
 	err = currentState.Read(ctx, instance, r.Client)
@@ -85,7 +80,7 @@ func (r *DicomStudyBindingReconciler) Reconcile(ctx context.Context, req ctrl.Re
 	return r.ManageSuccess(ctx, instance, currentState)
 }
 
-func (r *DicomStudyBindingReconciler) ManageError(ctx context.Context, instance *v1alpha1.DicomStudyBinding, issue error) (reconcile.Result, error) {
+func (r *DimseIngestionServiceReconciler) ManageError(ctx context.Context, instance *v1alpha1.DimseIngestionService, issue error) (reconcile.Result, error) {
 	instance.Status.Message = issue.Error()
 	instance.Status.Ready = false
 	instance.Status.Phase = v1alpha1.PhaseFailing
@@ -101,7 +96,7 @@ func (r *DicomStudyBindingReconciler) ManageError(ctx context.Context, instance 
 	}, nil
 }
 
-func (r *DicomStudyBindingReconciler) ManageSuccess(ctx context.Context, instance *v1alpha1.DicomStudyBinding, currentState *DicomStudyBindingState) (reconcile.Result, error) {
+func (r *DimseIngestionServiceReconciler) ManageSuccess(ctx context.Context, instance *v1alpha1.DimseIngestionService, currentState *DimseIngestionServiceState) (reconcile.Result, error) {
 	resourcesReady, err := currentState.IsResourcesReady(instance)
 	if err != nil {
 		return r.ManageError(ctx, instance, err)
@@ -130,13 +125,11 @@ func (r *DicomStudyBindingReconciler) ManageSuccess(ctx context.Context, instanc
 }
 
 // SetupWithManager sets up the controller with the Manager.
-func (r *DicomStudyBindingReconciler) SetupWithManager(mgr ctrl.Manager) error {
+func (r *DimseIngestionServiceReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
-		For(&v1alpha1.DicomStudyBinding{}).
+		For(&v1alpha1.DimseIngestionService{}).
 		Owns(&corev1.ConfigMap{}).
 		Owns(&corev1.Secret{}).
-		Owns(&kservingv1.Service{}).
-		Owns(&ksourcesv1alpha2.SinkBinding{}).
-		Owns(&keventingv1.Trigger{}).
+		Owns(&appsv1.Deployment{}).
 		Complete(r)
 }

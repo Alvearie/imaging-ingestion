@@ -4,54 +4,52 @@
 SPDX-License-Identifier: Apache-2.0
 */
 
-package dicomwebingestionservice
+package controllers
 
 import (
 	"context"
 
 	"github.com/go-logr/logr"
+	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
-	ksourcesv1alpha2 "knative.dev/eventing/pkg/apis/sources/v1alpha2"
-	kservingv1 "knative.dev/serving/pkg/apis/serving/v1"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
-	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 
 	"github.com/Alvearie/imaging-ingestion/imaging-ingestion-operator/api/v1alpha1"
+	imagingingestionv1alpha1 "github.com/Alvearie/imaging-ingestion/imaging-ingestion-operator/api/v1alpha1"
 	"github.com/Alvearie/imaging-ingestion/imaging-ingestion-operator/common"
 )
 
-var logger = logf.Log.WithName("dicomwebingestionservice")
-
-// DicomwebIngestionServiceReconciler reconciles a DicomwebIngestionService object
-type DicomwebIngestionServiceReconciler struct {
+// DimseProxyReconciler reconciles a DimseProxy object
+type DimseProxyReconciler struct {
 	client.Client
 	Log    logr.Logger
 	Scheme *runtime.Scheme
 }
 
-//+kubebuilder:rbac:groups=imaging-ingestion.alvearie.org,namespace=system,resources=dicomwebingestionservices,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups=imaging-ingestion.alvearie.org,namespace=system,resources=dicomwebingestionservices/status,verbs=get;update;patch
-//+kubebuilder:rbac:groups=imaging-ingestion.alvearie.org,namespace=system,resources=dicomwebingestionservices/finalizers,verbs=update
+//+kubebuilder:rbac:groups=imaging-ingestion.alvearie.org,namespace=system,resources=dimseproxies,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=imaging-ingestion.alvearie.org,namespace=system,resources=dimseproxies/status,verbs=get;update;patch
+//+kubebuilder:rbac:groups=imaging-ingestion.alvearie.org,namespace=system,resources=dimseproxies/finalizers,verbs=update
 
 //+kubebuilder:rbac:groups=core,namespace=system,resources=configmaps,verbs=get;list;watch
 //+kubebuilder:rbac:groups=core,namespace=system,resources=secrets,verbs=get;list;watch
+//+kubebuilder:rbac:groups=apps,namespace=system,resources=deployments,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=core,namespace=system,resources=pods,verbs=get;list;
 //+kubebuilder:rbac:groups=serving.knative.dev,namespace=system,resources=services,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups=sources.knative.dev,namespace=system,resources=sinkbindings,verbs=get;list;watch;create;update;patch;delete
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.
 //
 // For more details, check Reconcile and its Result here:
 // - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.7.2/pkg/reconcile
-func (r *DicomwebIngestionServiceReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	log := r.Log.WithValues("dicomwebingestionservice", req.NamespacedName)
-	log.Info("Reconciling DicomwebIngestionService")
+func (r *DimseProxyReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
+	log := r.Log.WithValues("dicomstudybinding", req.NamespacedName)
+	log.Info("Reconciling DimseProxy")
 
-	instance := &v1alpha1.DicomwebIngestionService{}
+	instance := &v1alpha1.DimseProxy{}
 	err := r.Get(ctx, req.NamespacedName, instance)
 	if err != nil {
 		if errors.IsNotFound(err) {
@@ -64,7 +62,7 @@ func (r *DicomwebIngestionServiceReconciler) Reconcile(ctx context.Context, req 
 		return reconcile.Result{}, err
 	}
 
-	currentState := NewDicomwebIngestionServiceState()
+	currentState := NewDimseProxyState()
 
 	// Read current state
 	err = currentState.Read(ctx, instance, r.Client)
@@ -83,7 +81,7 @@ func (r *DicomwebIngestionServiceReconciler) Reconcile(ctx context.Context, req 
 	return r.ManageSuccess(ctx, instance, currentState)
 }
 
-func (r *DicomwebIngestionServiceReconciler) ManageError(ctx context.Context, instance *v1alpha1.DicomwebIngestionService, issue error) (reconcile.Result, error) {
+func (r *DimseProxyReconciler) ManageError(ctx context.Context, instance *v1alpha1.DimseProxy, issue error) (reconcile.Result, error) {
 	instance.Status.Message = issue.Error()
 	instance.Status.Ready = false
 	instance.Status.Phase = v1alpha1.PhaseFailing
@@ -99,7 +97,7 @@ func (r *DicomwebIngestionServiceReconciler) ManageError(ctx context.Context, in
 	}, nil
 }
 
-func (r *DicomwebIngestionServiceReconciler) ManageSuccess(ctx context.Context, instance *v1alpha1.DicomwebIngestionService, currentState *DicomwebIngestionServiceState) (reconcile.Result, error) {
+func (r *DimseProxyReconciler) ManageSuccess(ctx context.Context, instance *v1alpha1.DimseProxy, currentState *DimseProxyState) (reconcile.Result, error) {
 	resourcesReady, err := currentState.IsResourcesReady(instance)
 	if err != nil {
 		return r.ManageError(ctx, instance, err)
@@ -128,12 +126,11 @@ func (r *DicomwebIngestionServiceReconciler) ManageSuccess(ctx context.Context, 
 }
 
 // SetupWithManager sets up the controller with the Manager.
-func (r *DicomwebIngestionServiceReconciler) SetupWithManager(mgr ctrl.Manager) error {
+func (r *DimseProxyReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
-		For(&v1alpha1.DicomwebIngestionService{}).
+		For(&imagingingestionv1alpha1.DimseProxy{}).
 		Owns(&corev1.ConfigMap{}).
 		Owns(&corev1.Secret{}).
-		Owns(&kservingv1.Service{}).
-		Owns(&ksourcesv1alpha2.SinkBinding{}).
+		Owns(&appsv1.Deployment{}).
 		Complete(r)
 }

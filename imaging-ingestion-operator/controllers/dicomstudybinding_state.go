@@ -4,7 +4,7 @@
 SPDX-License-Identifier: Apache-2.0
 */
 
-package dicomstudybinding
+package controllers
 
 import (
 	"context"
@@ -16,6 +16,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	apiErrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/meta"
+	"k8s.io/apimachinery/pkg/types"
 	keventingv1 "knative.dev/eventing/pkg/apis/eventing/v1"
 	ksourcesv1alpha2 "knative.dev/eventing/pkg/apis/sources/v1alpha2"
 	kservingv1 "knative.dev/serving/pkg/apis/serving/v1"
@@ -143,25 +144,8 @@ func (i *DicomStudyBindingState) readStudyBindingServiceCurrentState(context con
 	return nil
 }
 
-func GetEventDrivenIngestionResource(context context.Context, cr *v1alpha1.DicomStudyBinding, controllerClient client.Client) (*v1alpha1.DicomEventDrivenIngestion, error) {
-	resource := model.EventDrivenIngestionResource()
-	resourceSelector := model.EventDrivenIngestionResourceSelector(cr.Spec.DicomEventDrivenIngestionName, cr.Namespace)
-
-	err := controllerClient.Get(context, resourceSelector, resource)
-	if err != nil {
-		// If the resource type doesn't exist on the cluster or does exist but is not found
-		if meta.IsNoMatchError(err) || apiErrors.IsNotFound(err) {
-			return nil, nil
-		} else {
-			return nil, err
-		}
-	} else {
-		return resource.DeepCopy(), nil
-	}
-}
-
 func (i *DicomStudyBindingState) readStudyBindingSinkBindingCurrentState(context context.Context, cr *v1alpha1.DicomStudyBinding, controllerClient client.Client) error {
-	eventDrivenIngestionResource, err := GetEventDrivenIngestionResource(context, cr, controllerClient)
+	eventDrivenIngestionResource, err := GetEventDrivenIngestionResource(context, types.NamespacedName{Name: cr.Spec.DicomEventDrivenIngestionName, Namespace: cr.Namespace}, controllerClient)
 	if eventDrivenIngestionResource == nil || err != nil {
 		return errors.New("Error getting DicomEventDrivenIngestion")
 	}
@@ -187,7 +171,7 @@ func (i *DicomStudyBindingState) readStudyBindingSinkBindingCurrentState(context
 }
 
 func (i *DicomStudyBindingState) readStudyBindingTriggerCurrentState(context context.Context, cr *v1alpha1.DicomStudyBinding, controllerClient client.Client) error {
-	eventDrivenIngestionResource, err := GetEventDrivenIngestionResource(context, cr, controllerClient)
+	eventDrivenIngestionResource, err := GetEventDrivenIngestionResource(context, types.NamespacedName{Name: cr.Spec.DicomEventDrivenIngestionName, Namespace: cr.Namespace}, controllerClient)
 	if eventDrivenIngestionResource == nil || err != nil {
 		return errors.New("Error getting DicomEventDrivenIngestion")
 	}
