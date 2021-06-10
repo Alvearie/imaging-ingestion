@@ -50,6 +50,9 @@ public class DimseServer {
 
     @Inject
     CStoreSCPImpl storescp;
+    
+    @Inject
+    CFindSCPImpl findscp;
 
     AssociationHandler associationHandler = new AssociationHandler();
 
@@ -63,6 +66,7 @@ public class DimseServer {
             device.setExecutor(executor);
             device.setAssociationHandler(associationHandler);
             serviceRegistry.addDicomService(echoscp);
+            serviceRegistry.addDicomService(findscp);
             serviceRegistry.addDicomService(storescp);
             device.setDimseRQHandler(serviceRegistry);
 
