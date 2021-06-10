@@ -135,9 +135,6 @@ public class RetrieveService {
         List<DicomStudyEntity> studyInstances = new QueryHelper().queryStudies(model, source);
 
         for (DicomStudyEntity studyInstance : studyInstances) {
-            
-            
-            
             DicomEntityResult searchResult = new DicomEntityResult();
             addAttributeToEntity(searchResult, Tag.StudyDate, VR.DA, studyInstance.studyDate);
             addAttributeToEntity(searchResult, Tag.StudyTime, VR.TM, studyInstance.studyTime);

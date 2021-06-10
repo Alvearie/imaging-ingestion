@@ -56,10 +56,16 @@ public class QueryHelper {
         }
 
         public void addRangeParameter(String entityName, String parameterName, Object gtValue, Object ltValue) {
-            queryString += String.format("%s %s BETWEEN :%s_GT AND :%s_LT", queryParameters.isEmpty() ? "" : " AND",
-                    entityName, parameterName, parameterName);
-            queryParameters.put(parameterName + "_GT", gtValue);
-            queryParameters.put(parameterName + "_LT", ltValue);
+            if (ltValue == null) {
+                queryString += String.format("%s %s >= :%s_GE", queryParameters.isEmpty() ? "" : " AND",
+                        entityName, parameterName);
+                queryParameters.put(parameterName + "_GE", gtValue);
+            } else {
+                queryString += String.format("%s %s >= :%s_GT AND %s <= :%s_LT", queryParameters.isEmpty() ? "" : " AND",
+                        entityName, parameterName, entityName, parameterName);
+                queryParameters.put(parameterName + "_GT", gtValue);
+                queryParameters.put(parameterName + "_LT", ltValue);
+            }
         }
 
         public String getQueryString() {
@@ -113,12 +119,12 @@ public class QueryHelper {
         if (model.getStudyUid() != null) {
             queryBuilder.addParameter("e.series.study.studyInstanceUID", "studyInstanceUID", model.getStudyUid());
         }
-        if (model.getStudyUid() != null) {
+        if (model.getSeriesUid() != null) {
             queryBuilder.addParameter("e.series.seriesInstanceUID", "seriesInstanceUID", model.getSeriesUid());
         }
 
         handleStudyIeAttributes(queryBuilder, "e.series.study", "sa", "e.series", model);
-        handleSeriesIeAttributes(queryBuilder, "series", "a", model);
+        handleSeriesIeAttributes(queryBuilder, "e.series", "a", model);
         handleInstanceIeAttributes(queryBuilder, "e", model);
         queryBuilder.addParameter("e.series.provider.name", "source", source);
         LOG.info("Instances Query: " + queryBuilder.getQueryString());
@@ -174,6 +180,8 @@ public class QueryHelper {
                 values = attribute.getValue().split("-");
                 if (values.length == 2) {
                     queryBuilder.addRangeParameter(studyAlias + ".studyTime", "studyTime", values[0], values[1]);
+                } else if (attribute.getValue().endsWith("-")) {
+                    queryBuilder.addRangeParameter(studyAlias + ".studyTime", "studyTime", values[0], null);
                 } else {
                     queryBuilder.addParameter(studyAlias + ".studyTime", "studyTime", attribute.getValue());
                 }
@@ -182,6 +190,8 @@ public class QueryHelper {
                 values = attribute.getValue().split("-");
                 if (values.length == 2) {
                     queryBuilder.addRangeParameter(studyAlias + ".studyDate", "studyDate", values[0], values[1]);
+                } else if (attribute.getValue().endsWith("-")) {
+                    queryBuilder.addRangeParameter(studyAlias + ".studyDate", "studyDate", values[0], null);
                 } else {
                     queryBuilder.addParameter(studyAlias + ".studyDate", "studyDate", attribute.getValue());
                 }
