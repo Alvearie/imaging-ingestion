@@ -11,6 +11,7 @@ import java.util.concurrent.TimeUnit;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import org.alvearie.imaging.ingestion.service.dimse.Constants.Actor;
 import org.alvearie.imaging.ingestion.service.nats.NatsConnectionFactory;
 import org.dcm4che3.net.Association;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -23,18 +24,21 @@ import io.nats.client.Message;
 public class NatsAssociationPublisher {
     private static final Logger LOG = Logger.getLogger(NatsAssociationPublisher.class);
 
-    @ConfigProperty(name = "dimse.called.aet")
-    String calledAet;
+    @ConfigProperty(name = "dimse.nats.subject.root")
+    String subjectRoot;
+
+    @ConfigProperty(name = "dimse.proxy.actor")
+    Actor actor;
 
     @ConfigProperty(name = "dimse.nats.reply.timeoutSeconds")
     Integer replyTimeoutSeconds;
-    
+
     @Inject
     NatsConnectionFactory natsConnectionFactory;
 
     public void onAssociation(Association as) {
         LOG.info(String.format("Publishing association %d", as.getSerialNo()));
-        String subject = calledAet + "." + as.getSerialNo();
+        String subject = subjectRoot + "." + actor.getDirection() + "." + as.getSerialNo();
 
         try {
             Connection connection = natsConnectionFactory.getConnection();

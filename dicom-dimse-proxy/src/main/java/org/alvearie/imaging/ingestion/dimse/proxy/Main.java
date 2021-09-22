@@ -8,7 +8,6 @@ package org.alvearie.imaging.ingestion.dimse.proxy;
 import javax.inject.Inject;
 
 import org.alvearie.imaging.ingestion.service.nats.NatsAssociationSubscriber;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
 import io.quarkus.runtime.Quarkus;
@@ -25,18 +24,12 @@ public class Main implements QuarkusApplication {
     @Inject
     ProxyServer server;
 
-    @ConfigProperty(name = "dimse.proxy.server.enable")
-    boolean enableServer;
-
     @Override
     public int run(String... args) throws Exception {
         LOG.info("Application starting ...");
 
-        if (enableServer) {
-            server.init();
-        } else {
-            subscriber.subscribe();
-        }
+        server.init();
+        subscriber.subscribe();
 
         Quarkus.waitForExit();
         return 0;
