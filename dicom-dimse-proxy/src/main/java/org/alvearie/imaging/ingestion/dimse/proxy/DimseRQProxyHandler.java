@@ -1,6 +1,6 @@
 /*
  * (C) Copyright IBM Corp. 2021
- * 
+ *
  * SPDX-License-Identifier: Apache-2.0
  */
 package org.alvearie.imaging.ingestion.dimse.proxy;
@@ -12,6 +12,7 @@ import java.io.ObjectInputStream;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import org.alvearie.imaging.ingestion.service.dimse.Constants.Actor;
 import org.alvearie.imaging.ingestion.service.dimse.RequestWrapper;
 import org.alvearie.imaging.ingestion.service.dimse.SimpleAssociateRQ;
 import org.alvearie.imaging.ingestion.service.dimse.SimplePresentationContext;
@@ -30,8 +31,11 @@ import org.jboss.logging.Logger;
 public class DimseRQProxyHandler implements DimseRQHandler {
     private static final Logger LOG = Logger.getLogger(DimseRQProxyHandler.class);
 
-    @ConfigProperty(name = "dimse.called.aet")
-    String calledAet;
+    @ConfigProperty(name = "dimse.nats.subject.root")
+    String subjectRoot;
+
+    @ConfigProperty(name = "dimse.proxy.actor")
+    Actor actor;
 
     @Inject
     NatsMessagePublisher messagePublisher;
@@ -45,16 +49,17 @@ public class DimseRQProxyHandler implements DimseRQHandler {
         LOG.info("onDimseRQ");
 
         try {
+            String subject = subjectRoot + "." + actor.getDirection();
             Attributes dataAttributes = readDataset(pc, data);
             SimplePresentationContext spc = new SimplePresentationContext(pc.getPCID(), pc.getResult(),
                     pc.getAbstractSyntax(), pc.getTransferSyntaxes());
 
-            String rqId = String.format("%s.%d", calledAet, as.getSerialNo());
+            String rqId = String.format("%s.%d", subject, as.getSerialNo());
             SimpleAssociateRQ rq = new SimpleAssociateRQ(rqId, as.getAAssociateRQ().getPresentationContexts());
             RequestWrapper request = new RequestWrapper(rq, spc, cmd, dataAttributes);
 
             int messageId = cmd.getInt(Tag.MessageID, 0);
-            byte[] bytes = messagePublisher.publish(calledAet, as, messageId, request.getBytes());
+            byte[] bytes = messagePublisher.publish(subject, as, messageId, request.getBytes());
 
             ByteArrayInputStream bis = new ByteArrayInputStream(bytes);
             ObjectInputStream in = null;
@@ -78,7 +83,8 @@ public class DimseRQProxyHandler implements DimseRQHandler {
 
     @Override
     public void onClose(Association as) {
-        String key = calledAet + "." + as.getSerialNo();
+        String subject = subjectRoot + "." + actor.getDirection();
+        String key = subject + "." + as.getSerialNo();
         LOG.info("Remove association from holder: " + key);
         holder.removeAssociation(key);
 
