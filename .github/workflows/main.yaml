@@ -7,6 +7,9 @@ on:
   pull_request:
     branches:
     - main
+  release:
+    types:
+      - created
 
 jobs:
   build:
@@ -36,7 +39,7 @@ jobs:
     - name: Print Imaging Ingestion Version
       run: echo $IMAGING_INGESTION_VERSION
     - name: Build Optimized Images with Gradle on Merge
-      if: ${{ github.ref == 'refs/heads/main' }}
+      if: ${{ github.ref == 'refs/heads/main' || github.event_name == 'release' }}
       run: |
         ./gradlew -Pquarkus.package.type=native build
         ./gradlew -Pquarkus.package.type=native -Dquarkus.datasource.db-kind=db2 :dicom-event-driven-ingestion:clean :dicom-event-driven-ingestion:build
@@ -61,12 +64,12 @@ jobs:
       run: docker images
     - name: Login to Docker Hub
       uses: docker/login-action@v1
-      if: ${{ github.ref == 'refs/heads/main' }}
+      if: ${{ github.ref == 'refs/heads/main' || github.event_name == 'release' }}
       with:
         username: ${{ secrets.DOCKER_HUB_USERNAME }}
         password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
     - name: Push Docker Images
-      if: ${{ github.ref == 'refs/heads/main' }}
+      if: ${{ github.ref == 'refs/heads/main' || github.event_name == 'release' }}
       run: |
         docker push alvearie/dicomweb-stow-binding:${{ env.IMAGING_INGESTION_VERSION }}
         docker push alvearie/dicomweb-fhir-binding:${{ env.IMAGING_INGESTION_VERSION }}
@@ -78,3 +81,29 @@ jobs:
         docker push alvearie/dicom-dimse-proxy:${{ env.IMAGING_INGESTION_VERSION }}
         docker push alvearie/imaging-ingestion-operator:${{ env.IMAGING_INGESTION_VERSION }}
         docker push alvearie/imaging-ingestion-operator-bundle:${{ env.IMAGING_INGESTION_VERSION }}
+    - name: Prepare artifact archive
+      if: ${{ github.ref == 'refs/heads/main' || github.event_name == 'release' }}
+      run: |
+        mkdir -p ${{ github.workspace }}/artifacts
+        docker run -d -t --rm --name dicom-dimse-proxy --entrypoint= alvearie/dicom-dimse-proxy:${{ env.IMAGING_INGESTION_VERSION }} cat
+        docker cp dicom-dimse-proxy:/work/application ${{ github.workspace }}/artifacts/dicom-dimse-proxy-${{ env.IMAGING_INGESTION_VERSION }}-linux-x86_64
+        docker stop --time=1 dicom-dimse-proxy
+        cp -r dicom-dimse-proxy/src/test/resources/dimse-config ${{ github.workspace }}/artifacts/
+        tar -cvf ${{ github.workspace }}/dicom-dimse-proxy-${{ env.IMAGING_INGESTION_VERSION }}.tar -C ${{ github.workspace }}/artifacts/ .
+    - name: Upload artifact
+      uses: actions/upload-artifact@v2
+      if: ${{ github.ref == 'refs/heads/main' || github.event_name == 'release' }}
+      with:
+        name: dicom-dimse-proxy-${{ env.IMAGING_INGESTION_VERSION }}.tar
+        path: ${{ github.workspace }}/dicom-dimse-proxy-${{ env.IMAGING_INGESTION_VERSION }}.tar
+        if-no-files-found: error
+    - name: Upload release asset
+      uses: actions/upload-release-asset@v1.0.1
+      if: ${{ github.event_name == 'release' }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ github.event.release.upload_url }}
+        asset_path: ${{ github.workspace }}/dicom-dimse-proxy-${{ env.IMAGING_INGESTION_VERSION }}.tar
+        asset_name: dicom-dimse-proxy-${{ env.IMAGING_INGESTION_VERSION }}.tar
+        asset_content_type: binary/octet-stream
