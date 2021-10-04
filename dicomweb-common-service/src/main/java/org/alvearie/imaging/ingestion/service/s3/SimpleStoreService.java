@@ -73,6 +73,7 @@ public class SimpleStoreService implements StoreService {
 
     private void writeToStorage(StoreContext ctx, InputStream data) throws DicomServiceException {
         try (Transcoder transcoder = new Transcoder(data)) {
+            transcoder.setIncludeFileMetaInformation(true);
             transcoder.transcode(new TranscoderHandler(ctx));
             persistenceService.putObject(ctx);
             eventClient.sendEvent(UUID.randomUUID().toString(), Events.ImageStoredEvent, buildEvent(ctx));
@@ -112,7 +113,6 @@ public class SimpleStoreService implements StoreService {
         ImageStoredEvent event = new ImageStoredEvent();
         event.setImage(image);
         event.setStore(store);
-       
 
         return event;
     }
