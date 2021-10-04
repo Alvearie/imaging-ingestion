@@ -48,12 +48,6 @@ jobs:
       run: |
         ./gradlew build
         ./gradlew -Dquarkus.datasource.db-kind=db2 :dicom-event-driven-ingestion:clean :dicom-event-driven-ingestion:build
-    - name: Cleanup Gradle Cache
-      # Remove some files from the Gradle cache, so they aren't cached by GitHub Actions.
-      # Restoring these files from a GitHub Actions cache might cause problems for future builds.
-      run: |
-        rm -f ~/.gradle/caches/modules-2/modules-2.lock
-        rm -f ~/.gradle/caches/modules-2/gc.properties
     - name: Build Operator
       run: docker build -t alvearie/imaging-ingestion-operator:${{ env.IMAGING_INGESTION_VERSION }} .
       working-directory: imaging-ingestion-operator
@@ -81,6 +75,12 @@ jobs:
         docker push alvearie/dicom-dimse-proxy:${{ env.IMAGING_INGESTION_VERSION }}
         docker push alvearie/imaging-ingestion-operator:${{ env.IMAGING_INGESTION_VERSION }}
         docker push alvearie/imaging-ingestion-operator-bundle:${{ env.IMAGING_INGESTION_VERSION }}
+    - name: Publish Jar artifacts
+      if: ${{ github.ref == 'refs/heads/main' || github.event_name == 'release' }}
+      run: |
+        ./gradlew :cloud-events:publish
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - name: Prepare artifact archive
       if: ${{ github.ref == 'refs/heads/main' || github.event_name == 'release' }}
       run: |
@@ -108,3 +108,9 @@ jobs:
         asset_path: ${{ github.workspace }}/dicom-dimse-proxy-${{ env.IMAGING_INGESTION_VERSION }}.tar
         asset_name: dicom-dimse-proxy-${{ env.IMAGING_INGESTION_VERSION }}.tar
         asset_content_type: binary/octet-stream
+    - name: Cleanup Gradle Cache
+      # Remove some files from the Gradle cache, so they aren't cached by GitHub Actions.
+      # Restoring these files from a GitHub Actions cache might cause problems for future builds.
+      run: |
+        rm -f ~/.gradle/caches/modules-2/modules-2.lock
+        rm -f ~/.gradle/caches/modules-2/gc.properties

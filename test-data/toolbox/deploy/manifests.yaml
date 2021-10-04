@@ -1,0 +1,17 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: toolbox
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: toolbox
+  template:
+    metadata:
+      labels:
+        app: toolbox
+    spec:
+      containers:
+        - name: toolbox
+          image: alvearie/imaging-ingestion-toolbox:0.0.1
