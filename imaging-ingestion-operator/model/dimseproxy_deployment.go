@@ -48,8 +48,8 @@ func DimseProxyDeployment(cr *v1alpha1.DimseProxy) *appsv1.Deployment {
 							},
 							Env: []corev1.EnvVar{
 								{
-									Name:  "DIMSE_PROXY_SERVER_ENABLE",
-									Value: "false",
+									Name:  "DIMSE_PROXY_ACTOR",
+									Value: "SERVER",
 								},
 								{
 									Name:  "DIMSE_CONFIG_PATH",

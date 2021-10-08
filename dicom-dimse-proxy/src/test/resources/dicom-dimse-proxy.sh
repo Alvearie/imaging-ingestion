@@ -11,4 +11,4 @@ export DIMSE_NATS_SUBJECT_ROOT=<NATS_SUBJECT_ROOT>
 export DIMSE_PROXY_ACTOR=PROXY
 
 echo "Starting dicom-dimse-proxy in background ..."
-nohup ./dicom-dimse-proxy-*-linux-x86_64 2>&1 &
+nohup java -jar ./dicom-dimse-proxy-*.jar 2>&1 &

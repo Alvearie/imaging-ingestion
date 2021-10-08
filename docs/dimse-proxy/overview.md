@@ -1,10 +1,10 @@
-# DICOM Message Service Element (DIMSE) Proxy 
+# DICOM Message Service Element (DIMSE) Proxy
 
 ## Overview
 
 The DIMSE Proxy has many potential uses.  The proxy can be placed within the enterprise imaging zone not only as an ingestion proxy, but also as a fully functional DIMSE proxy with all of the composite (C-*) and normative (N-*) DIMSE services.  It inherits support DICOM Presentation Context and DICOM Transfer Syntaxes from [dcm4che](https://www.dcm4che.org).  Communication through the DIMSE proxy is performed over a dedicated secure [NATS](https://nats.io) subject.  This, in effect, allows the DIMSE OSI level 4 traffic to be raised to OSI level 7 with resilient communications to a muti-zone cloud deployment.
 
-In the enterprise imaging zone, the DIMSE Proxy can be deployed as a standalone application, a docker container, or a Kubernetes Custom Resource (CR). 
+In the enterprise imaging zone, the DIMSE Proxy can be deployed as a standalone application, a docker container, or a Kubernetes Custom Resource (CR).
 
 The DIMSE Proxy also has use-cases where it may be helpful to deploy within cloud.  By pairing a DIMSE proxy in the cloud with a DIMSE Proxy in the enterprise imaging zone, bidirectional communications can occur.  Example use cases may be:
 
@@ -25,7 +25,7 @@ kind: DimseProxy
 metadata:
   name: archive-proxy
 spec:
-  # The DIMSET AET the proxy is acting as
+  # The DIMSE AET the proxy is acting as
   applicationEntityTitle: "DICOM-INGEST"
   # Host of the DIMSE service in the clister this is acting as a proxy for
   targetDimseHost: dcm4che.dcm4che.svc.cluster.local
@@ -35,6 +35,8 @@ spec:
   natsUrl: 0a0527d6.nip.io:443
   # Enable TLS for NATS
   natsSecure: true
+  # The root name of NATS subject where the proxy is subscribing and publishing messages
+  natsSubjectRoot: DIMSE
   # The ServiceAccount token that will be used to manage access to this NATS service
   # Future:  Not yet implemented
   #natsTokenSecret: nats-dicom-ingest-token-lhllv

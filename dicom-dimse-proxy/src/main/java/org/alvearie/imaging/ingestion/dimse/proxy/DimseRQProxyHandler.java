@@ -49,7 +49,7 @@ public class DimseRQProxyHandler implements DimseRQHandler {
         LOG.info("onDimseRQ");
 
         try {
-            String subject = subjectRoot + "." + actor.getDirection();
+            String subject = subjectRoot + "." + actor.getPublishDirection();
             Attributes dataAttributes = readDataset(pc, data);
             SimplePresentationContext spc = new SimplePresentationContext(pc.getPCID(), pc.getResult(),
                     pc.getAbstractSyntax(), pc.getTransferSyntaxes());
@@ -83,7 +83,7 @@ public class DimseRQProxyHandler implements DimseRQHandler {
 
     @Override
     public void onClose(Association as) {
-        String subject = subjectRoot + "." + actor.getDirection();
+        String subject = subjectRoot + "." + actor.getPublishDirection();
         String key = subject + "." + as.getSerialNo();
         LOG.info("Remove association from holder: " + key);
         holder.removeAssociation(key);

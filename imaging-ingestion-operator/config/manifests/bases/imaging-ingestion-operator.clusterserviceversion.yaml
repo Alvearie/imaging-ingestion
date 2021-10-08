@@ -7,7 +7,8 @@ metadata:
     categories: Integration & Delivery
     containerImage: alvearie/imaging-ingestion-operator:0.0.1
     createdAt: "2021-04-08T15:29:55Z"
-    description: The Alvearie Imaging Ingestion provides a collection of components for extending enterprise medical imaging informatics systems to Kubernetes.
+    description: The Alvearie Imaging Ingestion provides a collection of components
+      for extending enterprise medical imaging informatics systems to Kubernetes.
     repository: https://github.com/Alvearie/imaging-ingestion
     support: alvearie.slack.com
   name: imaging-ingestion-operator.v0.0.0
@@ -16,7 +17,8 @@ spec:
   apiservicedefinitions: {}
   customresourcedefinitions:
     owned:
-    - description: Event driven manifest of all DICOM data across all associated S3 buckets
+    - description: Event driven manifest of all DICOM data across all associated S3
+        buckets
       displayName: Dicom Event Driven Ingestion
       kind: DicomEventDrivenIngestion
       name: dicomeventdriveningestions.imaging-ingestion.alvearie.org
@@ -56,7 +58,8 @@ spec:
         displayName: Image Pull Secrets
         path: imagePullSecrets
       statusDescriptors:
-      - description: Human-readable message indicating details about current operator phase or error
+      - description: Human-readable message indicating details about current operator
+          phase or error
         displayName: Message
         path: message
       - description: Current phase of the operator
@@ -65,7 +68,8 @@ spec:
       - description: True if all resources are in a ready state and all work is done
         displayName: Ready
         path: ready
-      - description: 'A map of all the secondary resources types and names created for this CR. e.g "Deployment": [ "DeploymentName1", "DeploymentName2" ]'
+      - description: 'A map of all the secondary resources types and names created
+          for this CR. e.g "Deployment": [ "DeploymentName1", "DeploymentName2" ]'
         displayName: Secondary Resources
         path: secondaryResources
       version: v1alpha1
@@ -109,7 +113,8 @@ spec:
         displayName: Min Replicas
         path: instanceBinding.minReplicas
       statusDescriptors:
-      - description: Human-readable message indicating details about current operator phase or error
+      - description: Human-readable message indicating details about current operator
+          phase or error
         displayName: Message
         path: message
       - description: Current phase of the operator
@@ -118,7 +123,8 @@ spec:
       - description: True if all resources are in a ready state and all work is done
         displayName: Ready
         path: ready
-      - description: 'A map of all the secondary resources types and names created for this CR. e.g "Deployment": [ "DeploymentName1", "DeploymentName2" ]'
+      - description: 'A map of all the secondary resources types and names created
+          for this CR. e.g "Deployment": [ "DeploymentName1", "DeploymentName2" ]'
         displayName: Secondary Resources
         path: secondaryResources
       version: v1alpha1
@@ -165,7 +171,8 @@ spec:
         displayName: Min Replicas
         path: studyBinding.minReplicas
       statusDescriptors:
-      - description: Human-readable message indicating details about current operator phase or error
+      - description: Human-readable message indicating details about current operator
+          phase or error
         displayName: Message
         path: message
       - description: Current phase of the operator
@@ -174,7 +181,8 @@ spec:
       - description: True if all resources are in a ready state and all work is done
         displayName: Ready
         path: ready
-      - description: 'A map of all the secondary resources types and names created for this CR. e.g "Deployment": [ "DeploymentName1", "DeploymentName2" ]'
+      - description: 'A map of all the secondary resources types and names created
+          for this CR. e.g "Deployment": [ "DeploymentName1", "DeploymentName2" ]'
         displayName: Secondary Resources
         path: secondaryResources
       version: v1alpha1
@@ -236,7 +244,8 @@ spec:
         displayName: Min Replicas
         path: wadoService.minReplicas
       statusDescriptors:
-      - description: Human-readable message indicating details about current operator phase or error
+      - description: Human-readable message indicating details about current operator
+          phase or error
         displayName: Message
         path: message
       - description: Current phase of the operator
@@ -245,7 +254,8 @@ spec:
       - description: True if all resources are in a ready state and all work is done
         displayName: Ready
         path: ready
-      - description: 'A map of all the secondary resources types and names created for this CR. e.g "Deployment": [ "DeploymentName1", "DeploymentName2" ]'
+      - description: 'A map of all the secondary resources types and names created
+          for this CR. e.g "Deployment": [ "DeploymentName1", "DeploymentName2" ]'
         displayName: Secondary Resources
         path: secondaryResources
       - description: WADO Service External Endpoint
@@ -255,7 +265,8 @@ spec:
         displayName: Wado Service Internal Endpoint
         path: wadoServiceInternalEndpoint
       version: v1alpha1
-    - description: Provides a proxied DIMSE Application Entity (AE) in the cluster for C-STORE operations to a storage space
+    - description: Provides a proxied DIMSE Application Entity (AE) in the cluster
+        for C-STORE operations to a storage space
       displayName: Dimse Ingestion Service
       kind: DimseIngestionService
       name: dimseingestionservices.imaging-ingestion.alvearie.org
@@ -301,7 +312,8 @@ spec:
         displayName: Provider Name
         path: providerName
       statusDescriptors:
-      - description: Human-readable message indicating details about current operator phase or error
+      - description: Human-readable message indicating details about current operator
+          phase or error
         displayName: Message
         path: message
       - description: Current phase of the operator
@@ -310,11 +322,13 @@ spec:
       - description: True if all resources are in a ready state and all work is done
         displayName: Ready
         path: ready
-      - description: 'A map of all the secondary resources types and names created for this CR. e.g "Deployment": [ "DeploymentName1", "DeploymentName2" ]'
+      - description: 'A map of all the secondary resources types and names created
+          for this CR. e.g "Deployment": [ "DeploymentName1", "DeploymentName2" ]'
         displayName: Secondary Resources
         path: secondaryResources
       version: v1alpha1
-    - description: Provides a bidirectional proxied DIMSE Application Entity (AE) in the cluster
+    - description: Provides a bidirectional proxied DIMSE Application Entity (AE)
+        in the cluster
       displayName: Dimse Proxy
       kind: DimseProxy
       name: dimseproxies.imaging-ingestion.alvearie.org
@@ -335,6 +349,9 @@ spec:
       - description: Make NATS Connection Secure
         displayName: Nats Secure
         path: natsSecure
+      - description: NATS Subject Root
+        displayName: Nats Subject Root
+        path: natsSubjectRoot
       - description: NATS Token Secret Name
         displayName: Nats Token Secret Name
         path: natsTokenSecret
@@ -354,7 +371,8 @@ spec:
         displayName: Target Dimse Port
         path: targetDimsePort
       statusDescriptors:
-      - description: Human-readable message indicating details about current operator phase or error
+      - description: Human-readable message indicating details about current operator
+          phase or error
         displayName: Message
         path: message
       - description: Current phase of the operator
@@ -363,7 +381,8 @@ spec:
       - description: True if all resources are in a ready state and all work is done
         displayName: Ready
         path: ready
-      - description: 'A map of all the secondary resources types and names created for this CR. e.g "Deployment": [ "DeploymentName1", "DeploymentName2" ]'
+      - description: 'A map of all the secondary resources types and names created
+          for this CR. e.g "Deployment": [ "DeploymentName1", "DeploymentName2" ]'
         displayName: Secondary Resources
         path: secondaryResources
       version: v1alpha1

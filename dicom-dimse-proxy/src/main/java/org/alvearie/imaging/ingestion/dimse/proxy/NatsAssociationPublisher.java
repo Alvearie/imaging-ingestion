@@ -38,7 +38,7 @@ public class NatsAssociationPublisher {
 
     public void onAssociation(Association as) {
         LOG.info(String.format("Publishing association %d", as.getSerialNo()));
-        String subject = subjectRoot + "." + actor.getDirection() + "." + as.getSerialNo();
+        String subject = subjectRoot + "." + actor.getPublishDirection() + "." + as.getSerialNo();
 
         try {
             Connection connection = natsConnectionFactory.getConnection();
