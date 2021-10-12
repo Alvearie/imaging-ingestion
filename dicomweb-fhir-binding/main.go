@@ -25,7 +25,7 @@ import (
 )
 
 const (
-	// StudyRevisionEventType is the Dicom Available Event Type
+	// StudyRevisionEventType is the Study Revision Event Type
 	StudyRevisionEventType string = "StudyRevisionEvent"
 )
 
