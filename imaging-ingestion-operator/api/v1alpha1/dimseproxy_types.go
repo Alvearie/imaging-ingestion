@@ -36,6 +36,10 @@ type DimseProxySpec struct {
 	// +optional
 	//+operator-sdk:csv:customresourcedefinitions:type=spec
 	NatsTokenSecretName string `json:"natsTokenSecret,omitempty"`
+	// NATS Subject Root
+	// +optional
+	//+operator-sdk:csv:customresourcedefinitions:type=spec
+	NatsSubjectRoot string `json:"natsSubjectRoot,omitempty"`
 	// DIMSE Proxy Spec
 	//+operator-sdk:csv:customresourcedefinitions:type=spec
 	Proxy ProxySpec `json:"proxy,omitempty"`

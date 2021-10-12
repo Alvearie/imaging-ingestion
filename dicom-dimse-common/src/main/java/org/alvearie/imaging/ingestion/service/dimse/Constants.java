@@ -18,5 +18,9 @@ public interface Constants {
         public int getDirection() {
             return this.direction;
         }
+
+        public int getPublishDirection() {
+            return this.direction == 0 ? 1 : 0;
+        }
     }
 }
