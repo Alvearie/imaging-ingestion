@@ -76,10 +76,16 @@ jobs:
         docker push alvearie/dicom-dimse-proxy:${{ env.IMAGING_INGESTION_VERSION }}
         docker push alvearie/imaging-ingestion-operator:${{ env.IMAGING_INGESTION_VERSION }}
         docker push alvearie/imaging-ingestion-operator-bundle:${{ env.IMAGING_INGESTION_VERSION }}
-    - name: Publish Jar artifacts
-      if: ${{ github.ref == 'refs/heads/main' || github.event_name == 'release' }}
+    - name: Publish Jar artifacts on merge
+      if: ${{ github.ref == 'refs/heads/main' }}
       run: |
         ./gradlew :cloud-events:publish
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Publish Jar artifacts on release
+      if: ${{ github.event_name == 'release' }}
+      run: |
+        ./gradlew :cloud-events:publish -PisReleaseBuild=true
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - name: Prepare artifact archive

@@ -30,10 +30,17 @@ java {
     targetCompatibility = JavaVersion.VERSION_11
 }
 
+ext {
+    jarPublishVersion = project.version
+    if (!project.hasProperty('isReleaseBuild') || isReleaseBuild != "true") {
+        jarPublishVersion = project.version + "-SNAPSHOT"
+    }
+}
 
 publishing {
     publications {
         mavenJava(MavenPublication) {
+            version = jarPublishVersion
             from components.java
         }
     }

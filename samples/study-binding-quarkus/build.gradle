@@ -16,7 +16,7 @@ dependencies {
     implementation 'io.quarkus:quarkus-container-image-docker'
     implementation 'io.quarkus:quarkus-funqy-knative-events'
     implementation 'io.quarkus:quarkus-arc'
-    implementation 'org.alvearie.imaging.ingestion:cloud-events:0.0.1'
+    implementation 'org.alvearie.imaging.ingestion:cloud-events:0.0.1-SNAPSHOT'
     testImplementation 'io.quarkus:quarkus-junit5'
     testImplementation 'io.rest-assured:rest-assured'
 }
