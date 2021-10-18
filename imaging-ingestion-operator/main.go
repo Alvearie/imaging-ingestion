@@ -25,7 +25,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
 	keventingv1 "knative.dev/eventing/pkg/apis/eventing/v1"
-	ksourcesv1alpha2 "knative.dev/eventing/pkg/apis/sources/v1alpha2"
+	ksourcesv1 "knative.dev/eventing/pkg/apis/sources/v1"
 	kservingv1 "knative.dev/serving/pkg/apis/serving/v1"
 
 	imagingingestionv1alpha1 "github.com/Alvearie/imaging-ingestion/imaging-ingestion-operator/api/v1alpha1"
@@ -44,7 +44,7 @@ func init() {
 
 	utilruntime.Must(kservingv1.AddToScheme(scheme))
 	utilruntime.Must(keventingv1.AddToScheme(scheme))
-	utilruntime.Must(ksourcesv1alpha2.AddToScheme(scheme))
+	utilruntime.Must(ksourcesv1.AddToScheme(scheme))
 
 	utilruntime.Must(imagingingestionv1alpha1.AddToScheme(scheme))
 	//+kubebuilder:scaffold:scheme

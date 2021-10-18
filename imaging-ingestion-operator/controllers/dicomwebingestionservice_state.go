@@ -17,7 +17,7 @@ import (
 	apiErrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/apimachinery/pkg/types"
-	ksourcesv1alpha2 "knative.dev/eventing/pkg/apis/sources/v1alpha2"
+	ksourcesv1 "knative.dev/eventing/pkg/apis/sources/v1"
 	kservingv1 "knative.dev/serving/pkg/apis/serving/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
@@ -27,7 +27,7 @@ type DicomwebIngestionServiceState struct {
 	BucketConfig    *corev1.ConfigMap
 	StowService     *kservingv1.Service
 	WadoService     *kservingv1.Service
-	StowSinkBinding *ksourcesv1alpha2.SinkBinding
+	StowSinkBinding *ksourcesv1.SinkBinding
 }
 
 func NewDicomwebIngestionServiceState() *DicomwebIngestionServiceState {

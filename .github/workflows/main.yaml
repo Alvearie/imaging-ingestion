@@ -38,6 +38,10 @@ jobs:
       run: echo "IMAGING_INGESTION_VERSION=$(./gradlew :properties --no-daemon --console=plain -q | grep "^version:" | awk '{printf $2}')" >> $GITHUB_ENV
     - name: Print Imaging Ingestion Version
       run: echo $IMAGING_INGESTION_VERSION
+    - name: Get Imaging Ingestion Operator Version
+      run: echo "IMAGING_INGESTION_OPERATOR_VERSION=$(cat imaging-ingestion-operator/bundle/manifests/imaging-ingestion-operator.clusterserviceversion.yaml | grep "^  version:" | awk '{printf $2}')" >> $GITHUB_ENV
+    - name: Print Imaging Ingestion Operator Version
+      run: echo $IMAGING_INGESTION_OPERATOR_VERSION
     - name: Build Optimized Images with Gradle on Merge
       if: ${{ github.ref == 'refs/heads/main' || github.event_name == 'release' }}
       run: |
@@ -50,10 +54,10 @@ jobs:
         ./gradlew build
         ./gradlew -Dquarkus.datasource.db-kind=db2 :dicom-event-driven-ingestion:clean :dicom-event-driven-ingestion:build
     - name: Build Operator
-      run: docker build -t alvearie/imaging-ingestion-operator:${{ env.IMAGING_INGESTION_VERSION }} .
+      run: docker build -t alvearie/imaging-ingestion-operator:${{ env.IMAGING_INGESTION_OPERATOR_VERSION }} .
       working-directory: imaging-ingestion-operator
     - name: Build Operator Bundle
-      run: docker build -f bundle.Dockerfile -t alvearie/imaging-ingestion-operator-bundle:${{ env.IMAGING_INGESTION_VERSION }} .
+      run: docker build -f bundle.Dockerfile -t alvearie/imaging-ingestion-operator-bundle:${{ env.IMAGING_INGESTION_OPERATOR_VERSION }} .
       working-directory: imaging-ingestion-operator
     - name: List Docker Images
       run: docker images
@@ -74,8 +78,8 @@ jobs:
         docker push alvearie/dicomweb-stow-service:${{ env.IMAGING_INGESTION_VERSION }}
         docker push alvearie/dicom-dimse-service:${{ env.IMAGING_INGESTION_VERSION }}
         docker push alvearie/dicom-dimse-proxy:${{ env.IMAGING_INGESTION_VERSION }}
-        docker push alvearie/imaging-ingestion-operator:${{ env.IMAGING_INGESTION_VERSION }}
-        docker push alvearie/imaging-ingestion-operator-bundle:${{ env.IMAGING_INGESTION_VERSION }}
+        docker push alvearie/imaging-ingestion-operator:${{ env.IMAGING_INGESTION_OPERATOR_VERSION }}
+        docker push alvearie/imaging-ingestion-operator-bundle:${{ env.IMAGING_INGESTION_OPERATOR_VERSION }}
     - name: Publish Jar artifacts on merge
       if: ${{ github.ref == 'refs/heads/main' }}
       run: |

@@ -10,7 +10,7 @@ import (
 	"github.com/pkg/errors"
 	appsv1 "k8s.io/api/apps/v1"
 	keventingv1 "knative.dev/eventing/pkg/apis/eventing/v1"
-	ksourcesv1alpha2 "knative.dev/eventing/pkg/apis/sources/v1alpha2"
+	ksourcesv1 "knative.dev/eventing/pkg/apis/sources/v1"
 	kservingv1 "knative.dev/serving/pkg/apis/serving/v1"
 )
 
@@ -74,13 +74,13 @@ func IsTriggerReady(trigger *keventingv1.Trigger) (bool, error) {
 	return true, nil
 }
 
-func IsSinkBindingReady(binding *ksourcesv1alpha2.SinkBinding) (bool, error) {
+func IsSinkBindingReady(binding *ksourcesv1.SinkBinding) (bool, error) {
 	if binding == nil {
 		return false, nil
 	}
 
 	for _, condition := range binding.Status.Conditions {
-		if condition.Type == ksourcesv1alpha2.SinkBindingConditionReady && condition.Status != ConditionStatusSuccess {
+		if condition.Type == ksourcesv1.SinkBindingConditionReady && condition.Status != ConditionStatusSuccess {
 			return false, nil
 		}
 	}
