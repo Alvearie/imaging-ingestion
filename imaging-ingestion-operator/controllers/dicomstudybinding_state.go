@@ -18,7 +18,7 @@ import (
 	"k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/apimachinery/pkg/types"
 	keventingv1 "knative.dev/eventing/pkg/apis/eventing/v1"
-	ksourcesv1alpha2 "knative.dev/eventing/pkg/apis/sources/v1alpha2"
+	ksourcesv1 "knative.dev/eventing/pkg/apis/sources/v1"
 	kservingv1 "knative.dev/serving/pkg/apis/serving/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
@@ -27,7 +27,7 @@ type DicomStudyBindingState struct {
 	StudyBindingSecret      *corev1.Secret
 	StudyBindingConfig      *corev1.ConfigMap
 	StudyBindingService     *kservingv1.Service
-	StudyBindingSinkBinding *ksourcesv1alpha2.SinkBinding
+	StudyBindingSinkBinding *ksourcesv1.SinkBinding
 	StudyBindingTrigger     *keventingv1.Trigger
 }
 

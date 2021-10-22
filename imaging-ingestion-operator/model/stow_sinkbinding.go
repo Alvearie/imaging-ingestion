@@ -9,21 +9,21 @@ package model
 import (
 	"github.com/Alvearie/imaging-ingestion/imaging-ingestion-operator/api/v1alpha1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	ksourcesv1alpha2 "knative.dev/eventing/pkg/apis/sources/v1alpha2"
+	ksourcesv1 "knative.dev/eventing/pkg/apis/sources/v1"
+	duckv1 "knative.dev/pkg/apis/duck/v1"
 	v1 "knative.dev/pkg/apis/duck/v1"
-	duckv1alpha1 "knative.dev/pkg/apis/duck/v1alpha1"
 	"knative.dev/pkg/tracker"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
-func StowSinkBinding(cr *v1alpha1.DicomwebIngestionService, source, sink string) *ksourcesv1alpha2.SinkBinding {
-	return &ksourcesv1alpha2.SinkBinding{
+func StowSinkBinding(cr *v1alpha1.DicomwebIngestionService, source, sink string) *ksourcesv1.SinkBinding {
+	return &ksourcesv1.SinkBinding{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      GetStowSinkBindingName(cr),
 			Namespace: cr.Namespace,
 		},
 
-		Spec: ksourcesv1alpha2.SinkBindingSpec{
+		Spec: ksourcesv1.SinkBindingSpec{
 			SourceSpec: v1.SourceSpec{
 				Sink: v1.Destination{
 					Ref: &v1.KReference{
@@ -33,7 +33,7 @@ func StowSinkBinding(cr *v1alpha1.DicomwebIngestionService, source, sink string)
 					},
 				},
 			},
-			BindingSpec: duckv1alpha1.BindingSpec{
+			BindingSpec: duckv1.BindingSpec{
 				Subject: tracker.Reference{
 					APIVersion: "serving.knative.dev/v1",
 					Kind:       "Service",
@@ -51,7 +51,7 @@ func StowSinkBindingSelector(cr *v1alpha1.DicomwebIngestionService) client.Objec
 	}
 }
 
-func StowSinkBindingReconciled(cr *v1alpha1.DicomwebIngestionService, currentState *ksourcesv1alpha2.SinkBinding) *ksourcesv1alpha2.SinkBinding {
+func StowSinkBindingReconciled(cr *v1alpha1.DicomwebIngestionService, currentState *ksourcesv1.SinkBinding) *ksourcesv1.SinkBinding {
 	reconciled := currentState.DeepCopy()
 	return reconciled
 }

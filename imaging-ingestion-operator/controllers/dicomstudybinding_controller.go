@@ -14,7 +14,7 @@ import (
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
 	keventingv1 "knative.dev/eventing/pkg/apis/eventing/v1"
-	ksourcesv1alpha2 "knative.dev/eventing/pkg/apis/sources/v1alpha2"
+	ksourcesv1 "knative.dev/eventing/pkg/apis/sources/v1"
 	kservingv1 "knative.dev/serving/pkg/apis/serving/v1"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -133,7 +133,7 @@ func (r *DicomStudyBindingReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Owns(&corev1.ConfigMap{}).
 		Owns(&corev1.Secret{}).
 		Owns(&kservingv1.Service{}).
-		Owns(&ksourcesv1alpha2.SinkBinding{}).
+		Owns(&ksourcesv1.SinkBinding{}).
 		Owns(&keventingv1.Trigger{}).
 		Complete(r)
 }

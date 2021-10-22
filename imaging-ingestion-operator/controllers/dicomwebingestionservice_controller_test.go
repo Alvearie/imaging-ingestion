@@ -17,7 +17,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
-	ksourcesv1alpha2 "knative.dev/eventing/pkg/apis/sources/v1alpha2"
+	ksourcesv1 "knative.dev/eventing/pkg/apis/sources/v1"
 	kservingv1 "knative.dev/serving/pkg/apis/serving/v1"
 )
 
@@ -163,7 +163,7 @@ var _ = Describe("DicomwebIngestionService controller tests", func() {
 			}, timeout, interval).Should(BeTrue())
 
 			sbLookupKey := types.NamespacedName{Name: model.GetStowSinkBindingName(webIngestion), Namespace: objectNamespace}
-			sb := &ksourcesv1alpha2.SinkBinding{}
+			sb := &ksourcesv1.SinkBinding{}
 
 			Eventually(func() bool {
 				err := k8sClient.Get(ctx, sbLookupKey, sb)

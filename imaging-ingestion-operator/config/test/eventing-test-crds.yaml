@@ -32,7 +32,7 @@ metadata:
 spec:
   group: sources.knative.dev
   versions:
-    - name: v1alpha2
+    - name: v1
       served: true
       storage: true
       subresources:
