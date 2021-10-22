@@ -7,6 +7,7 @@ SPDX-License-Identifier: Apache-2.0
 package common
 
 import (
+	"os"
 	"time"
 
 	"k8s.io/client-go/discovery"
@@ -48,10 +49,27 @@ func (b *Background) Stop() {
 	b.ticker.Stop()
 }
 
-func (b *Background) autoDetectCapabilities() {
-	b.detectOpenshift()
+func (b *Background) DetectKnative() {
 	b.detectKnativeServing()
 	b.detectKnativeEventing()
+}
+
+func (b *Background) autoDetectCapabilities() {
+	before := IsKnativeAvailable()
+
+	b.DetectKnative()
+
+	after := IsKnativeAvailable()
+
+	if !before && after {
+		log.Info("Knative Serving and Eventing is deployed. Restarting operator to enable all APIs ....")
+		os.Exit(1)
+	} else if !before && !after {
+		log.Info("Knative Serving or Eventing is not deployed in cluster")
+	} else if before && !after {
+		log.Info("Knative Serving and Eventing is undeployed. Restarting operator to disable some APIs ....")
+		os.Exit(1)
+	}
 }
 
 func (b *Background) detectKnativeServing() {
