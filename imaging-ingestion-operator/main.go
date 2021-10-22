@@ -11,7 +11,6 @@ import (
 	"flag"
 	"fmt"
 	"os"
-	"time"
 
 	// Import all Kubernetes client auth plugins (e.g. Azure, GCP, OIDC, etc.)
 	// to ensure that exec-entrypoint and run can make use of them.
@@ -92,58 +91,54 @@ func main() {
 	if err != nil {
 		setupLog.Error(err, "failed to start the background process to auto-detect the operator capabilities")
 	} else {
-		autodetect.Start()
+		autodetect.DetectKnative()
 	}
 
-	ticker := time.NewTicker(common.StartupDetectTick)
-	for range ticker.C {
-		if common.IsKnativeAvailable() {
-			break
-		} else {
-			setupLog.Error(errors.New("Knative Serving or Eventing is not deployed in cluster"), "Deploy Knative Serving and Eventing to continue")
+	if common.IsKnativeAvailable() {
+		if err = (&controllers.DicomEventDrivenIngestionReconciler{
+			Client: mgr.GetClient(),
+			Log:    ctrl.Log.WithName("controllers").WithName("DicomEventDrivenIngestion"),
+			Scheme: mgr.GetScheme(),
+		}).SetupWithManager(mgr); err != nil {
+			setupLog.Error(err, "unable to create controller", "controller", "DicomEventDrivenIngestion")
+			os.Exit(1)
 		}
+		if err = (&controllers.DicomwebIngestionServiceReconciler{
+			Client: mgr.GetClient(),
+			Log:    ctrl.Log.WithName("controllers").WithName("DicomwebIngestionService"),
+			Scheme: mgr.GetScheme(),
+		}).SetupWithManager(mgr); err != nil {
+			setupLog.Error(err, "unable to create controller", "controller", "DicomwebIngestionService")
+			os.Exit(1)
+		}
+		if err = (&controllers.DicomInstanceBindingReconciler{
+			Client: mgr.GetClient(),
+			Log:    ctrl.Log.WithName("controllers").WithName("DicomInstanceBinding"),
+			Scheme: mgr.GetScheme(),
+		}).SetupWithManager(mgr); err != nil {
+			setupLog.Error(err, "unable to create controller", "controller", "DicomInstanceBinding")
+			os.Exit(1)
+		}
+		if err = (&controllers.DicomStudyBindingReconciler{
+			Client: mgr.GetClient(),
+			Log:    ctrl.Log.WithName("controllers").WithName("DicomStudyBinding"),
+			Scheme: mgr.GetScheme(),
+		}).SetupWithManager(mgr); err != nil {
+			setupLog.Error(err, "unable to create controller", "controller", "DicomStudyBinding")
+			os.Exit(1)
+		}
+		if err = (&controllers.DimseIngestionServiceReconciler{
+			Client: mgr.GetClient(),
+			Log:    ctrl.Log.WithName("controllers").WithName("DimseIngestionService"),
+			Scheme: mgr.GetScheme(),
+		}).SetupWithManager(mgr); err != nil {
+			setupLog.Error(err, "unable to create controller", "controller", "DimseIngestionService")
+			os.Exit(1)
+		}
+	} else {
+		setupLog.Error(errors.New("Knative Serving or Eventing is not deployed in cluster"), "Deploy Knative Serving and Eventing to enable all APIs")
 	}
 
-	if err = (&controllers.DicomEventDrivenIngestionReconciler{
-		Client: mgr.GetClient(),
-		Log:    ctrl.Log.WithName("controllers").WithName("DicomEventDrivenIngestion"),
-		Scheme: mgr.GetScheme(),
-	}).SetupWithManager(mgr); err != nil {
-		setupLog.Error(err, "unable to create controller", "controller", "DicomEventDrivenIngestion")
-		os.Exit(1)
-	}
-	if err = (&controllers.DicomwebIngestionServiceReconciler{
-		Client: mgr.GetClient(),
-		Log:    ctrl.Log.WithName("controllers").WithName("DicomwebIngestionService"),
-		Scheme: mgr.GetScheme(),
-	}).SetupWithManager(mgr); err != nil {
-		setupLog.Error(err, "unable to create controller", "controller", "DicomwebIngestionService")
-		os.Exit(1)
-	}
-	if err = (&controllers.DicomInstanceBindingReconciler{
-		Client: mgr.GetClient(),
-		Log:    ctrl.Log.WithName("controllers").WithName("DicomInstanceBinding"),
-		Scheme: mgr.GetScheme(),
-	}).SetupWithManager(mgr); err != nil {
-		setupLog.Error(err, "unable to create controller", "controller", "DicomInstanceBinding")
-		os.Exit(1)
-	}
-	if err = (&controllers.DicomStudyBindingReconciler{
-		Client: mgr.GetClient(),
-		Log:    ctrl.Log.WithName("controllers").WithName("DicomStudyBinding"),
-		Scheme: mgr.GetScheme(),
-	}).SetupWithManager(mgr); err != nil {
-		setupLog.Error(err, "unable to create controller", "controller", "DicomStudyBinding")
-		os.Exit(1)
-	}
-	if err = (&controllers.DimseIngestionServiceReconciler{
-		Client: mgr.GetClient(),
-		Log:    ctrl.Log.WithName("controllers").WithName("DimseIngestionService"),
-		Scheme: mgr.GetScheme(),
-	}).SetupWithManager(mgr); err != nil {
-		setupLog.Error(err, "unable to create controller", "controller", "DimseIngestionService")
-		os.Exit(1)
-	}
 	if err = (&controllers.DimseProxyReconciler{
 		Client: mgr.GetClient(),
 		Log:    ctrl.Log.WithName("controllers").WithName("DimseProxy"),
@@ -162,6 +157,8 @@ func main() {
 		setupLog.Error(err, "unable to set up ready check")
 		os.Exit(1)
 	}
+
+	autodetect.Start()
 
 	setupLog.Info("starting manager")
 	if err := mgr.Start(ctrl.SetupSignalHandler()); err != nil {
