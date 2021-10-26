@@ -9,6 +9,7 @@ export DIMSE_CALLED_HOST=<TARGET_ARCHIVE_HOST>
 export DIMSE_CALLED_PORT=<TARGET_ARCHIVE_PORT>
 export DIMSE_NATS_SUBJECT_ROOT=<NATS_SUBJECT_ROOT>
 export DIMSE_PROXY_ACTOR=PROXY
+export DIMSE_NATS_AUTH_TOKEN=<NATS_AUTH_TOKEN>
 
 echo "Starting dicom-dimse-proxy in background ..."
 nohup java -jar ./dicom-dimse-proxy-*.jar 2>&1 &

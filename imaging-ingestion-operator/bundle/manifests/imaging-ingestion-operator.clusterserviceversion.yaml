@@ -104,7 +104,7 @@ metadata:
             "applicationEntityTitle": "DCM4CHEE",
             "natsSecure": true,
             "natsSubjectRoot": "DIMSE",
-            "natsUrl": "0a0527d6.nip.io:30732",
+            "natsUrl": "nats-secure.imaging-ingestion.svc.cluster.local:4222",
             "proxy": {},
             "targetDimseHost": "arc.dcm4chee.svc.cluster.local",
             "targetDimsePort": 11112

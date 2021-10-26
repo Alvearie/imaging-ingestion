@@ -1,12 +1,11 @@
-# Create a cluster scoped self signing issuer.  
+# Create a cluster scoped self signing issuer.
 apiVersion: cert-manager.io/v1alpha2
 kind: ClusterIssuer
 metadata:
   name: selfsigning-cluster-ca
 spec:
   selfSigned: {}
-
-
+---
 # Create a self-signed CA certificate for the NATS certificate issuer
 apiVersion: cert-manager.io/v1alpha2
 kind: Certificate
@@ -18,16 +17,16 @@ spec:
   duration: 8736h # 1 year
   renewBefore: 240h # 10 days
   issuerRef:
-    # The name of the cluster issuer 
+    # The name of the cluster issuer
     name: selfsigning-cluster-ca
     kind: ClusterIssuer
   commonName: nats-ca
-  usages: 
-    - cert sign 
+  usages:
+    - cert sign
   organization:
   - Alvearie
   isCA: true
-
+---
 # Create a NATS issuer
 apiVersion: cert-manager.io/v1alpha2
 kind: Issuer
@@ -37,7 +36,7 @@ metadata:
 spec:
   ca:
     secretName: nats-ca
-
+---
 # Create a certificate for the NATS server
 apiVersion: cert-manager.io/v1alpha2
 kind: Certificate
@@ -60,8 +59,7 @@ spec:
   commonName: nats-secure.nats-pot.svc.cluster.local
   dnsNames:
   - nats-secure.nats-pot.svc
-
-
+---
 # Create a certificate for the NATS Routes
 apiVersion: cert-manager.io/v1alpha2
 kind: Certificate

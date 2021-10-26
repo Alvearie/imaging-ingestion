@@ -10,7 +10,9 @@ plugins {
 dependencies {
     implementation 'org.eclipse.microprofile.context-propagation:microprofile-context-propagation-api:1.0.1'
     implementation "io.quarkus:quarkus-core:${quarkusPlatformVersion}"
-    
-    implementation "org.dcm4che:dcm4che-net:${dcm4cheVersion}"    
+
+    implementation "org.dcm4che:dcm4che-net:${dcm4cheVersion}"
     implementation 'io.nats:jnats:2.8.0'
+
+    implementation "org.bitbucket.b_c:jose4j:0.7.9"
 }

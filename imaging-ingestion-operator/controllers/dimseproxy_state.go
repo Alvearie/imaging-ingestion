@@ -20,6 +20,7 @@ import (
 )
 
 type DimseProxyState struct {
+	NatsTokenSecret      *corev1.Secret
 	NatsConfig           *corev1.ConfigMap
 	DimseConfig          *corev1.ConfigMap
 	DimseProxyDeployment *appsv1.Deployment
@@ -39,7 +40,12 @@ func (i *DimseProxyState) IsResourcesReady(cr *v1alpha1.DimseProxy) (bool, error
 }
 
 func (i *DimseProxyState) Read(context context.Context, cr *v1alpha1.DimseProxy, controllerClient client.Client) error {
-	err := i.readNatsConfigCurrentState(context, cr, controllerClient)
+	err := i.readNatsTokenSecretCurrentState(context, cr, controllerClient)
+	if err != nil {
+		return err
+	}
+
+	err = i.readNatsConfigCurrentState(context, cr, controllerClient)
 	if err != nil {
 		return err
 	}
@@ -52,6 +58,30 @@ func (i *DimseProxyState) Read(context context.Context, cr *v1alpha1.DimseProxy,
 	err = i.readDimseProxyDeploymentCurrentState(context, cr, controllerClient)
 	if err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (i *DimseProxyState) readNatsTokenSecretCurrentState(context context.Context, cr *v1alpha1.DimseProxy, controllerClient client.Client) error {
+	if cr.Spec.NatsTokenSecretName == "" {
+		return nil
+	}
+
+	secret := model.NatsTokenSecret()
+	secretSelector := model.NatsTokenSecretSelector(cr.Spec.NatsTokenSecretName, cr.Namespace)
+
+	err := controllerClient.Get(context, secretSelector, secret)
+	if err != nil {
+		// If the resource type doesn't exist on the cluster or does exist but is not found
+		if meta.IsNoMatchError(err) || apiErrors.IsNotFound(err) {
+			i.NatsTokenSecret = nil
+		} else {
+			return err
+		}
+	} else {
+		i.NatsTokenSecret = secret.DeepCopy()
+		cr.UpdateStatusSecondaryResources(i.NatsTokenSecret.Kind, i.NatsTokenSecret.Name)
 	}
 
 	return nil

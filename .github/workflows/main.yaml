@@ -101,6 +101,8 @@ jobs:
         docker stop --time=1 dicom-dimse-proxy
         cp -r dicom-dimse-proxy/src/test/resources/dimse-config ${{ github.workspace }}/artifacts/
         cp dicom-dimse-proxy/src/test/resources/dicom-dimse-proxy.sh ${{ github.workspace }}/artifacts/
+        cp dicom-dimse-proxy/src/test/resources/dicom-dimse-proxy.env ${{ github.workspace }}/artifacts/
+        cp dicom-dimse-proxy/src/test/resources/docker-compose.yml ${{ github.workspace }}/artifacts/
         tar -cvf ${{ github.workspace }}/dicom-dimse-proxy-${{ env.IMAGING_INGESTION_VERSION }}.tar -C ${{ github.workspace }}/artifacts/ .
     - name: Upload artifact
       uses: actions/upload-artifact@v2

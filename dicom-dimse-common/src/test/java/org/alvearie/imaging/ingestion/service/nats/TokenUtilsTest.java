@@ -1,0 +1,18 @@
+/*
+ * (C) Copyright IBM Corp. 2021
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+package org.alvearie.imaging.ingestion.service.nats;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import org.junit.jupiter.api.Test;
+
+class TokenUtilsTest {
+    @Test
+    void testGetUser() {
+        String token = "eyJhbGciOiJSUzI1NiIsImtpZCI6InVSVU9WLVFOMTdTX1E2N0RVeGxxOFNFWjBnSGlHYVgxVUpjdWxLRFZsOWsifQ.eyJhdWQiOlsibmF0czovL25hdHMtc2VjdXJlLmltYWdpbmctaW5nZXN0aW9uLnN2YyJdLCJleHAiOjE2MzUyNjcxMTksImlhdCI6MTYzNTI2MzUxOSwiaXNzIjoiaHR0cHM6Ly9rdWJlcm5ldGVzLmRlZmF1bHQuc3ZjIiwia3ViZXJuZXRlcy5pbyI6eyJuYW1lc3BhY2UiOiJpbWFnaW5nLWluZ2VzdGlvbiIsInNlY3JldCI6eyJuYW1lIjoiaW1hZ2luZy1pbmdlc3Rpb24tbmF0cy1zZWN1cmUtYm91bmQtdG9rZW4iLCJ1aWQiOiJiYmFhZTllYy04ZTg5LTQ1MjgtOGRiNy0xYWM3ZjU5NmEzMDQifSwic2VydmljZWFjY291bnQiOnsibmFtZSI6ImltYWdpbmctaW5nZXN0aW9uIiwidWlkIjoiYjI2ZjFjNTQtYmY1My00ZjM2LWIyODgtNzE0NGQ1NGE3MGRlIn19LCJuYmYiOjE2MzUyNjM1MTksInN1YiI6InN5c3RlbTpzZXJ2aWNlYWNjb3VudDppbWFnaW5nLWluZ2VzdGlvbjppbWFnaW5nLWluZ2VzdGlvbiJ9.o0S_zST4oD_OVTCPlgaB7yhEPzXwb_GNjh9-eDB0Q8GZK6uuj5mLjRzANXqnZmZgUfmnJ_RGRCAfUQIUKFw1HmgRubH_JYWMU6KPKG5Al2TChVwgoPcfLAWm_njOrI57dk-QPXGoGt1yATS5ejNQmEwmMf4HyWLTtmM1KZv7T81h9tk5RyaMpkgRTYEnN0CmzTBlgNhz7WBwR4AzLnwYebB_KCyNFa6o2-gpNE4Z4IeRES28WMk9XrLv5nHWMgHVJLAbLRgD9qaxIwCRbcSagDhcdnWVn3bVEyQKlxObV3ixRqo6R1zxOXMK7jERpOZx1Hmk7tqG1NNZ3QKqN1HxdQ";
+        assertEquals("imaging-ingestion", TokenUtils.getUser(token));
+    }
+}
