@@ -22,19 +22,28 @@ import io.nats.client.Options;
 @ApplicationScoped
 public class NatsConnectionFactory {
     private static final Logger LOG = Logger.getLogger(NatsConnectionFactory.class);
-    
+
     @Inject
     NatsConfiguration configuration;
-    
+
     Connection connection;
-    
+
     Object lock = new Object();
-    
+
     @PostConstruct
-    public void natsConnection() throws IOException, InterruptedException {   
+    public void natsConnection() throws IOException, InterruptedException {
         LOG.info("Connecting to NATS cluster at " + configuration.getNatsUrl());
         Options.Builder optionsBuilder = new Options.Builder().server(configuration.getNatsUrl());
+        if (configuration.getMaxControlLine() != null && configuration.getMaxControlLine() > 0) {
+            LOG.info("Setting MaxControlLine to " + configuration.getMaxControlLine());
+            optionsBuilder.maxControlLine(configuration.getMaxControlLine());
+        }
+        if (configuration.isTraceConnection()) {
+            LOG.info("Setting traceConnection option");
+            optionsBuilder.traceConnection();
+        }
         optionsBuilder.maxReconnects(-1);
+        optionsBuilder.inboxPrefix(configuration.getNatsSubjectRoot() + "._INBOX.");
         if (configuration.isTlsEnabled()) {
             LOG.info("Performing NATS TLS connection with OpenTLS (trust all)");
             try {
@@ -44,21 +53,26 @@ public class NatsConnectionFactory {
                 LOG.error("Unexpected error, unable to perform TLS connection to NATS due to missing JVM Suppoprt");
                 throw new IOException("TLS is unavailable", e);
             }
-        } 
-        
+        }
+
         String token = configuration.getToken();
         if (token != null && !token.isBlank()) {
-            LOG.info("Using identify token provided by dimse.nats.auth.token property");
-            optionsBuilder.token(token.toCharArray());
+            String user = TokenUtils.getUser(token);
+            if (user != null && !user.isBlank()) {
+                LOG.info("Using userInfo provided by dimse.nats.auth.token property");
+                optionsBuilder.userInfo(user.toCharArray(), token.toCharArray());
+            } else {
+                LOG.info("Failed to get user from token. Skipping userInfo option.");
+            }
         }
-        synchronized(lock) {
+        synchronized (lock) {
             optionsBuilder.connectionListener(new ConnectionListener() {
                 @Override
                 public void connectionEvent(Connection conn, Events type) {
                     LOG.info("NATS connection event " + type.name());
-                    synchronized(lock) {
+                    synchronized (lock) {
                         switch (type) {
-                        case CONNECTED: 
+                        case CONNECTED:
                         case RECONNECTED:
                             connection = conn;
                             lock.notifyAll();
@@ -76,17 +90,17 @@ public class NatsConnectionFactory {
                 } else {
                     LOG.info("NATS Connection created");
                 }
-                
+
             } catch (InterruptedException e) {
                 LOG.error("Could not get NATS connection, connection may be null");
             }
         }
     }
-    
+
     public Connection getConnection() {
-        return connection;   
+        return connection;
     }
-    
+
     public Connection waitForConnection(long timeout) {
         synchronized (lock) {
             if (connection == null) {

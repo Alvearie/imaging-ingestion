@@ -1,0 +1,10 @@
+version: "3.9"
+services:
+    dicom-dimse-proxy:
+        image: alvearie/dicom-dimse-proxy:0.0.1
+        env_file:
+        - dicom-dimse-proxy.env
+        volumes:
+        - ./dimse-config:/etc/dimse/config
+        ports:
+        - "11112:11112"

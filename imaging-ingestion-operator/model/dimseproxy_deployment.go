@@ -46,16 +46,7 @@ func DimseProxyDeployment(cr *v1alpha1.DimseProxy) *appsv1.Deployment {
 									ContainerPort: 11112,
 								},
 							},
-							Env: []corev1.EnvVar{
-								{
-									Name:  "DIMSE_PROXY_ACTOR",
-									Value: "SERVER",
-								},
-								{
-									Name:  "DIMSE_CONFIG_PATH",
-									Value: "/etc/dimse/config",
-								},
-							},
+							Env: GetDimseProxyDeploymentEnv(cr),
 							EnvFrom: []corev1.EnvFromSource{
 								{
 									ConfigMapRef: &corev1.ConfigMapEnvSource{
@@ -102,6 +93,7 @@ func DimseProxyDeploymentSelector(cr *v1alpha1.DimseProxy) client.ObjectKey {
 func DimseProxyDeploymentReconciled(cr *v1alpha1.DimseProxy, currentState *appsv1.Deployment) *appsv1.Deployment {
 	reconciled := currentState.DeepCopy()
 	reconciled.Spec.Template.Spec.Containers[0].Image = GetImage(cr.Spec.Proxy.Image, common.DimseProxyImage)
+	reconciled.Spec.Template.Spec.Containers[0].Env = GetDimseProxyDeploymentEnv(cr)
 	reconciled.Spec.Template.Spec.ImagePullSecrets = cr.Spec.ImagePullSecrets
 
 	return reconciled
@@ -109,4 +101,33 @@ func DimseProxyDeploymentReconciled(cr *v1alpha1.DimseProxy, currentState *appsv
 
 func GetDimseProxyDeploymentName(cr *v1alpha1.DimseProxy) string {
 	return cr.Name + "-dimse-proxy"
+}
+
+func GetDimseProxyDeploymentEnv(cr *v1alpha1.DimseProxy) []corev1.EnvVar {
+	env := []corev1.EnvVar{
+		{
+			Name:  "DIMSE_PROXY_ACTOR",
+			Value: "SERVER",
+		},
+		{
+			Name:  "DIMSE_CONFIG_PATH",
+			Value: "/etc/dimse/config",
+		},
+	}
+
+	if cr.Spec.NatsTokenSecretName != "" {
+		env = append(env, corev1.EnvVar{
+			Name: "DIMSE_NATS_AUTH_TOKEN",
+			ValueFrom: &corev1.EnvVarSource{
+				SecretKeyRef: &corev1.SecretKeySelector{
+					LocalObjectReference: corev1.LocalObjectReference{
+						Name: cr.Spec.NatsTokenSecretName,
+					},
+					Key: "token",
+				},
+			},
+		})
+	}
+
+	return env
 }

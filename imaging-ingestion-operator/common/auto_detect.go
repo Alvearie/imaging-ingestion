@@ -76,7 +76,12 @@ func (b *Background) detectKnativeServing() {
 	apiGroupVersion := "serving.knative.dev/v1"
 	kind := KnativeServingKind
 	stateManager := GetStateManager()
-	exists, _ := ResourceExists(b.dc, apiGroupVersion, kind)
+	exists, err := ResourceExists(b.dc, apiGroupVersion, kind)
+	if err != nil {
+		log.Error(err, "Failed to get resource", apiGroupVersion, kind)
+		return
+	}
+
 	if exists {
 		stateManager.SetState(KnativeServingKind, true)
 	} else {
@@ -88,7 +93,12 @@ func (b *Background) detectKnativeEventing() {
 	apiGroupVersion := "eventing.knative.dev/v1"
 	kind := KnativeEventingKind
 	stateManager := GetStateManager()
-	exists, _ := ResourceExists(b.dc, apiGroupVersion, kind)
+	exists, err := ResourceExists(b.dc, apiGroupVersion, kind)
+	if err != nil {
+		log.Error(err, "Failed to get resource", apiGroupVersion, kind)
+		return
+	}
+
 	if exists {
 		stateManager.SetState(KnativeEventingKind, true)
 	} else {
@@ -100,7 +110,12 @@ func (b *Background) detectOpenshift() {
 	apiGroupVersion := "operator.openshift.io/v1"
 	kind := OpenShiftAPIServerKind
 	stateManager := GetStateManager()
-	isOpenshift, _ := ResourceExists(b.dc, apiGroupVersion, kind)
+	isOpenshift, err := ResourceExists(b.dc, apiGroupVersion, kind)
+	if err != nil {
+		log.Error(err, "Failed to get resource", apiGroupVersion, kind)
+		return
+	}
+
 	if isOpenshift {
 		// Set state that its Openshift (helps to differentiate between openshift and kubernetes)
 		stateManager.SetState(OpenShiftAPIServerKind, true)

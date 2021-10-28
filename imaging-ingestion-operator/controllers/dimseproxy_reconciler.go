@@ -7,6 +7,8 @@ SPDX-License-Identifier: Apache-2.0
 package controllers
 
 import (
+	"errors"
+
 	"github.com/Alvearie/imaging-ingestion/imaging-ingestion-operator/api/v1alpha1"
 	"github.com/Alvearie/imaging-ingestion/imaging-ingestion-operator/common"
 	"github.com/Alvearie/imaging-ingestion/imaging-ingestion-operator/model"
@@ -14,11 +16,23 @@ import (
 
 func (r *DimseProxyReconciler) reconcileInternal(currentState *DimseProxyState, cr *v1alpha1.DimseProxy) common.DesiredResourceState {
 	desired := common.DesiredResourceState{}
+	desired = desired.AddAction(r.GetNatsTokenSecretDesiredState(currentState, cr))
 	desired = desired.AddAction(r.GetNatsConfigDesiredState(currentState, cr))
 	desired = desired.AddAction(r.GetDimseConfigDesiredState(currentState, cr))
 	desired = desired.AddAction(r.GetDimseProxyDeploymentDesiredState(currentState, cr))
 
 	return desired
+}
+
+func (i *DimseProxyReconciler) GetNatsTokenSecretDesiredState(state *DimseProxyState, cr *v1alpha1.DimseProxy) common.ControllerAction {
+	if cr.Spec.NatsTokenSecretName != "" && state.NatsTokenSecret == nil {
+		return common.GenericErrorAction{
+			Ref: errors.New("Missing NATS Token Secret"),
+			Msg: "Missing NATS Token Secret",
+		}
+	}
+
+	return nil
 }
 
 func (i *DimseProxyReconciler) GetNatsConfigDesiredState(state *DimseProxyState, cr *v1alpha1.DimseProxy) common.ControllerAction {
