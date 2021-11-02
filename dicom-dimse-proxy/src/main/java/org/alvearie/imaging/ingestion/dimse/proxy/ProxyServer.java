@@ -5,6 +5,14 @@
  */
 package org.alvearie.imaging.ingestion.dimse.proxy;
 
+import java.io.IOException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.UnrecoverableKeyException;
+import java.security.cert.CertificateException;
+import java.util.Arrays;
+import java.util.Optional;
+
 import javax.annotation.PreDestroy;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -15,6 +23,7 @@ import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.AssociationHandler;
 import org.dcm4che3.net.Connection;
 import org.dcm4che3.net.Device;
+import org.dcm4che3.net.SSLManagerFactory;
 import org.dcm4che3.net.TransferCapability;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.context.ManagedExecutor;
@@ -35,6 +44,33 @@ public class ProxyServer {
 
     @ConfigProperty(name = "dimse.proxy.device")
     String deviceName;
+
+    @ConfigProperty(name = "dimse.tls.enabled")
+    Boolean tlsEnabled;
+
+    @ConfigProperty(name = "dimse.tls.keystore")
+    Optional<String> keyStore;
+
+    @ConfigProperty(name = "dimse.tls.keystore.type")
+    Optional<String> keyStoreType;
+
+    @ConfigProperty(name = "dimse.tls.keystore.password")
+    Optional<String> keyStorePassword;
+
+    @ConfigProperty(name = "dimse.tls.truststore")
+    Optional<String> trustStore;
+
+    @ConfigProperty(name = "dimse.tls.truststore.type")
+    Optional<String> trustStoreType;
+
+    @ConfigProperty(name = "dimse.tls.truststore.password")
+    Optional<String> trustStorePassword;
+
+    @ConfigProperty(name = "dimse.tls.protocol.versions")
+    Optional<String[]> tlsProtocolVersions;
+
+    @ConfigProperty(name = "dimse.tls.cipher.suites")
+    Optional<String[]> tlsCipherSuites;
 
     @Inject
     ManagedExecutor executor;
@@ -85,7 +121,8 @@ public class ProxyServer {
         device.unbindConnections();
     }
 
-    private Device createDevice() {
+    private Device createDevice() throws UnrecoverableKeyException, KeyStoreException, NoSuchAlgorithmException,
+            CertificateException, IOException {
         Connection dicom = new Connection("dicom", dimseHost, dimsePort);
 
         Device device = new Device(deviceName);
@@ -99,6 +136,24 @@ public class ProxyServer {
         device.addApplicationEntity(ae);
         device.addConnection(dicom);
         ae.addConnection(dicom);
+
+        if (tlsEnabled) {
+            LOG.info("Configuring TLS");
+
+            LOG.info("Setting TLS Protocol Versions: " + Arrays.toString(tlsProtocolVersions.get()));
+            dicom.setTlsProtocols(tlsProtocolVersions.get());
+
+            LOG.info("Setting TLS Cipher Suites: " + Arrays.toString(tlsCipherSuites.get()));
+            dicom.setTlsCipherSuites(tlsCipherSuites.get());
+
+            LOG.info(String.format("Setting Keystore: %s, Type: %s", keyStore.get(), keyStoreType.get()));
+            device.setKeyManager(SSLManagerFactory.createKeyManager(keyStoreType.get(), keyStore.get(),
+                    keyStorePassword.get(), keyStorePassword.get()));
+
+            LOG.info(String.format("Setting Truststore: %s, Type: %s", trustStore.get(), trustStoreType.get()));
+            device.setTrustManager(SSLManagerFactory.createTrustManager(trustStoreType.get(), trustStore.get(),
+                    trustStorePassword.get()));
+        }
 
         return device;
     }
