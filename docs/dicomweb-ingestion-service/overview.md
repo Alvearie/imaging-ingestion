@@ -78,7 +78,7 @@ spec:
     concurrency: 0
     maxReplicas: 3
     minReplicas: 0
-  # Scaling behavior of the STOW-RS 
+  # Scaling behavior of the WADO-RS 
   wadoService:
     concurrency: 0
     maxReplicas: 3
