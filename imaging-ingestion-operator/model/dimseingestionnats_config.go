@@ -46,9 +46,15 @@ func GetDimseIngestionNatsConfigName(cr *v1alpha1.DimseIngestionService) string 
 }
 
 func GetDimseIngestionNatsConfigData(cr *v1alpha1.DimseIngestionService) map[string]string {
-	return map[string]string{
+	config := map[string]string{
 		"DIMSE_INGESTION_AET":    cr.Spec.ApplicationEntityTitle,
 		"DIMSE_NATS_URL":         cr.Spec.NatsURL,
 		"DIMSE_NATS_TLS_ENABLED": strconv.FormatBool(cr.Spec.NatsSecure),
 	}
+
+	if cr.Spec.NatsSubjectRoot != "" {
+		config["DIMSE_NATS_SUBJECT_ROOT"] = cr.Spec.NatsSubjectRoot
+	}
+
+	return config
 }

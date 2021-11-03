@@ -9,5 +9,5 @@ spec:
   natsUrl: nats-secure.imaging-ingestion.svc.cluster.local:4222
   natsSecure: true
   natsSubjectRoot: DIMSE
-  # natsTokenSecret: ingestion-nats-secure-bound-token
+  natsTokenSecret: ingestion-nats-secure-bound-token
   proxy: {}
