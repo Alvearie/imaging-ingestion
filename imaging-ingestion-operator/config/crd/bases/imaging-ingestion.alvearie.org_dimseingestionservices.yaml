@@ -78,6 +78,9 @@ spec:
               natsSecure:
                 description: Make NATS Connection Secure
                 type: boolean
+              natsSubjectRoot:
+                description: NATS Subject Root
+                type: string
               natsTokenSecret:
                 description: NATS Token Secret Name
                 type: string

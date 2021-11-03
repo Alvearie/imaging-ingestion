@@ -6,10 +6,10 @@ spec:
   bucketConfigName: imaging-ingestion
   bucketSecretName: imaging-ingestion
   applicationEntityTitle: DICOM-INGEST
-  natsUrl: 0a0527d6.nip.io:30732
+  natsUrl: nats-secure.imaging-ingestion.svc.cluster.local:4222
   natsSecure: true
-  # Future:  Not yet implemented
-  # natsTokenSecret: nats-dicom-ingest-token-lhllv
+  natsSubjectRoot: DIMSE
+  natsTokenSecret: ingestion-nats-secure-bound-token
   dicomEventDrivenIngestionName: core
   providerName: provider
   dimseService: {}

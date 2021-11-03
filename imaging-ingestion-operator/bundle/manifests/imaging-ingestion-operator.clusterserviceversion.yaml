@@ -90,7 +90,9 @@ metadata:
             "dicomEventDrivenIngestionName": "core",
             "dimseService": {},
             "natsSecure": true,
-            "natsUrl": "0a0527d6.nip.io:30732",
+            "natsSubjectRoot": "DIMSE",
+            "natsTokenSecret": "ingestion-nats-secure-bound-token",
+            "natsUrl": "nats-secure.imaging-ingestion.svc.cluster.local:4222",
             "providerName": "provider"
           }
         },
@@ -104,6 +106,7 @@ metadata:
             "applicationEntityTitle": "DCM4CHEE",
             "natsSecure": true,
             "natsSubjectRoot": "DIMSE",
+            "natsTokenSecret": "ingestion-nats-secure-bound-token",
             "natsUrl": "nats-secure.imaging-ingestion.svc.cluster.local:4222",
             "proxy": {},
             "targetDimseHost": "arc.dcm4chee.svc.cluster.local",
@@ -412,6 +415,9 @@ spec:
       - description: Make NATS Connection Secure
         displayName: Nats Secure
         path: natsSecure
+      - description: NATS Subject Root
+        displayName: Nats Subject Root
+        path: natsSubjectRoot
       - description: NATS Token Secret Name
         displayName: Nats Token Secret Name
         path: natsTokenSecret

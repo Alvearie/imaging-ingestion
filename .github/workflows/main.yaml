@@ -46,6 +46,7 @@ jobs:
       if: ${{ github.ref == 'refs/heads/main' || github.event_name == 'release' }}
       run: |
         ./gradlew -Pquarkus.package.type=native build
+        ./gradlew -Pquarkus.package.type=uber-jar :dicom-dimse-service:clean :dicom-dimse-service:build
         ./gradlew -Pquarkus.package.type=uber-jar :dicom-dimse-proxy:clean :dicom-dimse-proxy:build
         ./gradlew -Pquarkus.package.type=native -Dquarkus.datasource.db-kind=db2 :dicom-event-driven-ingestion:clean :dicom-event-driven-ingestion:build
     - name: Build Images with Gradle on Pull Request

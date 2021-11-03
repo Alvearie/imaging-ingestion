@@ -35,6 +35,10 @@ type DimseIngestionServiceSpec struct {
 	// Make NATS Connection Secure
 	//+operator-sdk:csv:customresourcedefinitions:type=spec
 	NatsSecure bool `json:"natsSecure,omitempty"`
+	// NATS Subject Root
+	// +optional
+	//+operator-sdk:csv:customresourcedefinitions:type=spec
+	NatsSubjectRoot string `json:"natsSubjectRoot,omitempty"`
 	// NATS Token Secret Name
 	// +optional
 	//+operator-sdk:csv:customresourcedefinitions:type=spec

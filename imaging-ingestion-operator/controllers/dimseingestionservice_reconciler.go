@@ -98,7 +98,7 @@ func (i *DimseIngestionServiceReconciler) GetDimseIngestionServiceDesiredState(s
 	}
 
 	return common.GenericUpdateAction{
-		Ref: model.DimseIngestionDeploymentReconciled(cr, state.DimseIngestionDeployment),
+		Ref: model.DimseIngestionDeploymentReconciled(cr, state.DimseIngestionDeployment, brokerEndpoint),
 		Msg: "Update DIMSE Deployment",
 	}
 }

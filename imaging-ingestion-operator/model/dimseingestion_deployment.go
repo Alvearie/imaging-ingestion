@@ -41,24 +41,7 @@ func DimseIngestionDeployment(cr *v1alpha1.DimseIngestionService, sink string) *
 							Name:            "ingestion",
 							Image:           GetImage(cr.Spec.DimseService.Image, common.DimseIngestionImage),
 							ImagePullPolicy: corev1.PullAlways,
-							Env: []corev1.EnvVar{
-								{
-									Name:  "K_SINK",
-									Value: sink,
-								},
-								{
-									Name:  "BUCKET_CONFIG_PATH",
-									Value: "/etc/bucket/config",
-								},
-								{
-									Name:  "BUCKET_SECRET_PATH",
-									Value: "/etc/bucket/secret",
-								},
-								{
-									Name:  "DIMSE_CONFIG_PATH",
-									Value: "/etc/dimse/config",
-								},
-							},
+							Env:             GetDimseIngestionDeploymentEnv(cr, sink),
 							EnvFrom: []corev1.EnvFromSource{
 								{
 									ConfigMapRef: &corev1.ConfigMapEnvSource{
@@ -128,9 +111,10 @@ func DimseIngestionDeploymentSelector(cr *v1alpha1.DimseIngestionService) client
 	}
 }
 
-func DimseIngestionDeploymentReconciled(cr *v1alpha1.DimseIngestionService, currentState *appsv1.Deployment) *appsv1.Deployment {
+func DimseIngestionDeploymentReconciled(cr *v1alpha1.DimseIngestionService, currentState *appsv1.Deployment, sink string) *appsv1.Deployment {
 	reconciled := currentState.DeepCopy()
 	reconciled.Spec.Template.Spec.Containers[0].Image = GetImage(cr.Spec.DimseService.Image, common.DimseIngestionImage)
+	reconciled.Spec.Template.Spec.Containers[0].Env = GetDimseIngestionDeploymentEnv(cr, sink)
 	reconciled.Spec.Template.Spec.ImagePullSecrets = cr.Spec.ImagePullSecrets
 
 	return reconciled
@@ -138,4 +122,41 @@ func DimseIngestionDeploymentReconciled(cr *v1alpha1.DimseIngestionService, curr
 
 func GetDimseIngestionDeploymentName(cr *v1alpha1.DimseIngestionService) string {
 	return cr.Name + "-dimse"
+}
+
+func GetDimseIngestionDeploymentEnv(cr *v1alpha1.DimseIngestionService, sink string) []corev1.EnvVar {
+	env := []corev1.EnvVar{
+		{
+			Name:  "K_SINK",
+			Value: sink,
+		},
+		{
+			Name:  "BUCKET_CONFIG_PATH",
+			Value: "/etc/bucket/config",
+		},
+		{
+			Name:  "BUCKET_SECRET_PATH",
+			Value: "/etc/bucket/secret",
+		},
+		{
+			Name:  "DIMSE_CONFIG_PATH",
+			Value: "/etc/dimse/config",
+		},
+	}
+
+	if cr.Spec.NatsTokenSecretName != "" {
+		env = append(env, corev1.EnvVar{
+			Name: "DIMSE_NATS_AUTH_TOKEN",
+			ValueFrom: &corev1.EnvVarSource{
+				SecretKeyRef: &corev1.SecretKeySelector{
+					LocalObjectReference: corev1.LocalObjectReference{
+						Name: cr.Spec.NatsTokenSecretName,
+					},
+					Key: "token",
+				},
+			},
+		})
+	}
+
+	return env
 }
