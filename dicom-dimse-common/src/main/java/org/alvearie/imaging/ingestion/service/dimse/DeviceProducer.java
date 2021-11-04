@@ -17,17 +17,17 @@ import org.eclipse.microprofile.context.ManagedExecutor;
 
 @ApplicationScoped
 public class DeviceProducer {
-    @ConfigProperty(name = "dimse.called.host")
-    String calledHost;
+    @ConfigProperty(name = "dimse.target.host")
+    String targetHost;
 
-    @ConfigProperty(name = "dimse.called.port")
-    Integer calledPort;
+    @ConfigProperty(name = "dimse.target.port")
+    Integer targetPort;
 
-    @ConfigProperty(name = "dimse.called.device")
-    String calledDeviceName;
+    @ConfigProperty(name = "dimse.target.device")
+    String targetDeviceName;
 
-    @ConfigProperty(name = "dimse.calling.aet")
-    String callingAet;
+    @ConfigProperty(name = "dimse.ae")
+    String ae;
 
     @Inject
     ManagedExecutor executor;
@@ -35,14 +35,14 @@ public class DeviceProducer {
     @Produces
     @ApplicationScoped
     public Device clientDevice() {
-        Device device = new Device(calledDeviceName);
+        Device device = new Device(targetDeviceName);
 
         Connection conn = new Connection();
         device.addConnection(conn);
 
-        ApplicationEntity ae = new ApplicationEntity(callingAet);
-        device.addApplicationEntity(ae);
-        ae.addConnection(conn);
+        ApplicationEntity applicationEntity = new ApplicationEntity(ae);
+        device.addApplicationEntity(applicationEntity);
+        applicationEntity.addConnection(conn);
 
         device.setExecutor(executor);
 
@@ -53,8 +53,8 @@ public class DeviceProducer {
     @ApplicationScoped
     public Connection remoteConnection() {
         Connection remote = new Connection();
-        remote.setHostname(calledHost);
-        remote.setPort(calledPort);
+        remote.setHostname(targetHost);
+        remote.setPort(targetPort);
 
         return remote;
     }

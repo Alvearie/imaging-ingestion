@@ -106,8 +106,8 @@ func GetDimseProxyDeploymentName(cr *v1alpha1.DimseProxy) string {
 func GetDimseProxyDeploymentEnv(cr *v1alpha1.DimseProxy) []corev1.EnvVar {
 	env := []corev1.EnvVar{
 		{
-			Name:  "DIMSE_PROXY_ACTOR",
-			Value: "SERVER",
+			Name:  "DIMSE_ACTOR",
+			Value: "SCP",
 		},
 		{
 			Name:  "DIMSE_CONFIG_PATH",

@@ -18,7 +18,7 @@ import io.quarkus.test.junit.mockito.InjectMock;
 
 @QuarkusTest
 public class DimseServerTest {
-    @ConfigProperty(name = "dimse.ingestion.port")
+    @ConfigProperty(name = "dimse.port")
     Integer port;
 
     @InjectMock

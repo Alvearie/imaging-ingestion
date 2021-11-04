@@ -30,11 +30,11 @@ import org.jboss.logging.Logger;
 public class CStoreHandler implements DimseCommandHandler {
     private static final Logger LOG = Logger.getLogger(CStoreHandler.class);
 
-    @ConfigProperty(name = "dimse.called.aet")
-    String calledAet;
+    @ConfigProperty(name = "dimse.target.ae")
+    String targetAe;
 
-    @ConfigProperty(name = "dimse.calling.aet")
-    String callingAet;
+    @ConfigProperty(name = "dimse.ae")
+    String ae;
 
     @Inject
     Device clientDevice;
@@ -64,9 +64,9 @@ public class CStoreHandler implements DimseCommandHandler {
                     rq.addPresentationContext(
                             new PresentationContext(spc.getPCID(), spc.getAbstractSyntax(), spc.getTransferSyntaxes()));
                 }
-                rq.setCalledAET(calledAet);
+                rq.setCalledAET(targetAe);
 
-                targetAssociation = clientDevice.getApplicationEntity(callingAet).connect(remoteConnection, rq);
+                targetAssociation = clientDevice.getApplicationEntity(ae).connect(remoteConnection, rq);
                 holder.addAssociation(arq.getId(), targetAssociation);
             }
             DimseRSP rsp = targetAssociation.cstore(cuid, iuid, priority, new DataWriterAdapter(data), tsuid);

@@ -11,8 +11,8 @@ import javax.inject.Inject;
 
 import org.alvearie.imaging.ingestion.service.dimse.ActiveAssociationHolder;
 import org.alvearie.imaging.ingestion.service.dimse.CEchoHandler;
-import org.alvearie.imaging.ingestion.service.dimse.Constants.Actor;
 import org.alvearie.imaging.ingestion.service.dimse.DimseCommandRegistry;
+import org.alvearie.imaging.ingestion.service.nats.Constants.NatsSubjectChannel;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
@@ -27,8 +27,8 @@ public class NatsAssociationSubscriber {
     @ConfigProperty(name = "dimse.nats.subject.root")
     String subjectRoot;
 
-    @ConfigProperty(name = "dimse.proxy.actor")
-    Actor actor;
+    @ConfigProperty(name = "dimse.nats.subject.channel")
+    NatsSubjectChannel subjectChannel;
 
     @Inject
     CEchoHandler echoHandler;
@@ -46,7 +46,7 @@ public class NatsAssociationSubscriber {
     private String subject;
 
     public void subscribe() {
-        this.subject = subjectRoot + "." + actor.getDirection() + ".*";
+        this.subject = subjectRoot + "." + subjectChannel.getChannel() + ".*";
         Connection connection = natsConnectionFactory.waitForConnection(0);
         if (connection != null) {
 
@@ -63,7 +63,7 @@ public class NatsAssociationSubscriber {
         String serialNumber = new String(msg.getData());
         LOG.info(subject + ": onMessage: " + serialNumber);
 
-        String rootSubject = subjectRoot + "." + actor.getDirection() + "." + serialNumber;
+        String rootSubject = subjectRoot + "." + subjectChannel.getChannel() + "." + serialNumber;
         String messageSubject = rootSubject + ".>";
         NatsMessageSubscriber messageSubscriber = new NatsMessageSubscriber(connection, messageSubject,
                 msg.getReplyTo(), commandRegistry);

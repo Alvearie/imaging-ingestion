@@ -24,16 +24,16 @@ import org.jboss.logging.Logger;
 public class DimseServer {
     private static final Logger LOG = Logger.getLogger(DimseServer.class);
 
-    @ConfigProperty(name = "dimse.ingestion.host")
+    @ConfigProperty(name = "dimse.host")
     String dimseHost;
 
-    @ConfigProperty(name = "dimse.ingestion.port")
+    @ConfigProperty(name = "dimse.port")
     Integer dimsePort;
 
-    @ConfigProperty(name = "dimse.ingestion.aet")
+    @ConfigProperty(name = "dimse.ae")
     String aet;
 
-    @ConfigProperty(name = "dimse.ingestion.device")
+    @ConfigProperty(name = "dimse.device")
     String deviceName;
 
     @Inject
@@ -50,7 +50,7 @@ public class DimseServer {
 
     @Inject
     CStoreSCPImpl storescp;
-    
+
     @Inject
     CFindSCPImpl findscp;
 
