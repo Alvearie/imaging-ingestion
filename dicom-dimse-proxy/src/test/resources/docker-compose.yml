@@ -6,5 +6,7 @@ services:
         - dicom-dimse-proxy.env
         volumes:
         - ./dimse-config:/etc/dimse/config
+        - /etc/config/certs/keystore.pkcs12:/etc/config/certs/keystore.pkcs12
+        - /etc/config/certs/truststore.pkcs12:/etc/config/certs/truststore.pkcs12
         ports:
         - "11112:11112"
