@@ -33,16 +33,16 @@ import org.jboss.logging.Logger;
 public class ProxyServer {
     private static final Logger LOG = Logger.getLogger(ProxyServer.class);
 
-    @ConfigProperty(name = "dimse.proxy.host")
+    @ConfigProperty(name = "dimse.host")
     String dimseHost;
 
-    @ConfigProperty(name = "dimse.proxy.port")
+    @ConfigProperty(name = "dimse.port")
     Integer dimsePort;
 
-    @ConfigProperty(name = "dimse.proxy.aet")
+    @ConfigProperty(name = "dimse.ae")
     String aet;
 
-    @ConfigProperty(name = "dimse.proxy.device")
+    @ConfigProperty(name = "dimse.device")
     String deviceName;
 
     @ConfigProperty(name = "dimse.tls.enabled")

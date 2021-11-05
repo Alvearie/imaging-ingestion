@@ -1,6 +1,6 @@
 /*
  * (C) Copyright IBM Corp. 2021
- * 
+ *
  * SPDX-License-Identifier: Apache-2.0
  */
 package org.alvearie.imaging.ingestion.service.dimse;
@@ -28,11 +28,11 @@ import org.jboss.logging.Logger;
 public class CEchoHandler implements DimseCommandHandler {
     private static final Logger LOG = Logger.getLogger(CEchoHandler.class);
 
-    @ConfigProperty(name = "dimse.called.aet")
-    String calledAet;
+    @ConfigProperty(name = "dimse.target.ae")
+    String targetAe;
 
-    @ConfigProperty(name = "dimse.calling.aet")
-    String callingAet;
+    @ConfigProperty(name = "dimse.ae")
+    String ae;
 
     @Inject
     Device clientDevice;
@@ -48,12 +48,12 @@ public class CEchoHandler implements DimseCommandHandler {
             rq.addPresentationContext(
                     new PresentationContext(spc.getPCID(), spc.getAbstractSyntax(), spc.getTransferSyntaxes()));
         }
-        rq.setCalledAET(calledAet);
+        rq.setCalledAET(targetAe);
 
         Association targetAssociation = null;
         ByteArrayOutputStream bos = null;
         try {
-            targetAssociation = clientDevice.getApplicationEntity(callingAet).connect(remoteConnection, rq);
+            targetAssociation = clientDevice.getApplicationEntity(ae).connect(remoteConnection, rq);
             DimseRSP rsp = targetAssociation.cecho();
             rsp.next();
 

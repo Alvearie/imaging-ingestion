@@ -40,6 +40,11 @@ type DimseProxySpec struct {
 	// +optional
 	//+operator-sdk:csv:customresourcedefinitions:type=spec
 	NatsSubjectRoot string `json:"natsSubjectRoot,omitempty"`
+	// NATS Subject Channel to use
+	// +optional
+	//+operator-sdk:csv:customresourcedefinitions:type=spec,xDescriptors="urn:alm:descriptor:com.tectonic.ui:select:A"
+	//+operator-sdk:csv:customresourcedefinitions:type=spec,xDescriptors="urn:alm:descriptor:com.tectonic.ui:select:B"
+	NatsSubjectChannel string `json:"natsSubjectChannel,omitempty"`
 	// DIMSE Proxy Spec
 	//+operator-sdk:csv:customresourcedefinitions:type=spec
 	Proxy ProxySpec `json:"proxy,omitempty"`

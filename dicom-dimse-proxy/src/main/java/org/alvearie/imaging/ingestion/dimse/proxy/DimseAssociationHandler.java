@@ -1,6 +1,6 @@
 /*
  * (C) Copyright IBM Corp. 2021
- * 
+ *
  * SPDX-License-Identifier: Apache-2.0
  */
 package org.alvearie.imaging.ingestion.dimse.proxy;
@@ -22,8 +22,8 @@ import org.jboss.logging.Logger;
 public class DimseAssociationHandler extends AssociationHandler {
     private static final Logger LOG = Logger.getLogger(DimseAssociationHandler.class);
 
-    @ConfigProperty(name = "dimse.called.aet")
-    String calledAet;
+    @ConfigProperty(name = "dimse.target.ae")
+    String targetAe;
 
     @Inject
     NatsAssociationPublisher associationPublisher;

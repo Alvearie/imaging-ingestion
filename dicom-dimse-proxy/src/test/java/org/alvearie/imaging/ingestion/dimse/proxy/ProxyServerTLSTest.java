@@ -20,7 +20,7 @@ import io.quarkus.test.junit.mockito.InjectMock;
 @QuarkusTest
 @TestProfile(TLSProfile.class)
 public class ProxyServerTLSTest {
-    @ConfigProperty(name = "dimse.proxy.port")
+    @ConfigProperty(name = "dimse.port")
     Integer port;
 
     @InjectMock

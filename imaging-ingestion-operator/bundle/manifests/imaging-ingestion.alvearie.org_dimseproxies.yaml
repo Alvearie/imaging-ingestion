@@ -60,6 +60,9 @@ spec:
               natsSecure:
                 description: Make NATS Connection Secure
                 type: boolean
+              natsSubjectChannel:
+                description: NATS Subject Channel to use
+                type: string
               natsSubjectRoot:
                 description: NATS Subject Root
                 type: string

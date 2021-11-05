@@ -465,6 +465,12 @@ spec:
       - description: Make NATS Connection Secure
         displayName: Nats Secure
         path: natsSecure
+      - description: NATS Subject Channel to use
+        displayName: Nats Subject Channel
+        path: natsSubjectChannel
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:select:A
+        - urn:alm:descriptor:com.tectonic.ui:select:B
       - description: NATS Subject Root
         displayName: Nats Subject Root
         path: natsSubjectRoot

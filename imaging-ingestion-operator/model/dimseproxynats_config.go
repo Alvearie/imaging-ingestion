@@ -47,15 +47,21 @@ func GetDimseProxyNatsConfigName(cr *v1alpha1.DimseProxy) string {
 
 func GetDimseProxyNatsConfigData(cr *v1alpha1.DimseProxy) map[string]string {
 	config := map[string]string{
-		"DIMSE_CALLED_AET":       cr.Spec.ApplicationEntityTitle,
-		"DIMSE_CALLED_HOST":      cr.Spec.TargetDimseHost,
-		"DIMSE_CALLED_PORT":      strconv.Itoa(cr.Spec.TargetDimsePort),
+		"DIMSE_TARGET_AE":        cr.Spec.ApplicationEntityTitle,
+		"DIMSE_TARGET_HOST":      cr.Spec.TargetDimseHost,
+		"DIMSE_TARGET_PORT":      strconv.Itoa(cr.Spec.TargetDimsePort),
 		"DIMSE_NATS_URL":         cr.Spec.NatsURL,
 		"DIMSE_NATS_TLS_ENABLED": strconv.FormatBool(cr.Spec.NatsSecure),
 	}
 
 	if cr.Spec.NatsSubjectRoot != "" {
 		config["DIMSE_NATS_SUBJECT_ROOT"] = cr.Spec.NatsSubjectRoot
+	}
+
+	if cr.Spec.NatsSubjectChannel == "" {
+		config["DIMSE_NATS_SUBJECT_CHANNEL"] = "A"
+	} else {
+		config["DIMSE_NATS_SUBJECT_CHANNEL"] = cr.Spec.NatsSubjectChannel
 	}
 
 	return config

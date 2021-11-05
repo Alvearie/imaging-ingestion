@@ -18,7 +18,7 @@ import io.quarkus.test.junit.mockito.InjectMock;
 
 @QuarkusTest
 public class ProxyServerTest {
-    @ConfigProperty(name = "dimse.proxy.port")
+    @ConfigProperty(name = "dimse.port")
     Integer port;
 
     @InjectMock

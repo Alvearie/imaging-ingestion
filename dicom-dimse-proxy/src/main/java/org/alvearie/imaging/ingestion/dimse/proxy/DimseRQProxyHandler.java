@@ -12,10 +12,10 @@ import java.io.ObjectInputStream;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import org.alvearie.imaging.ingestion.service.dimse.Constants.Actor;
 import org.alvearie.imaging.ingestion.service.dimse.RequestWrapper;
 import org.alvearie.imaging.ingestion.service.dimse.SimpleAssociateRQ;
 import org.alvearie.imaging.ingestion.service.dimse.SimplePresentationContext;
+import org.alvearie.imaging.ingestion.service.nats.Constants.NatsSubjectChannel;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.net.Association;
@@ -34,8 +34,8 @@ public class DimseRQProxyHandler implements DimseRQHandler {
     @ConfigProperty(name = "dimse.nats.subject.root")
     String subjectRoot;
 
-    @ConfigProperty(name = "dimse.proxy.actor")
-    Actor actor;
+    @ConfigProperty(name = "dimse.nats.subject.channel")
+    NatsSubjectChannel subjectChannel;
 
     @Inject
     NatsMessagePublisher messagePublisher;
@@ -49,7 +49,7 @@ public class DimseRQProxyHandler implements DimseRQHandler {
         LOG.info("onDimseRQ");
 
         try {
-            String subject = subjectRoot + "." + actor.getPublishDirection();
+            String subject = subjectRoot + "." + subjectChannel.getPublishChannel();
             Attributes dataAttributes = readDataset(pc, data);
             SimplePresentationContext spc = new SimplePresentationContext(pc.getPCID(), pc.getResult(),
                     pc.getAbstractSyntax(), pc.getTransferSyntaxes());
@@ -83,7 +83,7 @@ public class DimseRQProxyHandler implements DimseRQHandler {
 
     @Override
     public void onClose(Association as) {
-        String subject = subjectRoot + "." + actor.getPublishDirection();
+        String subject = subjectRoot + "." + subjectChannel.getPublishChannel();
         String key = subject + "." + as.getSerialNo();
         LOG.info("Remove association from holder: " + key);
         holder.removeAssociation(key);
