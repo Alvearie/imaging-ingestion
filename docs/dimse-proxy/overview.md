@@ -55,6 +55,8 @@ spec:
   natsSecure: true
   # The root name of NATS subject where the proxy is subscribing and publishing messages
   natsSubjectRoot: DIMSE
+  # The NATS subject channel to use
+  natsSubjectChannel: A
   # The name of the Secret that contains the JWT token that will be used to  access to the NATS Subject.  Provide this if NATS Accounts are being used for isolation. 
   natsTokenSecret: nats-dicom-proxy-token
   proxy: {}
@@ -75,19 +77,27 @@ Use the following steps to retrieve and run the standalone DIMSE Proxy:
 
 ## Proxy Environment Settings
 
-*Note:* Expect these variable names to be subject to both change and growth in numbers as we iterate on a first release.
 
-|Environment Variable|Description| Example value |
+|Environment Variable|Description| Values (default in bold) |
 |--------------------------|--------------------------------------------------|---------|
-|DIMSE_ACTOR| The role of the proxy.  Configure to run as either server side (SERVER) or the remote projection (PROXY) | PROXY\|SERVER |
 |DIMSE_CONFIG_PATH|  Path to the folder containing the presentation states and transfer syntaxes for the proxy.  The provided docker.compose will mounts this at /etc/dimse/config.  Provide an appropriate path when using the shell script | ./dimse-config |
-|DIMSE_PROXY_PORT| The port for the proxy to listen on | 11112 |
+|DIMSE_AE| The name of the proxy Application Entity (AE).  This will be the AE name of the proxy on the local network. | INGESTION |
+|DIMSE_PORT| The port for the proxy to listen on | **11112** |
 |DIMSE_NATS_URL| The URL of the NATS cluster for proxy communication| 0a0527d6.nip.io:443 |
-|DIMSE_NATS_TLS_ENABLED| TLS enabled for NATS communications? | true\|false |
+|DIMSE_NATS_TLS_ENABLED| TLS enabled for NATS communications? | true \| false |
 |DIMSE_NATS_SUBJECT_ROOT| The Subject name in NATS that will be used for all communications between the proxies| DIMSE|
+|DIMSE_NATS_SUBJECT_CHANNEL| Each side of the proxy needs a separate channel to send messages. | **A** \| B |
 |DIMSE_NATS_AUTH_TOKEN| The JWT for accessing the configured NATS Subject | xxxxxx== |
-|DIMSE_NATS_TRACECONNECTION| Enable NATS tracing for debugging connection issues. | true\|false |
-|DIMSE_CALLED_AET| The name of the proxy AET.  This will be the AET name of the proxy on the local network. | INGESTION |
-|DIMSE_CALLED_HOST| The host to proxy to when in the SERVER role | dcm4che.dcm4che.svc.cluster.local |
-|DIMSE_CALLED_PORT| The host port to proxy to when in the SERVER role | 11112 |
-
+|DIMSE_NATS_TRACECONNECTION| Enable NATS tracing for debugging connection issues. | true \| **false** |
+|DIMSE_TARGET_AE| The AE to proxy inbound messages to | DCM4CHEE |
+|DIMSE_TARGET_HOST| The host to proxy inbound messages too | dcm4che.dcm4che.svc.cluster.local |
+|DIMSE_TARGET_PORT| The host port to proxy inbound messages to | **11112** |
+|DIMSE_TLS_ENABLED| Enable TLS for DIMSE communications on the local network| true \| **false** |
+|DIMSE_TLS_KEYSTORE| The path to the keystore for TLS configuration | |
+|DIMSE_TLS_KEYSTORE_TYPE| The file type of the keystore | JKS, **PKCS12** |
+|DIMSE_TLS_KEYSTORE_PASSWORD| The password to access the keystore | |
+|DIMSE_TLS_TRUSTSTORE| The path to the truststore for TLS configuration | |
+|DIMSE_TLS_TRUSTSTORE_TYPE| The file type of the truststore | JKS, **PKCS12** |
+|DIMSE_TLS_TRUSTSTORE_PASSWORD| The password to the truststore | |
+|DIMSE_TLS_PROTOCOL_VERSIONS| Comma-separated list of enabled TLS protocol versions. | TLSv1.0, **TLSv1.2**, TLSv1.3 |
+|DIMSE_TLS_CIPHER_SUITES| Comma-separated list of enabled TLS cipher suites. | **TLS_RSA_WITH_AES_128_CBC_SHA, SSL_RSA_WITH_3DES_EDE_CBC_SHA** |

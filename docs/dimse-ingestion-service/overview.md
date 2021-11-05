@@ -1,7 +1,7 @@
 # DICOM Message Service Element (DIMSE) Ingestion Service 
 
 ## Overview
-  The *DIMSE Ingestion Service* is an optional sub-component of the *Kubernetes* deployment.  This subcomponent provides the ability to C-STORE DICOM using the *DIMSE Proxy*. The *DIMSE Proxy* and *DIMSE Ingestion Service* sub-components are deployed as pairs, the proxy within the enterprise imaging zone, and the ingestion service within *Kubernetes*.  A separate deployment of this subcomponent is required for each storage space.  When creating a storage space with *DIMSE Ingestion Service*, a *DICOMweb Ingestion Service* needs to also be provided for the storage space.  This allows downstream sub-components to retrieve data using WADO-RS.
+  The *DIMSE Ingestion Service* is an optional sub-component of the *Kubernetes* deployment.  This subcomponent provides the ability to C-STORE and C-FIND DICOM to a storage space using a remote *DIMSE Proxy*. The *DIMSE Proxy* and *DIMSE Ingestion Service* subcomponents are deployed as pairs, the proxy within the enterprise imaging zone, and the ingestion service within *Kubernetes*.  A separate deployment of these subcomponent pairs is required for each storage space.  When creating a storage space with *DIMSE Ingestion Service*, a *DICOMweb Ingestion Service* needs to also be provided for the storage space.  This allows downstream subcomponents to retrieve data using WADO-RS.
 
 ## Subcomponent Architecture
 ![DIMSE Ingestion Service](../images/dimse-ingestion-service.png)
@@ -65,10 +65,11 @@ spec:
   applicationEntityTitle: "DICOM-INGEST"
   # The NATS service address
   natsUrl: 0a0527d6.nip.io:443
+  # The root name of NATS subject where the proxy is subscribing and publishing messages
+  natsSubjectRoot: DIMSE
   # Enable TLS for NATS
   natsSecure: true
-  # The ServiceAccount token that will be used to manage access to this NATS service
-  # Future:  Not yet implemented
-  #natsTokenSecret: nats-dicom-ingest-token-lhllv
+  # The JWT for the NATS account that will be used to access the NATS subject
+  natsTokenSecret: nats-dicom-ingest-token-lhllv
 ```
 

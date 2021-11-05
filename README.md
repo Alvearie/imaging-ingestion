@@ -27,7 +27,7 @@ Our initial goal is to provide enough capability to deliver a rapid proof-of-val
 The imaging ingestion component is currently comprised of six (6) subcomponents:
   
   1. [DIMSE Proxy](docs/dimse-proxy/overview.md) enables a DIMSE Application Entity (AE) point-of-presence in the enterprise imaging zone and/or within the *Kubernetes* cluster.  
-  2. [DIMSE Ingestion Service](docs/dimse-ingestion-service/overview.md) provides a proxied DIMSE Application Entity (AE) in the *Kubernetes* cluster for C-STORE operations to a storage space.
+  2. [DIMSE Ingestion Service](docs/dimse-ingestion-service/overview.md) provides a proxied DIMSE Application Entity (AE) in the *Kubernetes* cluster for C-STORE and C-FIND operations on a storage space.
   3. [DICOMweb Ingestion Service](docs/dicomweb-ingestion-service/overview.md) for DICOMweb QIDO-RS, WADO-RS, and STOW-RS access to a storage space.
   4. [DICOM Event Driven Ingestion](docs/event-driven-ingestion/overview.md) maintains a manifest of all DICOM data across all ingestion storage spaces.
   5. [DICOM Instance Binding](docs/dicom-instance-binding/overview.md) for fan-out notification of DICOM instance data.
@@ -39,7 +39,6 @@ The imaging ingestion component is currently comprised of six (6) subcomponents:
   Development Roadmap is available [here](docs/roadmap.md).  Community feedback is welcome! 
   
   - Getting started with [contribution](CONTRIBUTING.md), including how to build from source.
-  - Join us on [Slack](https://alvearie.slack.com/archives/C01SWTZEQP3)
   - Open an [issue](https://github.com/Alvearie/imaging-ingestion/issues).
 
 
@@ -71,17 +70,12 @@ The imaging ingestion component is currently comprised of six (6) subcomponents:
 
 
 **Enabling DIMSE ingestion from the enterprise imaging zone to the storage space created in step 4 above**
-  1. Configure NATS for a secure subject for the two components to communicate 
-  2. Declare a [DIMSE Ingestion Service](docs/dimse-ingestion-service/overview.md) in *Kubernetes* providing references to the subject and tokens created in 1.
-  3. Install a [DIMSE Proxy](docs/dimse-proxy/overview.md) in the enterprise imaging zone. 
+  In order to ingest DIMSE from the enterprise imaging zone to a imaging ingestion storage space, a proxy will need to be deployed within the enterprise imaging zone.  This proxy will be used to project the DIMSE Ingestion Service into the zone.  The proxy will use NATS to forward the C-STORE operations to the DIMSE Ingestion Service. 
+
+  1. Configure a NATS for a secure subject for the two subcomponents to communicate.
+  2. Declare a [DIMSE Ingestion Service](docs/dimse-ingestion-service/overview.md) in *Kubernetes* providing references to the NATS service and subject.  If the subject is secured using NATS accounts, the JWT tokens for accessing subject will also be need to be provided as a *Secret*.
+  3. Install a [DIMSE Proxy](docs/dimse-proxy/overview.md) in the enterprise imaging zone.
   4. Configure the DIMSE Proxy to use the NATS subject and tokens created by the operator in step 1.
 
-
-**Enabling bidirectional DIMSE between the enterprise imaging zone and a DIMSE service in Kubernetes**
-  `Note:  This is currently only partially complete.  Currently limited to unidirectional associations from the enterprise imaging zone proxy to the kubernetes proxy.  Bidirectional is on the roadmap.`
-  1. Configure NATS for a secure subject for the two components to communicate
-  2. Declare a [DIMSE Proxy](docs/dimse-proxy/overview.md) in *Kubernetes* providing references to the subject and tokens created in 1.
-  3. Deploy a [DIMSE Proxy](docs/dimse-proxy/overview.md) in the enterprise imaging zone.  
-  4. Configure the DIMSE Proxy to use the NATS subject and tokens created by the operator in step 1.
   
 
