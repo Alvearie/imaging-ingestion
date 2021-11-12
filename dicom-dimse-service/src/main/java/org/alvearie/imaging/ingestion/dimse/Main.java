@@ -8,6 +8,7 @@ package org.alvearie.imaging.ingestion.dimse;
 import javax.inject.Inject;
 
 import org.alvearie.imaging.ingestion.service.nats.NatsAssociationSubscriber;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
 import io.quarkus.runtime.Quarkus;
@@ -17,6 +18,9 @@ import io.quarkus.runtime.annotations.QuarkusMain;
 @QuarkusMain
 public class Main implements QuarkusApplication {
     private static final Logger LOG = Logger.getLogger(Main.class);
+
+    @ConfigProperty(name = "dimse.nats.disabled")
+    Boolean natsDisabled;
 
     @Inject
     DimseServer server;
@@ -29,7 +33,10 @@ public class Main implements QuarkusApplication {
         LOG.info("Application starting ...");
 
         server.init();
-        subscriber.subscribe();
+
+        if (!natsDisabled) {
+            subscriber.subscribe();
+        }
 
         Quarkus.waitForExit();
         return 0;

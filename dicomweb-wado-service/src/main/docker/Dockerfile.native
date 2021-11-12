@@ -1,6 +1,6 @@
 #-------------------------------------------------------------------------------
 # (C) Copyright IBM Corp. 2021
-# 
+#
 # SPDX-License-Identifier: Apache-2.0
 #-------------------------------------------------------------------------------
 ####
@@ -12,14 +12,14 @@
 #
 # Then, build the image with:
 #
-# docker build -f src/main/docker/Dockerfile.native -t quarkus/whi-wado-rs .
+# docker build -f src/main/docker/Dockerfile.native -t quarkus/<project> .
 #
 # Then run the container using:
 #
-# docker run -i --rm -p 8080:8080 quarkus/whi-wado-rs
+# docker run -i --rm -p 8080:8080 quarkus/<project>
 #
 ###
-FROM registry.access.redhat.com/ubi8/ubi-minimal:8.3
+FROM registry.access.redhat.com/ubi8/ubi-minimal:8.4
 WORKDIR /work/
 RUN chown 1001 /work \
     && chmod "g+rwX" /work \

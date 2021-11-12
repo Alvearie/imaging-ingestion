@@ -5,4 +5,4 @@ source ./dicom-dimse-proxy.env
 set +o allexport
 
 echo "Starting dicom-dimse-proxy in background ..."
-nohup java -jar ./dicom-dimse-proxy-*.jar 2>&1 &
+nohup ./dicom-dimse-proxy-*-linux-x86_64 2>&1 &
