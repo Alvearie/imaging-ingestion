@@ -14,7 +14,7 @@ import org.dcm4che3.net.pdu.PresentationContext;
 
 import io.quarkus.runtime.annotations.RegisterForReflection;
 
-@RegisterForReflection
+@RegisterForReflection(serialization = true)
 public class SimpleAssociateRQ implements Serializable {
     private static final long serialVersionUID = 1L;
 

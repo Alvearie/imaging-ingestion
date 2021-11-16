@@ -10,7 +10,7 @@ import java.util.Arrays;
 
 import io.quarkus.runtime.annotations.RegisterForReflection;
 
-@RegisterForReflection
+@RegisterForReflection(serialization = true)
 public class SimplePresentationContext implements Serializable {
     private static final long serialVersionUID = 1L;
 

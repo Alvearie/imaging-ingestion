@@ -30,6 +30,8 @@ dependencies {
 
     implementation "org.dcm4che:dcm4che-core:${dcm4cheVersion}"
 
+    compile 'org.apache.commons:commons-lang3:3.12.0'
+
     testImplementation 'io.quarkus:quarkus-junit5'
     testImplementation 'io.quarkus:quarkus-junit5-mockito'
     testImplementation 'io.quarkus:quarkus-panache-mock'

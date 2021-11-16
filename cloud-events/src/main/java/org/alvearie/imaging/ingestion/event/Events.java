@@ -10,6 +10,5 @@ public interface Events {
     public static final String ImageStoredEvent = "ImageStoredEvent";
     public static final String DicomAvailableEvent = "DicomAvailableEvent";
     public static final String StudyRevisionEvent = "StudyRevisionEvent";
-    public static final String StudyRetrieveEvent = "StudyRetrieveEvent";
     public static final String EventSource = "ImagingIngestion";
 }

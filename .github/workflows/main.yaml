@@ -46,8 +46,6 @@ jobs:
       if: ${{ github.ref == 'refs/heads/main' || github.event_name == 'release' }}
       run: |
         ./gradlew -Pquarkus.package.type=native build
-        ./gradlew -Pquarkus.package.type=uber-jar :dicom-dimse-service:clean :dicom-dimse-service:build
-        ./gradlew -Pquarkus.package.type=uber-jar :dicom-dimse-proxy:clean :dicom-dimse-proxy:build
         ./gradlew -Pquarkus.package.type=native -Dquarkus.datasource.db-kind=db2 :dicom-event-driven-ingestion:clean :dicom-event-driven-ingestion:build
     - name: Build Images with Gradle on Pull Request
       if: ${{ github.event_name == 'pull_request' }}
@@ -98,7 +96,7 @@ jobs:
       run: |
         mkdir -p ${{ github.workspace }}/artifacts
         docker run -d -t --rm --name dicom-dimse-proxy --entrypoint= alvearie/dicom-dimse-proxy:${{ env.IMAGING_INGESTION_VERSION }} cat
-        docker cp dicom-dimse-proxy:/deployments/app.jar ${{ github.workspace }}/artifacts/dicom-dimse-proxy-${{ env.IMAGING_INGESTION_VERSION }}.jar
+        docker cp dicom-dimse-proxy:/work/application ${{ github.workspace }}/artifacts/dicom-dimse-proxy-${{ env.IMAGING_INGESTION_VERSION }}-linux-x86_64
         docker stop --time=1 dicom-dimse-proxy
         cp -r dicom-dimse-proxy/src/test/resources/dimse-config ${{ github.workspace }}/artifacts/
         cp dicom-dimse-proxy/src/test/resources/dicom-dimse-proxy.sh ${{ github.workspace }}/artifacts/

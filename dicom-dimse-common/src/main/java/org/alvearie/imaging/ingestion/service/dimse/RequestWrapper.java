@@ -17,7 +17,7 @@ import org.jboss.logging.Logger;
 
 import io.quarkus.runtime.annotations.RegisterForReflection;
 
-@RegisterForReflection
+@RegisterForReflection(serialization = true)
 public class RequestWrapper implements Serializable {
     private static final Logger LOG = Logger.getLogger(RequestWrapper.class);
 
@@ -78,6 +78,7 @@ public class RequestWrapper implements Serializable {
             RequestWrapper o = (RequestWrapper) ois.readObject();
             return o;
         } catch (Exception e) {
+            LOG.error("Failed to read object", e);
             return null;
         }
     }
