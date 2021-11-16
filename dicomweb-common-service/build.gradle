@@ -10,16 +10,22 @@ plugins {
 
 dependencies {
     implementation project(':cloud-events')
-    
+
     implementation enforcedPlatform("${quarkusPlatformGroupId}:${quarkusPlatformArtifactId}:${quarkusPlatformVersion}")
     implementation 'io.quarkus:quarkus-rest-client'
-    implementation 'io.quarkus:quarkus-amazon-s3'    
-        
+    implementation 'io.quarkus:quarkus-amazon-s3'
+
     implementation 'software.amazon.awssdk:s3:2.15.62'
     implementation "org.dcm4che:dcm4che-core:${dcm4cheVersion}"
     implementation "org.dcm4che:dcm4che-net:${dcm4cheVersion}"
     implementation "org.dcm4che:dcm4che-imageio:${dcm4cheVersion}"
-    
+
     testImplementation 'io.quarkus:quarkus-junit5'
     testImplementation 'io.quarkus:quarkus-junit5-mockito'
+}
+
+quarkusBuild {
+    onlyIf {
+        project.hasProperty('includeQuarkusBuild')
+    }
 }
