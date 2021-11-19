@@ -27,8 +27,7 @@ func MergeEnvs(a []v1.EnvVar, b []v1.EnvVar) []v1.EnvVar {
 		found := false
 		for i, aa := range a {
 			if aa.Name == bb.Name {
-				aa.Value = bb.Value
-				a[i] = aa
+				a[i] = *bb.DeepCopy()
 				found = true
 				break
 			}
