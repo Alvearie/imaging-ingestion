@@ -118,7 +118,9 @@ public class ProxyServer {
     }
 
     public void stop() {
-        device.unbindConnections();
+        if (device != null) {
+            device.unbindConnections();
+        }
     }
 
     private Device createDevice() throws UnrecoverableKeyException, KeyStoreException, NoSuchAlgorithmException,

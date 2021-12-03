@@ -5,7 +5,7 @@ services:
         env_file:
         - dicom-dimse-proxy.env
         volumes:
-        - ./dimse-config:/etc/dimse/config
+        - ./dimse-config:/etc/config/dimse
         - /etc/config/certs/keystore.pkcs12:/etc/config/certs/keystore.pkcs12
         - /etc/config/certs/truststore.pkcs12:/etc/config/certs/truststore.pkcs12
         ports:

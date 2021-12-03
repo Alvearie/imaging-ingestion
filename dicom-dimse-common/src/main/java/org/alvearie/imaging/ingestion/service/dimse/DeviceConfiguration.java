@@ -7,6 +7,7 @@ package org.alvearie.imaging.ingestion.service.dimse;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.LinkOption;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,6 +24,8 @@ public class DeviceConfiguration {
 
     @ConfigProperty(name = "dimse.config.path")
     String configPath;
+    
+    public static final String DEFAULT_UID_SET = "/etc/config/dimse-default";
 
     private List<String> imageCuids;
     private List<String> imageTsuids;
@@ -30,8 +33,17 @@ public class DeviceConfiguration {
     @PostConstruct
     void init() throws IOException {
         LOG.info("Inside init");
-        this.imageCuids = readUIDsFromFile(configPath, "IMAGE_CUIDS");
-        this.imageTsuids = readUIDsFromFile(configPath, "IMAGE_TSUIDS");
+        if (Files.notExists(Paths.get(configPath), LinkOption.NOFOLLOW_LINKS)) {
+            LOG.warn("No CUIDS or TSUIDS provided.  Will try and use the default set from " + DEFAULT_UID_SET);
+            configPath = DEFAULT_UID_SET;
+        }
+        try {
+            this.imageCuids = readUIDsFromFile(configPath, "IMAGE_CUIDS");
+            this.imageTsuids = readUIDsFromFile(configPath, "IMAGE_TSUIDS");
+        } catch (IOException e) {
+            LOG.error("Unable to load the CUIDS and TSUIDS sets");
+            throw e;
+        }
     }
 
     private List<String> readUIDsFromFile(String base, String name) throws IOException {
