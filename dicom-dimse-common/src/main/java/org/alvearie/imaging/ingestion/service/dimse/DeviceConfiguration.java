@@ -33,7 +33,7 @@ public class DeviceConfiguration {
     @PostConstruct
     void init() throws IOException {
         LOG.info("Inside init");
-        if (Files.notExists(Paths.get(configPath), LinkOption.NOFOLLOW_LINKS)) {
+        if (Files.notExists(Paths.get(configPath, "IMAGE_CUIDS"), LinkOption.NOFOLLOW_LINKS) || Files.notExists(Paths.get(configPath, "IMAGE_TSUIDS"), LinkOption.NOFOLLOW_LINKS)) {
             LOG.warn("No CUIDS or TSUIDS provided.  Will try and use the default set from " + DEFAULT_UID_SET);
             configPath = DEFAULT_UID_SET;
         }
@@ -53,7 +53,7 @@ public class DeviceConfiguration {
             String[] lines = content.split("\\n");
             for (String line : lines) {
                 line = line.trim();
-                if (line.length() > 0) {
+                if (line.length() > 0 && !line.startsWith("#")) {
                     String[] parts = line.split(":");
                     if (parts.length == 2) {
                         LOG.info("Adding " + parts[1]);
