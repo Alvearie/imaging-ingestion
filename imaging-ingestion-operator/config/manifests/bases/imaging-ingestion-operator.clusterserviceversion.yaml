@@ -17,6 +17,67 @@ spec:
   apiservicedefinitions: {}
   customresourcedefinitions:
     owned:
+    - description: DicomEventBridge is the Schema for the dicomeventbridges API
+      displayName: Dicom Event Bridge
+      kind: DicomEventBridge
+      name: dicomeventbridges.imaging-ingestion.alvearie.org
+      resources:
+      - kind: ConfigMap
+        name: ""
+        version: v1
+      - kind: Deployment
+        name: ""
+        version: v1
+      - kind: Service
+        name: ""
+        version: v1
+      specDescriptors:
+      - description: DICOM Event Driven Ingestion Name
+        displayName: Dicom Event Driven Ingestion Name
+        path: dicomEventDrivenIngestionName
+      - description: Event Bridge Deployment Spec
+        displayName: Event Bridge
+        path: eventBridge
+      - description: Image
+        displayName: Image
+        path: eventBridge.image
+      - description: Image Pull Secrets
+        displayName: Image Pull Secrets
+        path: imagePullSecrets
+      - description: Make NATS Connection Secure
+        displayName: Nats Secure
+        path: natsSecure
+      - description: NATS Subject Root
+        displayName: Nats Subject Root
+        path: natsSubjectRoot
+      - description: NATS Token Secret Name
+        displayName: Nats Token Secret Name
+        path: natsTokenSecret
+      - description: NATS URL
+        displayName: Nats URL
+        path: natsUrl
+      - description: Event Bridge Role
+        displayName: Role
+        path: role
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:select:hub
+        - urn:alm:descriptor:com.tectonic.ui:select:edge
+      statusDescriptors:
+      - description: Human-readable message indicating details about current operator
+          phase or error
+        displayName: Message
+        path: message
+      - description: Current phase of the operator
+        displayName: Phase
+        path: phase
+      - description: True if all resources are in a ready state and all work is done
+        displayName: Ready
+        path: ready
+      - description: 'A map of all the secondary resources types and names created
+          for this CR. e.g "Deployment": [ "DeploymentName1", "DeploymentName2" ]'
+        displayName: Secondary Resources
+        path: secondaryResources
+      version: v1alpha1
     - description: Event driven manifest of all DICOM data across all associated S3
         buckets
       displayName: Dicom Event Driven Ingestion
@@ -340,6 +401,9 @@ spec:
         name: ""
         version: v1
       - kind: Deployment
+        name: ""
+        version: v1
+      - kind: Service
         name: ""
         version: v1
       specDescriptors:

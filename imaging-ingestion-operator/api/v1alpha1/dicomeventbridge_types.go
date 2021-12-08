@@ -11,21 +11,12 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-// DimseProxySpec defines the desired state of DimseProxy
-type DimseProxySpec struct {
+// DicomEventBridgeSpec defines the desired state of DicomEventBridge
+type DicomEventBridgeSpec struct {
 	// Image Pull Secrets
 	// +optional
 	//+operator-sdk:csv:customresourcedefinitions:type=spec
 	ImagePullSecrets []corev1.LocalObjectReference `json:"imagePullSecrets,omitempty"`
-	// Application Entity Title
-	//+operator-sdk:csv:customresourcedefinitions:type=spec
-	ApplicationEntityTitle string `json:"applicationEntityTitle,omitempty"`
-	// Target Dimse Host
-	//+operator-sdk:csv:customresourcedefinitions:type=spec
-	TargetDimseHost string `json:"targetDimseHost,omitempty"`
-	// Target Dimse Port
-	//+operator-sdk:csv:customresourcedefinitions:type=spec
-	TargetDimsePort int `json:"targetDimsePort,omitempty"`
 	// NATS URL
 	//+operator-sdk:csv:customresourcedefinitions:type=spec
 	NatsURL string `json:"natsUrl,omitempty"`
@@ -40,23 +31,24 @@ type DimseProxySpec struct {
 	// +optional
 	//+operator-sdk:csv:customresourcedefinitions:type=spec
 	NatsSubjectRoot string `json:"natsSubjectRoot,omitempty"`
-	// NATS Subject Channel to use
-	// +optional
-	//+operator-sdk:csv:customresourcedefinitions:type=spec,xDescriptors="urn:alm:descriptor:com.tectonic.ui:select:A"
-	//+operator-sdk:csv:customresourcedefinitions:type=spec,xDescriptors="urn:alm:descriptor:com.tectonic.ui:select:B"
-	NatsSubjectChannel string `json:"natsSubjectChannel,omitempty"`
-	// DIMSE Proxy Spec
+	// Event Bridge Role
+	//+operator-sdk:csv:customresourcedefinitions:type=spec,xDescriptors={"urn:alm:descriptor:com.tectonic.ui:select:hub","urn:alm:descriptor:com.tectonic.ui:select:edge"}
+	Role string `json:"role"`
+	// DICOM Event Driven Ingestion Name
 	//+operator-sdk:csv:customresourcedefinitions:type=spec
-	Proxy ProxySpec `json:"proxy,omitempty"`
+	DicomEventDrivenIngestionName string `json:"dicomEventDrivenIngestionName"`
+	// Event Bridge Deployment Spec
+	//+operator-sdk:csv:customresourcedefinitions:type=spec
+	EventBridge EventBridgeSpec `json:"eventBridge,omitempty"`
 }
 
-type ProxySpec struct {
+type EventBridgeSpec struct {
 	// Deployment Spec
 	DeploymentSpec `json:",inline"`
 }
 
-// DimseProxyStatus defines the observed state of DimseProxy
-type DimseProxyStatus struct {
+// DicomEventBridgeStatus defines the observed state of DicomEventBridge
+type DicomEventBridgeStatus struct {
 	// Common Status Spec
 	CommonStatusSpec `json:",inline"`
 }
@@ -67,28 +59,28 @@ type DimseProxyStatus struct {
 //+kubebuilder:printcolumn:name="Ready",type="string",JSONPath=".status.ready"
 
 //+operator-sdk:csv:customresourcedefinitions:resources={{Deployment,v1},{ConfigMap,v1},{Service,v1}}
-// Provides a bidirectional proxied DIMSE Application Entity (AE) in the cluster
-type DimseProxy struct {
+// DicomEventBridge is the Schema for the dicomeventbridges API
+type DicomEventBridge struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
-	Spec   DimseProxySpec   `json:"spec,omitempty"`
-	Status DimseProxyStatus `json:"status,omitempty"`
+	Spec   DicomEventBridgeSpec   `json:"spec,omitempty"`
+	Status DicomEventBridgeStatus `json:"status,omitempty"`
 }
 
 //+kubebuilder:object:root=true
 
-// DimseProxyList contains a list of DimseProxy
-type DimseProxyList struct {
+// DicomEventBridgeList contains a list of DicomEventBridge
+type DicomEventBridgeList struct {
 	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata,omitempty"`
-	Items           []DimseProxy `json:"items"`
+	Items           []DicomEventBridge `json:"items"`
 }
 
 func init() {
-	SchemeBuilder.Register(&DimseProxy{}, &DimseProxyList{})
+	SchemeBuilder.Register(&DicomEventBridge{}, &DicomEventBridgeList{})
 }
 
-func (i *DimseProxy) UpdateStatusSecondaryResources(kind string, resourceName string) {
+func (i *DicomEventBridge) UpdateStatusSecondaryResources(kind string, resourceName string) {
 	i.Status.SecondaryResources = UpdateStatusSecondaryResources(i.Status.SecondaryResources, kind, resourceName)
 }

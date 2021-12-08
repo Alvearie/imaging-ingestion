@@ -1,5 +1,6 @@
 domain: alvearie.org
-layout: go.kubebuilder.io/v3
+layout:
+- go.kubebuilder.io/v3
 plugins:
   manifests.sdk.operatorframework.io/v2: {}
   scorecard.sdk.operatorframework.io/v2: {}
@@ -58,6 +59,15 @@ resources:
   domain: alvearie.org
   group: imaging-ingestion
   kind: DimseProxy
+  path: github.com/Alvearie/imaging-ingestion/imaging-ingestion-operator/api/v1alpha1
+  version: v1alpha1
+- api:
+    crdVersion: v1
+    namespaced: true
+  controller: true
+  domain: alvearie.org
+  group: imaging-ingestion
+  kind: DicomEventBridge
   path: github.com/Alvearie/imaging-ingestion/imaging-ingestion-operator/api/v1alpha1
   version: v1alpha1
 version: "3"

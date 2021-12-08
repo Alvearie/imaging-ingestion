@@ -114,12 +114,14 @@ func NewNatsManager(args NatsManagerArgs) (*NatsManager, error) {
 	}
 	m.sender = s
 
-	// Read edge locations
-	loc, err := loadEdgeLocations(args)
-	if err != nil {
-		args.Logger.Fatal("Failed to load edge locations", zap.Error(err))
+	if args.Role == BridgeRoleHub {
+		// Read edge locations
+		loc, err := loadEdgeLocations(args)
+		if err != nil {
+			args.Logger.Fatal("Failed to load edge locations", zap.Error(err))
+		}
+		m.edgeLocations = loc
 	}
-	m.edgeLocations = loc
 
 	return m, nil
 }

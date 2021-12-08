@@ -104,6 +104,17 @@ var _ = Describe("DimseProxy controller tests", func() {
 				return true
 			}, timeout, interval).Should(BeTrue())
 
+			svcLookupKey := types.NamespacedName{Name: model.GetDimseProxyServiceName(proxy), Namespace: objectNamespace}
+			svc := &corev1.Service{}
+
+			Eventually(func() bool {
+				err := k8sClient.Get(ctx, svcLookupKey, svc)
+				if err != nil {
+					return false
+				}
+				return true
+			}, timeout, interval).Should(BeTrue())
+
 			Eventually(func() bool {
 				err := k8sClient.Get(ctx, proxyLookupKey, proxy)
 				if err != nil {

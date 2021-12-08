@@ -49,25 +49,38 @@ func (b *Background) Stop() {
 	b.ticker.Stop()
 }
 
-func (b *Background) DetectKnative() {
+func (b *Background) DetectRequirements() {
 	b.detectKnativeServing()
 	b.detectKnativeEventing()
+	b.detectDicomEventBridge()
 }
 
 func (b *Background) autoDetectCapabilities() {
-	before := IsKnativeAvailable()
+	knBefore := IsKnativeAvailable()
+	brBefore := IsDicomEventBridgeAvailable()
 
-	b.DetectKnative()
+	b.DetectRequirements()
 
-	after := IsKnativeAvailable()
+	knAfter := IsKnativeAvailable()
+	brAfter := IsDicomEventBridgeAvailable()
 
-	if !before && after {
+	if !knBefore && knAfter {
 		log.Info("Knative Serving and Eventing is deployed. Restarting operator to enable all APIs ....")
 		os.Exit(1)
-	} else if !before && !after {
+	} else if !knBefore && !knAfter {
 		log.Info("Knative Serving or Eventing is not deployed in cluster")
-	} else if before && !after {
+	} else if knBefore && !knAfter {
 		log.Info("Knative Serving and Eventing is undeployed. Restarting operator to disable some APIs ....")
+		os.Exit(1)
+	}
+
+	if !brBefore && brAfter {
+		log.Info("DicomEventBridge is deployed. Restarting operator to enable all APIs ....")
+		os.Exit(1)
+	} else if !brBefore && !brAfter {
+		log.Info("DicomEventBridge is not deployed in cluster")
+	} else if brBefore && !brAfter {
+		log.Info("DicomEventBridge is undeployed. Restarting operator to disable some APIs ....")
 		os.Exit(1)
 	}
 }
@@ -103,6 +116,23 @@ func (b *Background) detectKnativeEventing() {
 		stateManager.SetState(KnativeEventingKind, true)
 	} else {
 		stateManager.SetState(KnativeEventingKind, false)
+	}
+}
+
+func (b *Background) detectDicomEventBridge() {
+	apiGroupVersion := "imaging-ingestion.alvearie.org/v1alpha1"
+	kind := DicomEventBridgeKind
+	stateManager := GetStateManager()
+	exists, err := ResourceExists(b.dc, apiGroupVersion, kind)
+	if err != nil {
+		log.Error(err, "Failed to get resource", apiGroupVersion, kind)
+		return
+	}
+
+	if exists {
+		stateManager.SetState(kind, true)
+	} else {
+		stateManager.SetState(kind, false)
 	}
 }
 
@@ -149,6 +179,17 @@ func IsKnativeAvailable() bool {
 	eventingAvailable, _ := stateManager.GetState(KnativeEventingKind).(bool)
 
 	if servingAvailable && eventingAvailable {
+		return true
+	}
+
+	return false
+}
+
+func IsDicomEventBridgeAvailable() bool {
+	stateManager := GetStateManager()
+	bridgeAvailable, _ := stateManager.GetState(DicomEventBridgeKind).(bool)
+
+	if bridgeAvailable {
 		return true
 	}
 

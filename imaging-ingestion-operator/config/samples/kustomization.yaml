@@ -6,4 +6,5 @@ resources:
 - imaging-ingestion_v1alpha1_dicomstudybinding.yaml
 - imaging-ingestion_v1alpha1_dimseingestionservice.yaml
 - imaging-ingestion_v1alpha1_dimseproxy.yaml
+- imaging-ingestion_v1alpha1_dicomeventbridge.yaml
 #+kubebuilder:scaffold:manifestskustomizesamples

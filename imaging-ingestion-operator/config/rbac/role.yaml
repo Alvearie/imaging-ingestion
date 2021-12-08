@@ -47,6 +47,18 @@ rules:
   - list
   - watch
 - apiGroups:
+  - ""
+  resources:
+  - services
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
   - eventing.knative.dev
   resources:
   - brokers
@@ -70,6 +82,32 @@ rules:
   - patch
   - update
   - watch
+- apiGroups:
+  - imaging-ingestion.alvearie.org
+  resources:
+  - dicomeventbridges
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - imaging-ingestion.alvearie.org
+  resources:
+  - dicomeventbridges/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - imaging-ingestion.alvearie.org
+  resources:
+  - dicomeventbridges/status
+  verbs:
+  - get
+  - patch
+  - update
 - apiGroups:
   - imaging-ingestion.alvearie.org
   resources:

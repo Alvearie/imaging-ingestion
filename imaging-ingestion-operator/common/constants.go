@@ -14,6 +14,7 @@ const (
 	OpenShiftAPIServerKind = "OpenShiftAPIServer"
 	KnativeServingKind     = "Service"
 	KnativeEventingKind    = "Broker"
+	DicomEventBridgeKind   = "DicomEventBridge"
 
 	AutoDetectTick    = 2 * time.Minute
 	RequeueDelay      = 5 * time.Minute
@@ -26,6 +27,7 @@ const (
 	StudyBindingServiceImage    = "alvearie/dicomweb-fhir-binding:0.0.1"
 	InstanceBindingServiceImage = "alvearie/dicomweb-stow-binding:0.0.1"
 	DimseProxyImage             = "alvearie/dicom-dimse-proxy:0.0.1"
+	EventBridgeImage            = "alvearie/nats-event-bridge:0.0.1"
 
 	MinScaleAnnotation = "autoscaling.knative.dev/minScale"
 	MaxScaleAnnotation = "autoscaling.knative.dev/maxScale"

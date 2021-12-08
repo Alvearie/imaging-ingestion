@@ -91,7 +91,7 @@ func main() {
 	if err != nil {
 		setupLog.Error(err, "failed to start the background process to auto-detect the operator capabilities")
 	} else {
-		autodetect.DetectKnative()
+		autodetect.DetectRequirements()
 	}
 
 	if common.IsKnativeAvailable() {
@@ -134,6 +134,16 @@ func main() {
 		}).SetupWithManager(mgr); err != nil {
 			setupLog.Error(err, "unable to create controller", "controller", "DimseIngestionService")
 			os.Exit(1)
+		}
+
+		if common.IsDicomEventBridgeAvailable() {
+			if err = (&controllers.DicomEventBridgeReconciler{
+				Client: mgr.GetClient(),
+				Scheme: mgr.GetScheme(),
+			}).SetupWithManager(mgr); err != nil {
+				setupLog.Error(err, "unable to create controller", "controller", "DicomEventBridge")
+				os.Exit(1)
+			}
 		}
 	} else {
 		setupLog.Error(errors.New("Knative Serving or Eventing is not deployed in cluster"), "Deploy Knative Serving and Eventing to enable all APIs")

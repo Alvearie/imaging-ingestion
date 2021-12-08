@@ -24,6 +24,7 @@ type DimseProxyState struct {
 	NatsConfig           *corev1.ConfigMap
 	DimseConfig          *corev1.ConfigMap
 	DimseProxyDeployment *appsv1.Deployment
+	DimseProxyService    *corev1.Service
 }
 
 func NewDimseProxyState() *DimseProxyState {
@@ -56,6 +57,11 @@ func (i *DimseProxyState) Read(context context.Context, cr *v1alpha1.DimseProxy,
 	}
 
 	err = i.readDimseProxyDeploymentCurrentState(context, cr, controllerClient)
+	if err != nil {
+		return err
+	}
+
+	err = i.readDimseProxyServiceCurrentState(context, cr, controllerClient)
 	if err != nil {
 		return err
 	}
@@ -143,6 +149,27 @@ func (i *DimseProxyState) readDimseProxyDeploymentCurrentState(context context.C
 	} else {
 		i.DimseProxyDeployment = service.DeepCopy()
 		cr.UpdateStatusSecondaryResources(i.DimseProxyDeployment.Kind, i.DimseProxyDeployment.Name)
+	}
+
+	return nil
+}
+
+func (i *DimseProxyState) readDimseProxyServiceCurrentState(context context.Context, cr *v1alpha1.DimseProxy, controllerClient client.Client) error {
+	service := model.DimseProxyService(cr)
+	serviceSelector := model.DimseProxyServiceSelector(cr)
+
+	err := controllerClient.Get(context, serviceSelector, service)
+	if err != nil {
+		// If the resource type doesn't exist on the cluster or does exist but is not found
+		if meta.IsNoMatchError(err) || apiErrors.IsNotFound(err) {
+			i.DimseProxyService = nil
+		} else {
+			logger.Error(err, "readDimseProxyServiceCurrentState")
+			return err
+		}
+	} else {
+		i.DimseProxyService = service.DeepCopy()
+		cr.UpdateStatusSecondaryResources(i.DimseProxyService.Kind, i.DimseProxyService.Name)
 	}
 
 	return nil
