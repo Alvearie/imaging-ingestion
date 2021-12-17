@@ -6,6 +6,22 @@ metadata:
       [
         {
           "apiVersion": "imaging-ingestion.alvearie.org/v1alpha1",
+          "kind": "DicomEventBridge",
+          "metadata": {
+            "name": "events"
+          },
+          "spec": {
+            "dicomEventDrivenIngestionName": "core",
+            "eventBridge": {},
+            "natsSecure": true,
+            "natsSubjectRoot": "events",
+            "natsTokenSecret": "nats-events-secure-bound-token",
+            "natsUrl": "jetstream.imaging-ingestion.svc.cluster.local:4222",
+            "role": "hub"
+          }
+        },
+        {
+          "apiVersion": "imaging-ingestion.alvearie.org/v1alpha1",
           "kind": "DicomEventDrivenIngestion",
           "metadata": {
             "name": "core"
@@ -120,7 +136,7 @@ metadata:
     createdAt: "2021-04-08T15:29:55Z"
     description: The Alvearie Imaging Ingestion provides a collection of components
       for extending enterprise medical imaging informatics systems to Kubernetes.
-    operators.operatorframework.io/builder: operator-sdk-v1.10.0
+    operators.operatorframework.io/builder: operator-sdk-v1.15.0
     operators.operatorframework.io/project_layout: go.kubebuilder.io/v3
     repository: https://github.com/Alvearie/imaging-ingestion
     support: alvearie.slack.com
@@ -130,6 +146,67 @@ spec:
   apiservicedefinitions: {}
   customresourcedefinitions:
     owned:
+    - description: DicomEventBridge is the Schema for the dicomeventbridges API
+      displayName: Dicom Event Bridge
+      kind: DicomEventBridge
+      name: dicomeventbridges.imaging-ingestion.alvearie.org
+      resources:
+      - kind: ConfigMap
+        name: ""
+        version: v1
+      - kind: Deployment
+        name: ""
+        version: v1
+      - kind: Service
+        name: ""
+        version: v1
+      specDescriptors:
+      - description: DICOM Event Driven Ingestion Name
+        displayName: Dicom Event Driven Ingestion Name
+        path: dicomEventDrivenIngestionName
+      - description: Event Bridge Deployment Spec
+        displayName: Event Bridge
+        path: eventBridge
+      - description: Image
+        displayName: Image
+        path: eventBridge.image
+      - description: Image Pull Secrets
+        displayName: Image Pull Secrets
+        path: imagePullSecrets
+      - description: Make NATS Connection Secure
+        displayName: Nats Secure
+        path: natsSecure
+      - description: NATS Subject Root
+        displayName: Nats Subject Root
+        path: natsSubjectRoot
+      - description: NATS Token Secret Name
+        displayName: Nats Token Secret Name
+        path: natsTokenSecret
+      - description: NATS URL
+        displayName: Nats URL
+        path: natsUrl
+      - description: Event Bridge Role
+        displayName: Role
+        path: role
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:select:hub
+        - urn:alm:descriptor:com.tectonic.ui:select:edge
+      statusDescriptors:
+      - description: Human-readable message indicating details about current operator
+          phase or error
+        displayName: Message
+        path: message
+      - description: Current phase of the operator
+        displayName: Phase
+        path: phase
+      - description: True if all resources are in a ready state and all work is done
+        displayName: Ready
+        path: ready
+      - description: 'A map of all the secondary resources types and names created
+          for this CR. e.g "Deployment": [ "DeploymentName1", "DeploymentName2" ]'
+        displayName: Secondary Resources
+        path: secondaryResources
+      version: v1alpha1
     - description: Event driven manifest of all DICOM data across all associated S3
         buckets
       displayName: Dicom Event Driven Ingestion
@@ -455,6 +532,9 @@ spec:
       - kind: Deployment
         name: ""
         version: v1
+      - kind: Service
+        name: ""
+        version: v1
       specDescriptors:
       - description: Application Entity Title
         displayName: Application Entity Title
@@ -584,8 +664,8 @@ spec:
                   periodSeconds: 10
                 resources:
                   limits:
-                    cpu: 100m
-                    memory: 30Mi
+                    cpu: 200m
+                    memory: 100Mi
                   requests:
                     cpu: 100m
                     memory: 20Mi
@@ -668,6 +748,18 @@ spec:
           - list
           - watch
         - apiGroups:
+          - ""
+          resources:
+          - services
+          verbs:
+          - create
+          - delete
+          - get
+          - list
+          - patch
+          - update
+          - watch
+        - apiGroups:
           - eventing.knative.dev
           resources:
           - brokers
@@ -691,6 +783,32 @@ spec:
           - patch
           - update
           - watch
+        - apiGroups:
+          - imaging-ingestion.alvearie.org
+          resources:
+          - dicomeventbridges
+          verbs:
+          - create
+          - delete
+          - get
+          - list
+          - patch
+          - update
+          - watch
+        - apiGroups:
+          - imaging-ingestion.alvearie.org
+          resources:
+          - dicomeventbridges/finalizers
+          verbs:
+          - update
+        - apiGroups:
+          - imaging-ingestion.alvearie.org
+          resources:
+          - dicomeventbridges/status
+          verbs:
+          - get
+          - patch
+          - update
         - apiGroups:
           - imaging-ingestion.alvearie.org
           resources:

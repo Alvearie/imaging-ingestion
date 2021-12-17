@@ -20,6 +20,7 @@ func (r *DimseProxyReconciler) reconcileInternal(currentState *DimseProxyState, 
 	desired = desired.AddAction(r.GetNatsConfigDesiredState(currentState, cr))
 	desired = desired.AddAction(r.GetDimseConfigDesiredState(currentState, cr))
 	desired = desired.AddAction(r.GetDimseProxyDeploymentDesiredState(currentState, cr))
+	desired = desired.AddAction(r.GetDimseProxyServiceDesiredState(currentState, cr))
 
 	return desired
 }
@@ -77,5 +78,20 @@ func (i *DimseProxyReconciler) GetDimseProxyDeploymentDesiredState(state *DimseP
 	return common.GenericUpdateAction{
 		Ref: model.DimseProxyDeploymentReconciled(cr, state.DimseProxyDeployment),
 		Msg: "Update DIMSE Proxy Deployment",
+	}
+}
+
+func (i *DimseProxyReconciler) GetDimseProxyServiceDesiredState(state *DimseProxyState, cr *v1alpha1.DimseProxy) common.ControllerAction {
+	service := model.DimseProxyService(cr)
+	if state.DimseProxyService == nil {
+		return common.GenericCreateAction{
+			Ref: service,
+			Msg: "Create DIMSE Proxy Service",
+		}
+	}
+
+	return common.GenericUpdateAction{
+		Ref: model.DimseProxyServiceReconciled(cr, state.DimseProxyService),
+		Msg: "Update DIMSE Proxy Service",
 	}
 }

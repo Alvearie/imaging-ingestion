@@ -4,7 +4,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #-------------------------------------------------------------------------------
 # Build the manager binary
-FROM golang:1.15 as builder
+FROM golang:1.16 as builder
 
 WORKDIR /workspace
 # Copy the Go Modules manifests
@@ -20,6 +20,7 @@ COPY api/ api/
 COPY controllers/ controllers/
 COPY common/ common/
 COPY model/ model/
+COPY reconciler/ reconciler/
 
 # Build
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 GO111MODULE=on go build -a -o manager main.go

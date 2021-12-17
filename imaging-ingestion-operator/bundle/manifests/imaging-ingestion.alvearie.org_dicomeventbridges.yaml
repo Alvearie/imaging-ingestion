@@ -1,19 +1,17 @@
-
----
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.6.1
   creationTimestamp: null
-  name: dimseproxies.imaging-ingestion.alvearie.org
+  name: dicomeventbridges.imaging-ingestion.alvearie.org
 spec:
   group: imaging-ingestion.alvearie.org
   names:
-    kind: DimseProxy
-    listKind: DimseProxyList
-    plural: dimseproxies
-    singular: dimseproxy
+    kind: DicomEventBridge
+    listKind: DicomEventBridgeList
+    plural: dicomeventbridges
+    singular: dicomeventbridge
   scope: Namespaced
   versions:
   - additionalPrinterColumns:
@@ -26,8 +24,7 @@ spec:
     name: v1alpha1
     schema:
       openAPIV3Schema:
-        description: Provides a bidirectional proxied DIMSE Application Entity (AE)
-          in the cluster
+        description: DicomEventBridge is the Schema for the dicomeventbridges API
         properties:
           apiVersion:
             description: 'APIVersion defines the versioned schema of this representation
@@ -42,11 +39,18 @@ spec:
           metadata:
             type: object
           spec:
-            description: DimseProxySpec defines the desired state of DimseProxy
+            description: DicomEventBridgeSpec defines the desired state of DicomEventBridge
             properties:
-              applicationEntityTitle:
-                description: Application Entity Title
+              dicomEventDrivenIngestionName:
+                description: DICOM Event Driven Ingestion Name
                 type: string
+              eventBridge:
+                description: Event Bridge Deployment Spec
+                properties:
+                  image:
+                    description: Image
+                    type: string
+                type: object
               imagePullSecrets:
                 description: Image Pull Secrets
                 items:
@@ -62,9 +66,6 @@ spec:
               natsSecure:
                 description: Make NATS Connection Secure
                 type: boolean
-              natsSubjectChannel:
-                description: NATS Subject Channel to use
-                type: string
               natsSubjectRoot:
                 description: NATS Subject Root
                 type: string
@@ -74,22 +75,15 @@ spec:
               natsUrl:
                 description: NATS URL
                 type: string
-              proxy:
-                description: DIMSE Proxy Spec
-                properties:
-                  image:
-                    description: Image
-                    type: string
-                type: object
-              targetDimseHost:
-                description: Target Dimse Host
+              role:
+                description: Event Bridge Role
                 type: string
-              targetDimsePort:
-                description: Target Dimse Port
-                type: integer
+            required:
+            - dicomEventDrivenIngestionName
+            - role
             type: object
           status:
-            description: DimseProxyStatus defines the observed state of DimseProxy
+            description: DicomEventBridgeStatus defines the observed state of DicomEventBridge
             properties:
               message:
                 description: Human-readable message indicating details about current

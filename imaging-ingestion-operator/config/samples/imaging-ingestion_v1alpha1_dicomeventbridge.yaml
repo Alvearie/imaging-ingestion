@@ -1,0 +1,12 @@
+apiVersion: imaging-ingestion.alvearie.org/v1alpha1
+kind: DicomEventBridge
+metadata:
+  name: events
+spec:
+  natsUrl: jetstream.imaging-ingestion.svc.cluster.local:4222
+  natsSecure: true
+  natsSubjectRoot: events
+  natsTokenSecret: nats-events-secure-bound-token
+  role: hub
+  dicomEventDrivenIngestionName: core
+  eventBridge: {}

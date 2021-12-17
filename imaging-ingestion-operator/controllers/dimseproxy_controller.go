@@ -34,11 +34,11 @@ type DimseProxyReconciler struct {
 //+kubebuilder:rbac:groups=imaging-ingestion.alvearie.org,namespace=system,resources=dimseproxies/status,verbs=get;update;patch
 //+kubebuilder:rbac:groups=imaging-ingestion.alvearie.org,namespace=system,resources=dimseproxies/finalizers,verbs=update
 
-//+kubebuilder:rbac:groups=core,namespace=system,resources=configmaps,verbs=get;list;watch
+//+kubebuilder:rbac:groups=core,namespace=system,resources=configmaps,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=core,namespace=system,resources=secrets,verbs=get;list;watch
 //+kubebuilder:rbac:groups=apps,namespace=system,resources=deployments,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=core,namespace=system,resources=services,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=core,namespace=system,resources=pods,verbs=get;list;
-//+kubebuilder:rbac:groups=serving.knative.dev,namespace=system,resources=services,verbs=get;list;watch;create;update;patch;delete
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.
@@ -132,5 +132,6 @@ func (r *DimseProxyReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Owns(&corev1.ConfigMap{}).
 		Owns(&corev1.Secret{}).
 		Owns(&appsv1.Deployment{}).
+		Owns(&corev1.Service{}).
 		Complete(r)
 }
