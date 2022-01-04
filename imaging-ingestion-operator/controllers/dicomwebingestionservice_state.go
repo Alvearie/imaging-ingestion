@@ -16,6 +16,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	apiErrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/meta"
+	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
 	ksourcesv1 "knative.dev/eventing/pkg/apis/sources/v1"
 	kservingv1 "knative.dev/serving/pkg/apis/serving/v1"
@@ -23,6 +24,9 @@ import (
 )
 
 type DicomwebIngestionServiceState struct {
+	client.Client
+	Scheme *runtime.Scheme
+
 	BucketSecret    *corev1.Secret
 	BucketConfig    *corev1.ConfigMap
 	StowService     *kservingv1.Service
@@ -30,11 +34,14 @@ type DicomwebIngestionServiceState struct {
 	StowSinkBinding *ksourcesv1.SinkBinding
 }
 
-func NewDicomwebIngestionServiceState() *DicomwebIngestionServiceState {
-	return &DicomwebIngestionServiceState{}
+func NewDicomwebIngestionServiceState(client client.Client, scheme *runtime.Scheme) *DicomwebIngestionServiceState {
+	return &DicomwebIngestionServiceState{
+		Client: client,
+		Scheme: scheme,
+	}
 }
 
-func (i *DicomwebIngestionServiceState) IsResourcesReady(cr *v1alpha1.DicomwebIngestionService) (bool, error) {
+func (i *DicomwebIngestionServiceState) IsResourcesReady(resource client.Object) (bool, error) {
 	stowServiceReady, err := common.IsServiceReady(i.StowService)
 	if err != nil {
 		return false, err
@@ -53,28 +60,30 @@ func (i *DicomwebIngestionServiceState) IsResourcesReady(cr *v1alpha1.DicomwebIn
 	return stowServiceReady && wadoServiceReady && stowSinkBindingReady, nil
 }
 
-func (i *DicomwebIngestionServiceState) Read(context context.Context, cr *v1alpha1.DicomwebIngestionService, controllerClient client.Client) error {
-	err := i.readBucketSecretCurrentState(context, cr, controllerClient)
+func (i *DicomwebIngestionServiceState) Read(context context.Context, resource client.Object) error {
+	cr, _ := resource.(*v1alpha1.DicomwebIngestionService)
+
+	err := i.readBucketSecretCurrentState(context, cr)
 	if err != nil {
 		return err
 	}
 
-	err = i.readBucketConfigCurrentState(context, cr, controllerClient)
+	err = i.readBucketConfigCurrentState(context, cr)
 	if err != nil {
 		return err
 	}
 
-	err = i.readStowServiceCurrentState(context, cr, controllerClient)
+	err = i.readStowServiceCurrentState(context, cr)
 	if err != nil {
 		return err
 	}
 
-	err = i.readWadoServiceCurrentState(context, cr, controllerClient)
+	err = i.readWadoServiceCurrentState(context, cr)
 	if err != nil {
 		return err
 	}
 
-	err = i.readStowSinkBindingCurrentState(context, cr, controllerClient)
+	err = i.readStowSinkBindingCurrentState(context, cr)
 	if err != nil {
 		return err
 	}
@@ -82,11 +91,11 @@ func (i *DicomwebIngestionServiceState) Read(context context.Context, cr *v1alph
 	return nil
 }
 
-func (i *DicomwebIngestionServiceState) readBucketSecretCurrentState(context context.Context, cr *v1alpha1.DicomwebIngestionService, controllerClient client.Client) error {
+func (i *DicomwebIngestionServiceState) readBucketSecretCurrentState(context context.Context, cr *v1alpha1.DicomwebIngestionService) error {
 	secret := model.BucketSecret()
 	secretSelector := model.BucketSecretSelector(cr.Spec.BucketSecretName, cr.Namespace)
 
-	err := controllerClient.Get(context, secretSelector, secret)
+	err := i.Client.Get(context, secretSelector, secret)
 	if err != nil {
 		// If the resource type doesn't exist on the cluster or does exist but is not found
 		if meta.IsNoMatchError(err) || apiErrors.IsNotFound(err) {
@@ -102,11 +111,11 @@ func (i *DicomwebIngestionServiceState) readBucketSecretCurrentState(context con
 	return nil
 }
 
-func (i *DicomwebIngestionServiceState) readBucketConfigCurrentState(context context.Context, cr *v1alpha1.DicomwebIngestionService, controllerClient client.Client) error {
+func (i *DicomwebIngestionServiceState) readBucketConfigCurrentState(context context.Context, cr *v1alpha1.DicomwebIngestionService) error {
 	config := model.BucketConfig()
 	configSelector := model.BucketConfigSelector(cr.Spec.BucketConfigName, cr.Namespace)
 
-	err := controllerClient.Get(context, configSelector, config)
+	err := i.Client.Get(context, configSelector, config)
 	if err != nil {
 		// If the resource type doesn't exist on the cluster or does exist but is not found
 		if meta.IsNoMatchError(err) || apiErrors.IsNotFound(err) {
@@ -122,11 +131,11 @@ func (i *DicomwebIngestionServiceState) readBucketConfigCurrentState(context con
 	return nil
 }
 
-func (i *DicomwebIngestionServiceState) readStowServiceCurrentState(context context.Context, cr *v1alpha1.DicomwebIngestionService, controllerClient client.Client) error {
+func (i *DicomwebIngestionServiceState) readStowServiceCurrentState(context context.Context, cr *v1alpha1.DicomwebIngestionService) error {
 	service := model.StowService(cr)
 	serviceSelector := model.StowServiceSelector(cr)
 
-	err := controllerClient.Get(context, serviceSelector, service)
+	err := i.Client.Get(context, serviceSelector, service)
 	if err != nil {
 		// If the resource type doesn't exist on the cluster or does exist but is not found
 		if meta.IsNoMatchError(err) || apiErrors.IsNotFound(err) {
@@ -143,8 +152,8 @@ func (i *DicomwebIngestionServiceState) readStowServiceCurrentState(context cont
 	return nil
 }
 
-func (i *DicomwebIngestionServiceState) readWadoServiceCurrentState(context context.Context, cr *v1alpha1.DicomwebIngestionService, controllerClient client.Client) error {
-	eventDrivenIngestionResource, err := GetEventDrivenIngestionResource(context, types.NamespacedName{Name: cr.Spec.DicomEventDrivenIngestionName, Namespace: cr.Namespace}, controllerClient)
+func (i *DicomwebIngestionServiceState) readWadoServiceCurrentState(context context.Context, cr *v1alpha1.DicomwebIngestionService) error {
+	eventDrivenIngestionResource, err := GetEventDrivenIngestionResource(context, types.NamespacedName{Name: cr.Spec.DicomEventDrivenIngestionName, Namespace: cr.Namespace}, i.Client)
 	if eventDrivenIngestionResource == nil || err != nil {
 		return errors.New("Error getting DicomEventDrivenIngestion")
 	}
@@ -152,7 +161,7 @@ func (i *DicomwebIngestionServiceState) readWadoServiceCurrentState(context cont
 	service := model.WadoService(cr, GetEventProcessorServiceEndpoint(eventDrivenIngestionResource))
 	serviceSelector := model.WadoServiceSelector(cr)
 
-	err = controllerClient.Get(context, serviceSelector, service)
+	err = i.Client.Get(context, serviceSelector, service)
 	if err != nil {
 		// If the resource type doesn't exist on the cluster or does exist but is not found
 		if meta.IsNoMatchError(err) || apiErrors.IsNotFound(err) {
@@ -173,8 +182,8 @@ func (i *DicomwebIngestionServiceState) readWadoServiceCurrentState(context cont
 	return nil
 }
 
-func (i *DicomwebIngestionServiceState) readStowSinkBindingCurrentState(context context.Context, cr *v1alpha1.DicomwebIngestionService, controllerClient client.Client) error {
-	eventDrivenIngestionResource, err := GetEventDrivenIngestionResource(context, types.NamespacedName{Name: cr.Spec.DicomEventDrivenIngestionName, Namespace: cr.Namespace}, controllerClient)
+func (i *DicomwebIngestionServiceState) readStowSinkBindingCurrentState(context context.Context, cr *v1alpha1.DicomwebIngestionService) error {
+	eventDrivenIngestionResource, err := GetEventDrivenIngestionResource(context, types.NamespacedName{Name: cr.Spec.DicomEventDrivenIngestionName, Namespace: cr.Namespace}, i.Client)
 	if eventDrivenIngestionResource == nil || err != nil {
 		return errors.New("Error getting DicomEventDrivenIngestion")
 	}
@@ -182,7 +191,7 @@ func (i *DicomwebIngestionServiceState) readStowSinkBindingCurrentState(context 
 	binding := model.StowSinkBinding(cr, model.GetStowServiceName(cr), model.GetEventBrokerName(eventDrivenIngestionResource.Name))
 	bindingSelector := model.StowSinkBindingSelector(cr)
 
-	err = controllerClient.Get(context, bindingSelector, binding)
+	err = i.Client.Get(context, bindingSelector, binding)
 	if err != nil {
 		// If the resource type doesn't exist on the cluster or does exist but is not found
 		if meta.IsNoMatchError(err) || apiErrors.IsNotFound(err) {

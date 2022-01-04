@@ -97,7 +97,6 @@ func main() {
 	if common.IsKnativeAvailable() {
 		if err = (&controllers.DicomEventDrivenIngestionReconciler{
 			Client: mgr.GetClient(),
-			Log:    ctrl.Log.WithName("controllers").WithName("DicomEventDrivenIngestion"),
 			Scheme: mgr.GetScheme(),
 		}).SetupWithManager(mgr); err != nil {
 			setupLog.Error(err, "unable to create controller", "controller", "DicomEventDrivenIngestion")
@@ -105,7 +104,6 @@ func main() {
 		}
 		if err = (&controllers.DicomwebIngestionServiceReconciler{
 			Client: mgr.GetClient(),
-			Log:    ctrl.Log.WithName("controllers").WithName("DicomwebIngestionService"),
 			Scheme: mgr.GetScheme(),
 		}).SetupWithManager(mgr); err != nil {
 			setupLog.Error(err, "unable to create controller", "controller", "DicomwebIngestionService")
@@ -113,7 +111,6 @@ func main() {
 		}
 		if err = (&controllers.DicomInstanceBindingReconciler{
 			Client: mgr.GetClient(),
-			Log:    ctrl.Log.WithName("controllers").WithName("DicomInstanceBinding"),
 			Scheme: mgr.GetScheme(),
 		}).SetupWithManager(mgr); err != nil {
 			setupLog.Error(err, "unable to create controller", "controller", "DicomInstanceBinding")
@@ -121,7 +118,6 @@ func main() {
 		}
 		if err = (&controllers.DicomStudyBindingReconciler{
 			Client: mgr.GetClient(),
-			Log:    ctrl.Log.WithName("controllers").WithName("DicomStudyBinding"),
 			Scheme: mgr.GetScheme(),
 		}).SetupWithManager(mgr); err != nil {
 			setupLog.Error(err, "unable to create controller", "controller", "DicomStudyBinding")
@@ -129,7 +125,6 @@ func main() {
 		}
 		if err = (&controllers.DimseIngestionServiceReconciler{
 			Client: mgr.GetClient(),
-			Log:    ctrl.Log.WithName("controllers").WithName("DimseIngestionService"),
 			Scheme: mgr.GetScheme(),
 		}).SetupWithManager(mgr); err != nil {
 			setupLog.Error(err, "unable to create controller", "controller", "DimseIngestionService")
@@ -151,7 +146,6 @@ func main() {
 
 	if err = (&controllers.DimseProxyReconciler{
 		Client: mgr.GetClient(),
-		Log:    ctrl.Log.WithName("controllers").WithName("DimseProxy"),
 		Scheme: mgr.GetScheme(),
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "DimseProxy")

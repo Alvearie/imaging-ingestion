@@ -17,11 +17,15 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	apiErrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/meta"
+	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
 type DimseIngestionServiceState struct {
+	client.Client
+	Scheme *runtime.Scheme
+
 	BucketSecret             *corev1.Secret
 	BucketConfig             *corev1.ConfigMap
 	NatsConfig               *corev1.ConfigMap
@@ -29,11 +33,14 @@ type DimseIngestionServiceState struct {
 	DimseIngestionDeployment *appsv1.Deployment
 }
 
-func NewDimseIngestionServiceState() *DimseIngestionServiceState {
-	return &DimseIngestionServiceState{}
+func NewDimseIngestionServiceState(client client.Client, scheme *runtime.Scheme) *DimseIngestionServiceState {
+	return &DimseIngestionServiceState{
+		Client: client,
+		Scheme: scheme,
+	}
 }
 
-func (i *DimseIngestionServiceState) IsResourcesReady(cr *v1alpha1.DimseIngestionService) (bool, error) {
+func (i *DimseIngestionServiceState) IsResourcesReady(resource client.Object) (bool, error) {
 	dimseDeploymentReady, err := common.IsDeploymentReady(i.DimseIngestionDeployment)
 	if err != nil {
 		return false, err
@@ -42,28 +49,30 @@ func (i *DimseIngestionServiceState) IsResourcesReady(cr *v1alpha1.DimseIngestio
 	return dimseDeploymentReady, nil
 }
 
-func (i *DimseIngestionServiceState) Read(context context.Context, cr *v1alpha1.DimseIngestionService, controllerClient client.Client) error {
-	err := i.readBucketSecretCurrentState(context, cr, controllerClient)
+func (i *DimseIngestionServiceState) Read(context context.Context, resource client.Object) error {
+	cr, _ := resource.(*v1alpha1.DimseIngestionService)
+
+	err := i.readBucketSecretCurrentState(context, cr)
 	if err != nil {
 		return err
 	}
 
-	err = i.readBucketConfigCurrentState(context, cr, controllerClient)
+	err = i.readBucketConfigCurrentState(context, cr)
 	if err != nil {
 		return err
 	}
 
-	err = i.readNatsConfigCurrentState(context, cr, controllerClient)
+	err = i.readNatsConfigCurrentState(context, cr)
 	if err != nil {
 		return err
 	}
 
-	err = i.readDimseConfigCurrentState(context, cr, controllerClient)
+	err = i.readDimseConfigCurrentState(context, cr)
 	if err != nil {
 		return err
 	}
 
-	err = i.readDimseServiceCurrentState(context, cr, controllerClient)
+	err = i.readDimseServiceCurrentState(context, cr)
 	if err != nil {
 		return err
 	}
@@ -71,11 +80,11 @@ func (i *DimseIngestionServiceState) Read(context context.Context, cr *v1alpha1.
 	return nil
 }
 
-func (i *DimseIngestionServiceState) readBucketSecretCurrentState(context context.Context, cr *v1alpha1.DimseIngestionService, controllerClient client.Client) error {
+func (i *DimseIngestionServiceState) readBucketSecretCurrentState(context context.Context, cr *v1alpha1.DimseIngestionService) error {
 	secret := model.BucketSecret()
 	secretSelector := model.BucketSecretSelector(cr.Spec.BucketSecretName, cr.Namespace)
 
-	err := controllerClient.Get(context, secretSelector, secret)
+	err := i.Client.Get(context, secretSelector, secret)
 	if err != nil {
 		// If the resource type doesn't exist on the cluster or does exist but is not found
 		if meta.IsNoMatchError(err) || apiErrors.IsNotFound(err) {
@@ -91,11 +100,11 @@ func (i *DimseIngestionServiceState) readBucketSecretCurrentState(context contex
 	return nil
 }
 
-func (i *DimseIngestionServiceState) readBucketConfigCurrentState(context context.Context, cr *v1alpha1.DimseIngestionService, controllerClient client.Client) error {
+func (i *DimseIngestionServiceState) readBucketConfigCurrentState(context context.Context, cr *v1alpha1.DimseIngestionService) error {
 	config := model.BucketConfig()
 	configSelector := model.BucketConfigSelector(cr.Spec.BucketConfigName, cr.Namespace)
 
-	err := controllerClient.Get(context, configSelector, config)
+	err := i.Client.Get(context, configSelector, config)
 	if err != nil {
 		// If the resource type doesn't exist on the cluster or does exist but is not found
 		if meta.IsNoMatchError(err) || apiErrors.IsNotFound(err) {
@@ -111,11 +120,11 @@ func (i *DimseIngestionServiceState) readBucketConfigCurrentState(context contex
 	return nil
 }
 
-func (i *DimseIngestionServiceState) readNatsConfigCurrentState(context context.Context, cr *v1alpha1.DimseIngestionService, controllerClient client.Client) error {
+func (i *DimseIngestionServiceState) readNatsConfigCurrentState(context context.Context, cr *v1alpha1.DimseIngestionService) error {
 	config := model.DimseIngestionNatsConfig(cr)
 	configSelector := model.DimseIngestionNatsConfigSelector(cr)
 
-	err := controllerClient.Get(context, configSelector, config)
+	err := i.Client.Get(context, configSelector, config)
 	if err != nil {
 		// If the resource type doesn't exist on the cluster or does exist but is not found
 		if meta.IsNoMatchError(err) || apiErrors.IsNotFound(err) {
@@ -131,11 +140,11 @@ func (i *DimseIngestionServiceState) readNatsConfigCurrentState(context context.
 	return nil
 }
 
-func (i *DimseIngestionServiceState) readDimseConfigCurrentState(context context.Context, cr *v1alpha1.DimseIngestionService, controllerClient client.Client) error {
+func (i *DimseIngestionServiceState) readDimseConfigCurrentState(context context.Context, cr *v1alpha1.DimseIngestionService) error {
 	config := model.DimseConfig(model.GetDimseIngestionConfigName(cr.Name), cr.Namespace)
 	configSelector := model.DimseConfigSelector(model.GetDimseIngestionConfigName(cr.Name), cr.Namespace)
 
-	err := controllerClient.Get(context, configSelector, config)
+	err := i.Client.Get(context, configSelector, config)
 	if err != nil {
 		// If the resource type doesn't exist on the cluster or does exist but is not found
 		if meta.IsNoMatchError(err) || apiErrors.IsNotFound(err) {
@@ -151,8 +160,8 @@ func (i *DimseIngestionServiceState) readDimseConfigCurrentState(context context
 	return nil
 }
 
-func (i *DimseIngestionServiceState) readDimseServiceCurrentState(context context.Context, cr *v1alpha1.DimseIngestionService, controllerClient client.Client) error {
-	eventDrivenIngestionResource, err := GetEventDrivenIngestionResource(context, types.NamespacedName{Name: cr.Spec.DicomEventDrivenIngestionName, Namespace: cr.Namespace}, controllerClient)
+func (i *DimseIngestionServiceState) readDimseServiceCurrentState(context context.Context, cr *v1alpha1.DimseIngestionService) error {
+	eventDrivenIngestionResource, err := GetEventDrivenIngestionResource(context, types.NamespacedName{Name: cr.Spec.DicomEventDrivenIngestionName, Namespace: cr.Namespace}, i.Client)
 	if eventDrivenIngestionResource == nil || err != nil {
 		return errors.New("Error getting DicomEventDrivenIngestion")
 	}
@@ -161,7 +170,7 @@ func (i *DimseIngestionServiceState) readDimseServiceCurrentState(context contex
 	service := model.DimseIngestionDeployment(cr, brokerEndpoint)
 	serviceSelector := model.DimseIngestionDeploymentSelector(cr)
 
-	err = controllerClient.Get(context, serviceSelector, service)
+	err = i.Client.Get(context, serviceSelector, service)
 	if err != nil {
 		// If the resource type doesn't exist on the cluster or does exist but is not found
 		if meta.IsNoMatchError(err) || apiErrors.IsNotFound(err) {

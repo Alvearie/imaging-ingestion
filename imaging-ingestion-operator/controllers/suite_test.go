@@ -99,42 +99,36 @@ var _ = BeforeSuite(func() {
 	err = (&DicomEventDrivenIngestionReconciler{
 		Client: k8sManager.GetClient(),
 		Scheme: k8sManager.GetScheme(),
-		Log:    ctrl.Log.WithName("controllers").WithName("DicomEventDrivenIngestion"),
 	}).SetupWithManager(k8sManager)
 	Expect(err).ToNot(HaveOccurred())
 
 	err = (&DicomwebIngestionServiceReconciler{
 		Client: k8sManager.GetClient(),
 		Scheme: k8sManager.GetScheme(),
-		Log:    ctrl.Log.WithName("controllers").WithName("DicomwebIngestionService"),
 	}).SetupWithManager(k8sManager)
 	Expect(err).ToNot(HaveOccurred())
 
 	err = (&DicomInstanceBindingReconciler{
 		Client: k8sManager.GetClient(),
 		Scheme: k8sManager.GetScheme(),
-		Log:    ctrl.Log.WithName("controllers").WithName("DicomInstanceBinding"),
 	}).SetupWithManager(k8sManager)
 	Expect(err).ToNot(HaveOccurred())
 
 	err = (&DicomStudyBindingReconciler{
 		Client: k8sManager.GetClient(),
 		Scheme: k8sManager.GetScheme(),
-		Log:    ctrl.Log.WithName("controllers").WithName("DicomStudyBinding"),
 	}).SetupWithManager(k8sManager)
 	Expect(err).ToNot(HaveOccurred())
 
 	err = (&DimseIngestionServiceReconciler{
 		Client: k8sManager.GetClient(),
 		Scheme: k8sManager.GetScheme(),
-		Log:    ctrl.Log.WithName("controllers").WithName("DimseIngestionService"),
 	}).SetupWithManager(k8sManager)
 	Expect(err).ToNot(HaveOccurred())
 
 	err = (&DimseProxyReconciler{
 		Client: k8sManager.GetClient(),
 		Scheme: k8sManager.GetScheme(),
-		Log:    ctrl.Log.WithName("controllers").WithName("DimseProxy"),
 	}).SetupWithManager(k8sManager)
 	Expect(err).ToNot(HaveOccurred())
 

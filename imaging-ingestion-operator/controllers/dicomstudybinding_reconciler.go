@@ -16,7 +16,7 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 )
 
-func (r *DicomStudyBindingReconciler) reconcileInternal(currentState *DicomStudyBindingState, cr *v1alpha1.DicomStudyBinding) common.DesiredResourceState {
+func (r *DicomStudyBindingReconciler) GetDesiredState(currentState *DicomStudyBindingState, cr *v1alpha1.DicomStudyBinding) common.DesiredResourceState {
 	desired := common.DesiredResourceState{}
 	desired = desired.AddAction(r.GetStudyBindingSecretDesiredState(currentState, cr))
 	desired = desired.AddAction(r.GetStudyBindingConfigDesiredState(currentState, cr))

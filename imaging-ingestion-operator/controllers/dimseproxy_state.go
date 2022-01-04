@@ -16,10 +16,14 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	apiErrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/meta"
+	"k8s.io/apimachinery/pkg/runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
 type DimseProxyState struct {
+	client.Client
+	Scheme *runtime.Scheme
+
 	NatsTokenSecret      *corev1.Secret
 	NatsConfig           *corev1.ConfigMap
 	DimseConfig          *corev1.ConfigMap
@@ -27,11 +31,14 @@ type DimseProxyState struct {
 	DimseProxyService    *corev1.Service
 }
 
-func NewDimseProxyState() *DimseProxyState {
-	return &DimseProxyState{}
+func NewDimseProxyState(client client.Client, scheme *runtime.Scheme) *DimseProxyState {
+	return &DimseProxyState{
+		Client: client,
+		Scheme: scheme,
+	}
 }
 
-func (i *DimseProxyState) IsResourcesReady(cr *v1alpha1.DimseProxy) (bool, error) {
+func (i *DimseProxyState) IsResourcesReady(resource client.Object) (bool, error) {
 	dimseDeploymentReady, err := common.IsDeploymentReady(i.DimseProxyDeployment)
 	if err != nil {
 		return false, err
@@ -40,28 +47,30 @@ func (i *DimseProxyState) IsResourcesReady(cr *v1alpha1.DimseProxy) (bool, error
 	return dimseDeploymentReady, nil
 }
 
-func (i *DimseProxyState) Read(context context.Context, cr *v1alpha1.DimseProxy, controllerClient client.Client) error {
-	err := i.readNatsTokenSecretCurrentState(context, cr, controllerClient)
+func (i *DimseProxyState) Read(context context.Context, resource client.Object) error {
+	cr, _ := resource.(*v1alpha1.DimseProxy)
+
+	err := i.readNatsTokenSecretCurrentState(context, cr)
 	if err != nil {
 		return err
 	}
 
-	err = i.readNatsConfigCurrentState(context, cr, controllerClient)
+	err = i.readNatsConfigCurrentState(context, cr)
 	if err != nil {
 		return err
 	}
 
-	err = i.readDimseConfigCurrentState(context, cr, controllerClient)
+	err = i.readDimseConfigCurrentState(context, cr)
 	if err != nil {
 		return err
 	}
 
-	err = i.readDimseProxyDeploymentCurrentState(context, cr, controllerClient)
+	err = i.readDimseProxyDeploymentCurrentState(context, cr)
 	if err != nil {
 		return err
 	}
 
-	err = i.readDimseProxyServiceCurrentState(context, cr, controllerClient)
+	err = i.readDimseProxyServiceCurrentState(context, cr)
 	if err != nil {
 		return err
 	}
@@ -69,7 +78,7 @@ func (i *DimseProxyState) Read(context context.Context, cr *v1alpha1.DimseProxy,
 	return nil
 }
 
-func (i *DimseProxyState) readNatsTokenSecretCurrentState(context context.Context, cr *v1alpha1.DimseProxy, controllerClient client.Client) error {
+func (i *DimseProxyState) readNatsTokenSecretCurrentState(context context.Context, cr *v1alpha1.DimseProxy) error {
 	if cr.Spec.NatsTokenSecretName == "" {
 		return nil
 	}
@@ -77,7 +86,7 @@ func (i *DimseProxyState) readNatsTokenSecretCurrentState(context context.Contex
 	secret := model.NatsTokenSecret()
 	secretSelector := model.NatsTokenSecretSelector(cr.Spec.NatsTokenSecretName, cr.Namespace)
 
-	err := controllerClient.Get(context, secretSelector, secret)
+	err := i.Client.Get(context, secretSelector, secret)
 	if err != nil {
 		// If the resource type doesn't exist on the cluster or does exist but is not found
 		if meta.IsNoMatchError(err) || apiErrors.IsNotFound(err) {
@@ -93,11 +102,11 @@ func (i *DimseProxyState) readNatsTokenSecretCurrentState(context context.Contex
 	return nil
 }
 
-func (i *DimseProxyState) readNatsConfigCurrentState(context context.Context, cr *v1alpha1.DimseProxy, controllerClient client.Client) error {
+func (i *DimseProxyState) readNatsConfigCurrentState(context context.Context, cr *v1alpha1.DimseProxy) error {
 	config := model.DimseProxyNatsConfig(cr)
 	configSelector := model.DimseProxyNatsConfigSelector(cr)
 
-	err := controllerClient.Get(context, configSelector, config)
+	err := i.Client.Get(context, configSelector, config)
 	if err != nil {
 		// If the resource type doesn't exist on the cluster or does exist but is not found
 		if meta.IsNoMatchError(err) || apiErrors.IsNotFound(err) {
@@ -113,11 +122,11 @@ func (i *DimseProxyState) readNatsConfigCurrentState(context context.Context, cr
 	return nil
 }
 
-func (i *DimseProxyState) readDimseConfigCurrentState(context context.Context, cr *v1alpha1.DimseProxy, controllerClient client.Client) error {
+func (i *DimseProxyState) readDimseConfigCurrentState(context context.Context, cr *v1alpha1.DimseProxy) error {
 	config := model.DimseConfig(model.GetDimseProxyConfigName(cr.Name), cr.Namespace)
 	configSelector := model.DimseConfigSelector(model.GetDimseProxyConfigName(cr.Name), cr.Namespace)
 
-	err := controllerClient.Get(context, configSelector, config)
+	err := i.Client.Get(context, configSelector, config)
 	if err != nil {
 		// If the resource type doesn't exist on the cluster or does exist but is not found
 		if meta.IsNoMatchError(err) || apiErrors.IsNotFound(err) {
@@ -133,11 +142,11 @@ func (i *DimseProxyState) readDimseConfigCurrentState(context context.Context, c
 	return nil
 }
 
-func (i *DimseProxyState) readDimseProxyDeploymentCurrentState(context context.Context, cr *v1alpha1.DimseProxy, controllerClient client.Client) error {
+func (i *DimseProxyState) readDimseProxyDeploymentCurrentState(context context.Context, cr *v1alpha1.DimseProxy) error {
 	service := model.DimseProxyDeployment(cr)
 	serviceSelector := model.DimseProxyDeploymentSelector(cr)
 
-	err := controllerClient.Get(context, serviceSelector, service)
+	err := i.Client.Get(context, serviceSelector, service)
 	if err != nil {
 		// If the resource type doesn't exist on the cluster or does exist but is not found
 		if meta.IsNoMatchError(err) || apiErrors.IsNotFound(err) {
@@ -154,11 +163,11 @@ func (i *DimseProxyState) readDimseProxyDeploymentCurrentState(context context.C
 	return nil
 }
 
-func (i *DimseProxyState) readDimseProxyServiceCurrentState(context context.Context, cr *v1alpha1.DimseProxy, controllerClient client.Client) error {
+func (i *DimseProxyState) readDimseProxyServiceCurrentState(context context.Context, cr *v1alpha1.DimseProxy) error {
 	service := model.DimseProxyService(cr)
 	serviceSelector := model.DimseProxyServiceSelector(cr)
 
-	err := controllerClient.Get(context, serviceSelector, service)
+	err := i.Client.Get(context, serviceSelector, service)
 	if err != nil {
 		// If the resource type doesn't exist on the cluster or does exist but is not found
 		if meta.IsNoMatchError(err) || apiErrors.IsNotFound(err) {

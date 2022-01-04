@@ -14,7 +14,7 @@ import (
 	"github.com/Alvearie/imaging-ingestion/imaging-ingestion-operator/model"
 )
 
-func (r *DicomEventDrivenIngestionReconciler) reconcileInternal(currentState *DicomEventDrivenIngestionState, cr *v1alpha1.DicomEventDrivenIngestion) common.DesiredResourceState {
+func (r *DicomEventDrivenIngestionReconciler) GetDesiredState(currentState *DicomEventDrivenIngestionState, cr *v1alpha1.DicomEventDrivenIngestion) common.DesiredResourceState {
 	desired := common.DesiredResourceState{}
 	desired = desired.AddAction(r.GetDatabaseSecretDesiredState(currentState, cr))
 	desired = desired.AddAction(r.GetDatabaseConfigDesiredState(currentState, cr))

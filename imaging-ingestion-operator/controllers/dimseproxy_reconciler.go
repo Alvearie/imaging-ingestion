@@ -14,7 +14,7 @@ import (
 	"github.com/Alvearie/imaging-ingestion/imaging-ingestion-operator/model"
 )
 
-func (r *DimseProxyReconciler) reconcileInternal(currentState *DimseProxyState, cr *v1alpha1.DimseProxy) common.DesiredResourceState {
+func (r *DimseProxyReconciler) GetDesiredState(currentState *DimseProxyState, cr *v1alpha1.DimseProxy) common.DesiredResourceState {
 	desired := common.DesiredResourceState{}
 	desired = desired.AddAction(r.GetNatsTokenSecretDesiredState(currentState, cr))
 	desired = desired.AddAction(r.GetNatsConfigDesiredState(currentState, cr))
