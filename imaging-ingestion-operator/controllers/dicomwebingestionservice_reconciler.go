@@ -16,7 +16,7 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 )
 
-func (r *DicomwebIngestionServiceReconciler) reconcileInternal(currentState *DicomwebIngestionServiceState, cr *v1alpha1.DicomwebIngestionService) common.DesiredResourceState {
+func (r *DicomwebIngestionServiceReconciler) GetDesiredState(currentState *DicomwebIngestionServiceState, cr *v1alpha1.DicomwebIngestionService) common.DesiredResourceState {
 	desired := common.DesiredResourceState{}
 	desired = desired.AddAction(r.GetBucketSecretDesiredState(currentState, cr))
 	desired = desired.AddAction(r.GetBucketConfigDesiredState(currentState, cr))

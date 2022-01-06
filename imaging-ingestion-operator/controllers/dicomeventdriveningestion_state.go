@@ -13,6 +13,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	apiErrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/meta"
+	"k8s.io/apimachinery/pkg/runtime"
 	keventingv1 "knative.dev/eventing/pkg/apis/eventing/v1"
 	kservingv1 "knative.dev/serving/pkg/apis/serving/v1"
 
@@ -23,6 +24,9 @@ import (
 )
 
 type DicomEventDrivenIngestionState struct {
+	client.Client
+	Scheme *runtime.Scheme
+
 	DatabaseSecret        *corev1.Secret
 	DatabaseConfig        *corev1.ConfigMap
 	EventProcessorService *kservingv1.Service
@@ -30,11 +34,14 @@ type DicomEventDrivenIngestionState struct {
 	ImageStoredTrigger    *keventingv1.Trigger
 }
 
-func NewDicomEventDrivenIngestionState() *DicomEventDrivenIngestionState {
-	return &DicomEventDrivenIngestionState{}
+func NewDicomEventDrivenIngestionState(client client.Client, scheme *runtime.Scheme) *DicomEventDrivenIngestionState {
+	return &DicomEventDrivenIngestionState{
+		Client: client,
+		Scheme: scheme,
+	}
 }
 
-func (i *DicomEventDrivenIngestionState) IsResourcesReady(cr *v1alpha1.DicomEventDrivenIngestion) (bool, error) {
+func (i *DicomEventDrivenIngestionState) IsResourcesReady(resource client.Object) (bool, error) {
 	eventDrivenIngestionReady, err := common.IsServiceReady(i.EventProcessorService)
 	if err != nil {
 		return false, err
@@ -53,32 +60,34 @@ func (i *DicomEventDrivenIngestionState) IsResourcesReady(cr *v1alpha1.DicomEven
 	return eventDrivenIngestionReady && eventBrokerReady && imageStoredTriggerReady, nil
 }
 
-func (i *DicomEventDrivenIngestionState) Read(context context.Context, cr *v1alpha1.DicomEventDrivenIngestion, controllerClient client.Client) error {
+func (i *DicomEventDrivenIngestionState) Read(context context.Context, resource client.Object) error {
+	cr, _ := resource.(*v1alpha1.DicomEventDrivenIngestion)
+
 	if !common.IsKnativeAvailable() {
 		return errors.New("Knative serving or eventing not installed in cluster")
 	}
 
-	err := i.readDatabaseSecretCurrentState(context, cr, controllerClient)
+	err := i.readDatabaseSecretCurrentState(context, cr)
 	if err != nil {
 		return err
 	}
 
-	err = i.readDatabaseConfigCurrentState(context, cr, controllerClient)
+	err = i.readDatabaseConfigCurrentState(context, cr)
 	if err != nil {
 		return err
 	}
 
-	err = i.readEventProcessorServiceCurrentState(context, cr, controllerClient)
+	err = i.readEventProcessorServiceCurrentState(context, cr)
 	if err != nil {
 		return err
 	}
 
-	err = i.readEventBrokerCurrentState(context, cr, controllerClient)
+	err = i.readEventBrokerCurrentState(context, cr)
 	if err != nil {
 		return err
 	}
 
-	err = i.readImageStoredTriggerCurrentState(context, cr, controllerClient)
+	err = i.readImageStoredTriggerCurrentState(context, cr)
 	if err != nil {
 		return err
 	}
@@ -86,11 +95,11 @@ func (i *DicomEventDrivenIngestionState) Read(context context.Context, cr *v1alp
 	return nil
 }
 
-func (i *DicomEventDrivenIngestionState) readDatabaseSecretCurrentState(context context.Context, cr *v1alpha1.DicomEventDrivenIngestion, controllerClient client.Client) error {
+func (i *DicomEventDrivenIngestionState) readDatabaseSecretCurrentState(context context.Context, cr *v1alpha1.DicomEventDrivenIngestion) error {
 	secret := model.DatabaseSecret(cr)
 	secretSelector := model.DatabaseSecretSelector(cr)
 
-	err := controllerClient.Get(context, secretSelector, secret)
+	err := i.Client.Get(context, secretSelector, secret)
 	if err != nil {
 		// If the resource type doesn't exist on the cluster or does exist but is not found
 		if meta.IsNoMatchError(err) || apiErrors.IsNotFound(err) {
@@ -106,11 +115,11 @@ func (i *DicomEventDrivenIngestionState) readDatabaseSecretCurrentState(context 
 	return nil
 }
 
-func (i *DicomEventDrivenIngestionState) readDatabaseConfigCurrentState(context context.Context, cr *v1alpha1.DicomEventDrivenIngestion, controllerClient client.Client) error {
+func (i *DicomEventDrivenIngestionState) readDatabaseConfigCurrentState(context context.Context, cr *v1alpha1.DicomEventDrivenIngestion) error {
 	config := model.DatabaseConfig(cr)
 	configSelector := model.DatabaseConfigSelector(cr)
 
-	err := controllerClient.Get(context, configSelector, config)
+	err := i.Client.Get(context, configSelector, config)
 	if err != nil {
 		// If the resource type doesn't exist on the cluster or does exist but is not found
 		if meta.IsNoMatchError(err) || apiErrors.IsNotFound(err) {
@@ -126,11 +135,11 @@ func (i *DicomEventDrivenIngestionState) readDatabaseConfigCurrentState(context 
 	return nil
 }
 
-func (i *DicomEventDrivenIngestionState) readEventProcessorServiceCurrentState(context context.Context, cr *v1alpha1.DicomEventDrivenIngestion, controllerClient client.Client) error {
+func (i *DicomEventDrivenIngestionState) readEventProcessorServiceCurrentState(context context.Context, cr *v1alpha1.DicomEventDrivenIngestion) error {
 	service := model.EventProcessorService(cr)
 	serviceSelector := model.EventProcessorServiceSelector(cr)
 
-	err := controllerClient.Get(context, serviceSelector, service)
+	err := i.Client.Get(context, serviceSelector, service)
 	if err != nil {
 		// If the resource type doesn't exist on the cluster or does exist but is not found
 		if meta.IsNoMatchError(err) || apiErrors.IsNotFound(err) {
@@ -151,11 +160,11 @@ func (i *DicomEventDrivenIngestionState) readEventProcessorServiceCurrentState(c
 	return nil
 }
 
-func (i *DicomEventDrivenIngestionState) readEventBrokerCurrentState(context context.Context, cr *v1alpha1.DicomEventDrivenIngestion, controllerClient client.Client) error {
+func (i *DicomEventDrivenIngestionState) readEventBrokerCurrentState(context context.Context, cr *v1alpha1.DicomEventDrivenIngestion) error {
 	broker := model.EventBroker(cr)
 	brokerSelector := model.EventBrokerSelector(cr)
 
-	err := controllerClient.Get(context, brokerSelector, broker)
+	err := i.Client.Get(context, brokerSelector, broker)
 	if err != nil {
 		// If the resource type doesn't exist on the cluster or does exist but is not found
 		if meta.IsNoMatchError(err) || apiErrors.IsNotFound(err) {
@@ -175,11 +184,11 @@ func (i *DicomEventDrivenIngestionState) readEventBrokerCurrentState(context con
 	return nil
 }
 
-func (i *DicomEventDrivenIngestionState) readImageStoredTriggerCurrentState(context context.Context, cr *v1alpha1.DicomEventDrivenIngestion, controllerClient client.Client) error {
+func (i *DicomEventDrivenIngestionState) readImageStoredTriggerCurrentState(context context.Context, cr *v1alpha1.DicomEventDrivenIngestion) error {
 	trigger := model.ImageStoredTrigger(cr)
 	triggerSelector := model.ImageStoredTriggerSelector(cr)
 
-	err := controllerClient.Get(context, triggerSelector, trigger)
+	err := i.Client.Get(context, triggerSelector, trigger)
 	if err != nil {
 		// If the resource type doesn't exist on the cluster or does exist but is not found
 		if meta.IsNoMatchError(err) || apiErrors.IsNotFound(err) {

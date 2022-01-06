@@ -16,6 +16,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	apiErrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/meta"
+	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
 	keventingv1 "knative.dev/eventing/pkg/apis/eventing/v1"
 	ksourcesv1 "knative.dev/eventing/pkg/apis/sources/v1"
@@ -24,6 +25,9 @@ import (
 )
 
 type DicomStudyBindingState struct {
+	client.Client
+	Scheme *runtime.Scheme
+
 	StudyBindingSecret      *corev1.Secret
 	StudyBindingConfig      *corev1.ConfigMap
 	StudyBindingService     *kservingv1.Service
@@ -31,11 +35,14 @@ type DicomStudyBindingState struct {
 	StudyBindingTrigger     *keventingv1.Trigger
 }
 
-func NewDicomStudyBindingState() *DicomStudyBindingState {
-	return &DicomStudyBindingState{}
+func NewDicomStudyBindingState(client client.Client, scheme *runtime.Scheme) *DicomStudyBindingState {
+	return &DicomStudyBindingState{
+		Client: client,
+		Scheme: scheme,
+	}
 }
 
-func (i *DicomStudyBindingState) IsResourcesReady(cr *v1alpha1.DicomStudyBinding) (bool, error) {
+func (i *DicomStudyBindingState) IsResourcesReady(resource client.Object) (bool, error) {
 	dimseServiceReady, err := common.IsServiceReady(i.StudyBindingService)
 	if err != nil {
 		return false, err
@@ -54,28 +61,30 @@ func (i *DicomStudyBindingState) IsResourcesReady(cr *v1alpha1.DicomStudyBinding
 	return dimseServiceReady && studyBindingSinkBindingReady && studyBindingTriggerReady, nil
 }
 
-func (i *DicomStudyBindingState) Read(context context.Context, cr *v1alpha1.DicomStudyBinding, controllerClient client.Client) error {
-	err := i.readStudyBindingSecretCurrentState(context, cr, controllerClient)
+func (i *DicomStudyBindingState) Read(context context.Context, resource client.Object) error {
+	cr, _ := resource.(*v1alpha1.DicomStudyBinding)
+
+	err := i.readStudyBindingSecretCurrentState(context, cr)
 	if err != nil {
 		return err
 	}
 
-	err = i.readStudyBindingConfigCurrentState(context, cr, controllerClient)
+	err = i.readStudyBindingConfigCurrentState(context, cr)
 	if err != nil {
 		return err
 	}
 
-	err = i.readStudyBindingServiceCurrentState(context, cr, controllerClient)
+	err = i.readStudyBindingServiceCurrentState(context, cr)
 	if err != nil {
 		return err
 	}
 
-	err = i.readStudyBindingSinkBindingCurrentState(context, cr, controllerClient)
+	err = i.readStudyBindingSinkBindingCurrentState(context, cr)
 	if err != nil {
 		return err
 	}
 
-	err = i.readStudyBindingTriggerCurrentState(context, cr, controllerClient)
+	err = i.readStudyBindingTriggerCurrentState(context, cr)
 	if err != nil {
 		return err
 	}
@@ -83,11 +92,11 @@ func (i *DicomStudyBindingState) Read(context context.Context, cr *v1alpha1.Dico
 	return nil
 }
 
-func (i *DicomStudyBindingState) readStudyBindingSecretCurrentState(context context.Context, cr *v1alpha1.DicomStudyBinding, controllerClient client.Client) error {
+func (i *DicomStudyBindingState) readStudyBindingSecretCurrentState(context context.Context, cr *v1alpha1.DicomStudyBinding) error {
 	secret := model.StudyBindingSecret(cr)
 	secretSelector := model.StudyBindingSecretSelector(cr)
 
-	err := controllerClient.Get(context, secretSelector, secret)
+	err := i.Client.Get(context, secretSelector, secret)
 	if err != nil {
 		// If the resource type doesn't exist on the cluster or does exist but is not found
 		if meta.IsNoMatchError(err) || apiErrors.IsNotFound(err) {
@@ -103,11 +112,11 @@ func (i *DicomStudyBindingState) readStudyBindingSecretCurrentState(context cont
 	return nil
 }
 
-func (i *DicomStudyBindingState) readStudyBindingConfigCurrentState(context context.Context, cr *v1alpha1.DicomStudyBinding, controllerClient client.Client) error {
+func (i *DicomStudyBindingState) readStudyBindingConfigCurrentState(context context.Context, cr *v1alpha1.DicomStudyBinding) error {
 	config := model.StudyBindingConfig(cr)
 	configSelector := model.StudyBindingConfigSelector(cr)
 
-	err := controllerClient.Get(context, configSelector, config)
+	err := i.Client.Get(context, configSelector, config)
 	if err != nil {
 		// If the resource type doesn't exist on the cluster or does exist but is not found
 		if meta.IsNoMatchError(err) || apiErrors.IsNotFound(err) {
@@ -123,11 +132,11 @@ func (i *DicomStudyBindingState) readStudyBindingConfigCurrentState(context cont
 	return nil
 }
 
-func (i *DicomStudyBindingState) readStudyBindingServiceCurrentState(context context.Context, cr *v1alpha1.DicomStudyBinding, controllerClient client.Client) error {
+func (i *DicomStudyBindingState) readStudyBindingServiceCurrentState(context context.Context, cr *v1alpha1.DicomStudyBinding) error {
 	service := model.StudyBindingService(cr)
 	serviceSelector := model.StudyBindingServiceSelector(cr)
 
-	err := controllerClient.Get(context, serviceSelector, service)
+	err := i.Client.Get(context, serviceSelector, service)
 	if err != nil {
 		// If the resource type doesn't exist on the cluster or does exist but is not found
 		if meta.IsNoMatchError(err) || apiErrors.IsNotFound(err) {
@@ -144,8 +153,8 @@ func (i *DicomStudyBindingState) readStudyBindingServiceCurrentState(context con
 	return nil
 }
 
-func (i *DicomStudyBindingState) readStudyBindingSinkBindingCurrentState(context context.Context, cr *v1alpha1.DicomStudyBinding, controllerClient client.Client) error {
-	eventDrivenIngestionResource, err := GetEventDrivenIngestionResource(context, types.NamespacedName{Name: cr.Spec.DicomEventDrivenIngestionName, Namespace: cr.Namespace}, controllerClient)
+func (i *DicomStudyBindingState) readStudyBindingSinkBindingCurrentState(context context.Context, cr *v1alpha1.DicomStudyBinding) error {
+	eventDrivenIngestionResource, err := GetEventDrivenIngestionResource(context, types.NamespacedName{Name: cr.Spec.DicomEventDrivenIngestionName, Namespace: cr.Namespace}, i.Client)
 	if eventDrivenIngestionResource == nil || err != nil {
 		return errors.New("Error getting DicomEventDrivenIngestion")
 	}
@@ -153,7 +162,7 @@ func (i *DicomStudyBindingState) readStudyBindingSinkBindingCurrentState(context
 	binding := model.StudyBindingSinkBinding(cr, model.GetEventProcessorServiceName(eventDrivenIngestionResource.Name), model.GetEventBrokerName(eventDrivenIngestionResource.Name))
 	bindingSelector := model.StudyBindingSinkBindingSelector(cr)
 
-	err = controllerClient.Get(context, bindingSelector, binding)
+	err = i.Client.Get(context, bindingSelector, binding)
 	if err != nil {
 		// If the resource type doesn't exist on the cluster or does exist but is not found
 		if meta.IsNoMatchError(err) || apiErrors.IsNotFound(err) {
@@ -170,8 +179,8 @@ func (i *DicomStudyBindingState) readStudyBindingSinkBindingCurrentState(context
 	return nil
 }
 
-func (i *DicomStudyBindingState) readStudyBindingTriggerCurrentState(context context.Context, cr *v1alpha1.DicomStudyBinding, controllerClient client.Client) error {
-	eventDrivenIngestionResource, err := GetEventDrivenIngestionResource(context, types.NamespacedName{Name: cr.Spec.DicomEventDrivenIngestionName, Namespace: cr.Namespace}, controllerClient)
+func (i *DicomStudyBindingState) readStudyBindingTriggerCurrentState(context context.Context, cr *v1alpha1.DicomStudyBinding) error {
+	eventDrivenIngestionResource, err := GetEventDrivenIngestionResource(context, types.NamespacedName{Name: cr.Spec.DicomEventDrivenIngestionName, Namespace: cr.Namespace}, i.Client)
 	if eventDrivenIngestionResource == nil || err != nil {
 		return errors.New("Error getting DicomEventDrivenIngestion")
 	}
@@ -179,7 +188,7 @@ func (i *DicomStudyBindingState) readStudyBindingTriggerCurrentState(context con
 	trigger := model.StudyBindingTrigger(cr, model.GetEventBrokerName(eventDrivenIngestionResource.Name))
 	triggerSelector := model.StudyBindingTriggerSelector(cr)
 
-	err = controllerClient.Get(context, triggerSelector, trigger)
+	err = i.Client.Get(context, triggerSelector, trigger)
 	if err != nil {
 		// If the resource type doesn't exist on the cluster or does exist but is not found
 		if meta.IsNoMatchError(err) || apiErrors.IsNotFound(err) {

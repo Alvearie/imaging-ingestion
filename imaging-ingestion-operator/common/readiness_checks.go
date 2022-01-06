@@ -72,6 +72,9 @@ func IsDeploymentReady(deployment *appsv1.Deployment) (bool, error) {
 			// A successful deployment will have the progressing condition type as true
 		} else if condition.Type == appsv1.DeploymentProgressing && condition.Status != ConditionStatusSuccess {
 			return false, nil
+			// A successful deployment will have the available condition type as true
+		} else if condition.Type == appsv1.DeploymentAvailable && condition.Status != ConditionStatusSuccess {
+			return false, nil
 		}
 	}
 	return true, nil

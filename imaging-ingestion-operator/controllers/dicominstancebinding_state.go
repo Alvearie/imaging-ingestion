@@ -16,6 +16,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	apiErrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/meta"
+	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
 	keventingv1 "knative.dev/eventing/pkg/apis/eventing/v1"
 	kservingv1 "knative.dev/serving/pkg/apis/serving/v1"
@@ -23,17 +24,23 @@ import (
 )
 
 type DicomInstanceBindingState struct {
+	client.Client
+	Scheme *runtime.Scheme
+
 	InstanceBindingSecret  *corev1.Secret
 	InstanceBindingConfig  *corev1.ConfigMap
 	InstanceBindingService *kservingv1.Service
 	InstanceBindingTrigger *keventingv1.Trigger
 }
 
-func NewDicomInstanceBindingState() *DicomInstanceBindingState {
-	return &DicomInstanceBindingState{}
+func NewDicomInstanceBindingState(client client.Client, scheme *runtime.Scheme) *DicomInstanceBindingState {
+	return &DicomInstanceBindingState{
+		Client: client,
+		Scheme: scheme,
+	}
 }
 
-func (i *DicomInstanceBindingState) IsResourcesReady(cr *v1alpha1.DicomInstanceBinding) (bool, error) {
+func (i *DicomInstanceBindingState) IsResourcesReady(resource client.Object) (bool, error) {
 	dimseServiceReady, err := common.IsServiceReady(i.InstanceBindingService)
 	if err != nil {
 		return false, err
@@ -47,23 +54,25 @@ func (i *DicomInstanceBindingState) IsResourcesReady(cr *v1alpha1.DicomInstanceB
 	return dimseServiceReady && instanceBindingTriggerReady, nil
 }
 
-func (i *DicomInstanceBindingState) Read(context context.Context, cr *v1alpha1.DicomInstanceBinding, controllerClient client.Client) error {
-	err := i.readInstanceBindingSecretCurrentState(context, cr, controllerClient)
+func (i *DicomInstanceBindingState) Read(context context.Context, resource client.Object) error {
+	cr, _ := resource.(*v1alpha1.DicomInstanceBinding)
+
+	err := i.readInstanceBindingSecretCurrentState(context, cr)
 	if err != nil {
 		return err
 	}
 
-	err = i.readInstanceBindingConfigCurrentState(context, cr, controllerClient)
+	err = i.readInstanceBindingConfigCurrentState(context, cr)
 	if err != nil {
 		return err
 	}
 
-	err = i.readInstanceBindingServiceCurrentState(context, cr, controllerClient)
+	err = i.readInstanceBindingServiceCurrentState(context, cr)
 	if err != nil {
 		return err
 	}
 
-	err = i.readInstanceBindingTriggerCurrentState(context, cr, controllerClient)
+	err = i.readInstanceBindingTriggerCurrentState(context, cr)
 	if err != nil {
 		return err
 	}
@@ -71,11 +80,11 @@ func (i *DicomInstanceBindingState) Read(context context.Context, cr *v1alpha1.D
 	return nil
 }
 
-func (i *DicomInstanceBindingState) readInstanceBindingSecretCurrentState(context context.Context, cr *v1alpha1.DicomInstanceBinding, controllerClient client.Client) error {
+func (i *DicomInstanceBindingState) readInstanceBindingSecretCurrentState(context context.Context, cr *v1alpha1.DicomInstanceBinding) error {
 	secret := model.InstanceBindingSecret(cr)
 	secretSelector := model.InstanceBindingSecretSelector(cr)
 
-	err := controllerClient.Get(context, secretSelector, secret)
+	err := i.Client.Get(context, secretSelector, secret)
 	if err != nil {
 		// If the resource type doesn't exist on the cluster or does exist but is not found
 		if meta.IsNoMatchError(err) || apiErrors.IsNotFound(err) {
@@ -91,11 +100,11 @@ func (i *DicomInstanceBindingState) readInstanceBindingSecretCurrentState(contex
 	return nil
 }
 
-func (i *DicomInstanceBindingState) readInstanceBindingConfigCurrentState(context context.Context, cr *v1alpha1.DicomInstanceBinding, controllerClient client.Client) error {
+func (i *DicomInstanceBindingState) readInstanceBindingConfigCurrentState(context context.Context, cr *v1alpha1.DicomInstanceBinding) error {
 	config := model.InstanceBindingConfig(cr)
 	configSelector := model.InstanceBindingConfigSelector(cr)
 
-	err := controllerClient.Get(context, configSelector, config)
+	err := i.Client.Get(context, configSelector, config)
 	if err != nil {
 		// If the resource type doesn't exist on the cluster or does exist but is not found
 		if meta.IsNoMatchError(err) || apiErrors.IsNotFound(err) {
@@ -111,11 +120,11 @@ func (i *DicomInstanceBindingState) readInstanceBindingConfigCurrentState(contex
 	return nil
 }
 
-func (i *DicomInstanceBindingState) readInstanceBindingServiceCurrentState(context context.Context, cr *v1alpha1.DicomInstanceBinding, controllerClient client.Client) error {
+func (i *DicomInstanceBindingState) readInstanceBindingServiceCurrentState(context context.Context, cr *v1alpha1.DicomInstanceBinding) error {
 	service := model.InstanceBindingService(cr)
 	serviceSelector := model.InstanceBindingServiceSelector(cr)
 
-	err := controllerClient.Get(context, serviceSelector, service)
+	err := i.Client.Get(context, serviceSelector, service)
 	if err != nil {
 		// If the resource type doesn't exist on the cluster or does exist but is not found
 		if meta.IsNoMatchError(err) || apiErrors.IsNotFound(err) {
@@ -132,8 +141,8 @@ func (i *DicomInstanceBindingState) readInstanceBindingServiceCurrentState(conte
 	return nil
 }
 
-func (i *DicomInstanceBindingState) readInstanceBindingTriggerCurrentState(context context.Context, cr *v1alpha1.DicomInstanceBinding, controllerClient client.Client) error {
-	eventDrivenIngestionResource, err := GetEventDrivenIngestionResource(context, types.NamespacedName{Name: cr.Spec.DicomEventDrivenIngestionName, Namespace: cr.Namespace}, controllerClient)
+func (i *DicomInstanceBindingState) readInstanceBindingTriggerCurrentState(context context.Context, cr *v1alpha1.DicomInstanceBinding) error {
+	eventDrivenIngestionResource, err := GetEventDrivenIngestionResource(context, types.NamespacedName{Name: cr.Spec.DicomEventDrivenIngestionName, Namespace: cr.Namespace}, i.Client)
 	if eventDrivenIngestionResource == nil || err != nil {
 		return errors.New("Error getting DicomEventDrivenIngestion")
 	}
@@ -141,7 +150,7 @@ func (i *DicomInstanceBindingState) readInstanceBindingTriggerCurrentState(conte
 	trigger := model.InstanceBindingTrigger(cr, model.GetEventBrokerName(eventDrivenIngestionResource.Name))
 	triggerSelector := model.InstanceBindingTriggerSelector(cr)
 
-	err = controllerClient.Get(context, triggerSelector, trigger)
+	err = i.Client.Get(context, triggerSelector, trigger)
 	if err != nil {
 		// If the resource type doesn't exist on the cluster or does exist but is not found
 		if meta.IsNoMatchError(err) || apiErrors.IsNotFound(err) {
