@@ -34,6 +34,10 @@ type DicomEventBridgeSpec struct {
 	// Event Bridge Role
 	//+operator-sdk:csv:customresourcedefinitions:type=spec,xDescriptors={"urn:alm:descriptor:com.tectonic.ui:select:hub","urn:alm:descriptor:com.tectonic.ui:select:edge"}
 	Role string `json:"role"`
+	// Event Bridge Edge Mailbox. Required when Role is edge.
+	// +optional
+	//+operator-sdk:csv:customresourcedefinitions:type=spec
+	EdgeMailbox string `json:"edgeMailbox,omitempty"`
 	// DICOM Event Driven Ingestion Name
 	//+operator-sdk:csv:customresourcedefinitions:type=spec
 	DicomEventDrivenIngestionName string `json:"dicomEventDrivenIngestionName"`

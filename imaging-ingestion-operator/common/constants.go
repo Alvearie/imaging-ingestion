@@ -9,6 +9,7 @@ package common
 import "time"
 
 type EventType string
+type BridgeRole string
 
 const (
 	OpenShiftAPIServerKind = "OpenShiftAPIServer"
@@ -35,4 +36,7 @@ const (
 	ImageStoredEventType    EventType = "ImageStoredEvent"
 	DicomAvailableEventType EventType = "DicomAvailableEvent"
 	StudyRevisionEventType  EventType = "StudyRevisionEvent"
+
+	BridgeRoleHub  BridgeRole = "hub"
+	BridgeRoleEdge BridgeRole = "edge"
 )

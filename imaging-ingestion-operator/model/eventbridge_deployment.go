@@ -56,26 +56,10 @@ func EventBridgeDeployment(cr *v1alpha1.DicomEventBridge, core *v1alpha1.DicomEv
 									},
 								},
 							},
-							VolumeMounts: []corev1.VolumeMount{
-								{
-									Name:      "edge-location-config",
-									MountPath: "/etc/config",
-								},
-							},
+							VolumeMounts: GetEventBridgeDeploymentVolumeMounts(cr),
 						},
 					},
-					Volumes: []corev1.Volume{
-						{
-							Name: "edge-location-config",
-							VolumeSource: corev1.VolumeSource{
-								ConfigMap: &corev1.ConfigMapVolumeSource{
-									LocalObjectReference: corev1.LocalObjectReference{
-										Name: GetEventBridgeEdgeLocationConfigName(cr),
-									},
-								},
-							},
-						},
-					},
+					Volumes:          GetEventBridgeDeploymentVolumes(cr),
 					ImagePullSecrets: cr.Spec.ImagePullSecrets,
 				},
 			},
@@ -103,6 +87,42 @@ func GetEventBridgeDeploymentName(cr *v1alpha1.DicomEventBridge) string {
 	return cr.Name + "-event-bridge"
 }
 
+func GetEventBridgeDeploymentVolumes(cr *v1alpha1.DicomEventBridge) []corev1.Volume {
+	volumes := []corev1.Volume{}
+
+	if cr.Spec.Role == string(common.BridgeRoleHub) {
+		volumes = []corev1.Volume{
+			{
+				Name: "edge-location-config",
+				VolumeSource: corev1.VolumeSource{
+					ConfigMap: &corev1.ConfigMapVolumeSource{
+						LocalObjectReference: corev1.LocalObjectReference{
+							Name: GetEventBridgeEdgeLocationConfigName(cr),
+						},
+					},
+				},
+			},
+		}
+	}
+
+	return volumes
+}
+
+func GetEventBridgeDeploymentVolumeMounts(cr *v1alpha1.DicomEventBridge) []corev1.VolumeMount {
+	mounts := []corev1.VolumeMount{}
+
+	if cr.Spec.Role == string(common.BridgeRoleHub) {
+		mounts = []corev1.VolumeMount{
+			{
+				Name:      "edge-location-config",
+				MountPath: "/etc/config",
+			},
+		}
+	}
+
+	return mounts
+}
+
 func GetEventBridgeDeploymentEnv(cr *v1alpha1.DicomEventBridge, core *v1alpha1.DicomEventDrivenIngestion) []corev1.EnvVar {
 	env := []corev1.EnvVar{
 		{
@@ -114,13 +134,23 @@ func GetEventBridgeDeploymentEnv(cr *v1alpha1.DicomEventBridge, core *v1alpha1.D
 			Value: "true",
 		},
 		{
-			Name:  "EDGE_LOCATION_CONFIG",
-			Value: "/etc/config/EDGE_LOCATION_CONFIG",
-		},
-		{
 			Name:  "K_SINK",
 			Value: core.Status.BrokerEndpoint,
 		},
+	}
+
+	if cr.Spec.Role == string(common.BridgeRoleHub) {
+		env = append(env, corev1.EnvVar{
+			Name:  "EDGE_LOCATION_CONFIG",
+			Value: "/etc/config/EDGE_LOCATION_CONFIG",
+		})
+	}
+
+	if cr.Spec.Role == string(common.BridgeRoleEdge) {
+		env = append(env, corev1.EnvVar{
+			Name:  "EDGE_MAILBOX_ID",
+			Value: cr.Spec.EdgeMailbox,
+		})
 	}
 
 	if cr.Spec.NatsTokenSecretName != "" {

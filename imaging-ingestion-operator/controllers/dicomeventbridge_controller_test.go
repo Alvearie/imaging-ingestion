@@ -10,6 +10,7 @@ import (
 	"context"
 
 	"github.com/Alvearie/imaging-ingestion/imaging-ingestion-operator/api/v1alpha1"
+	"github.com/Alvearie/imaging-ingestion/imaging-ingestion-operator/common"
 	"github.com/Alvearie/imaging-ingestion/imaging-ingestion-operator/model"
 	"github.com/coderanger/controller-utils/randstring"
 	. "github.com/onsi/ginkgo"
@@ -91,6 +92,7 @@ var _ = Describe("DicomEventBridge controller tests", func() {
 					Namespace: objectNamespace,
 				},
 				Spec: v1alpha1.DicomEventBridgeSpec{
+					Role:                          string(common.BridgeRoleHub),
 					NatsURL:                       natsURL,
 					DicomEventDrivenIngestionName: eventDrivenIngestionName,
 				},

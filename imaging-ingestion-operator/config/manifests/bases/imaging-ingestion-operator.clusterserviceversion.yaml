@@ -35,6 +35,9 @@ spec:
       - description: DICOM Event Driven Ingestion Name
         displayName: Dicom Event Driven Ingestion Name
         path: dicomEventDrivenIngestionName
+      - description: Event Bridge Edge Mailbox. Required when Role is edge.
+        displayName: Edge Mailbox
+        path: edgeMailbox
       - description: Event Bridge Deployment Spec
         displayName: Event Bridge
         path: eventBridge
