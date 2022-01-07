@@ -45,6 +45,9 @@ spec:
               dicomEventDrivenIngestionName:
                 description: DICOM Event Driven Ingestion Name
                 type: string
+              edgeMailbox:
+                description: Event Bridge Edge Mailbox. Required when Role is edge.
+                type: string
               eventBridge:
                 description: Event Bridge Deployment Spec
                 properties:

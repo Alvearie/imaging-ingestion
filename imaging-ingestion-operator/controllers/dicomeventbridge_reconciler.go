@@ -64,6 +64,10 @@ func (i *DicomEventBridgeReconciler) GetNatsConfigDesiredState(state *DicomEvent
 }
 
 func (i *DicomEventBridgeReconciler) GetEdgeLocationConfigDesiredState(state *DicomEventBridgeState, cr *v1alpha1.DicomEventBridge) common.ControllerAction {
+	if cr.Spec.Role != string(common.BridgeRoleHub) {
+		return nil
+	}
+
 	config := model.EventBridgeEdgeLocationConfig(cr)
 	if state.EdgeLocationConfig == nil {
 		return common.GenericCreateAction{

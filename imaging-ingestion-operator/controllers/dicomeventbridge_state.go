@@ -148,6 +148,10 @@ func (s *DicomEventBridgeState) readNatsConfigCurrentState(context context.Conte
 }
 
 func (s *DicomEventBridgeState) readEdgeLocationConfigCurrentState(context context.Context, cr *v1alpha1.DicomEventBridge) error {
+	if cr.Spec.Role != string(common.BridgeRoleHub) {
+		return nil
+	}
+
 	config := model.EventBridgeEdgeLocationConfig(cr)
 	configSelector := model.EventBridgeEdgeLocationConfigSelector(cr)
 
