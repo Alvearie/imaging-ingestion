@@ -167,7 +167,9 @@ func (i *DimseIngestionServiceState) readDimseServiceCurrentState(context contex
 	}
 	brokerEndpoint := eventDrivenIngestionResource.Status.BrokerEndpoint
 
-	service := model.DimseIngestionDeployment(cr, brokerEndpoint)
+	wadoExtEndpoint, wadoIntEndpoint := GetWadoEndpoints(context, i.Client, eventDrivenIngestionResource.Name)
+
+	service := model.DimseIngestionDeployment(cr, brokerEndpoint, wadoExtEndpoint, wadoIntEndpoint)
 	serviceSelector := model.DimseIngestionDeploymentSelector(cr)
 
 	err = i.Client.Get(context, serviceSelector, service)

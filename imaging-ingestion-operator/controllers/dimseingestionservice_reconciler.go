@@ -89,7 +89,9 @@ func (i *DimseIngestionServiceReconciler) GetDimseIngestionServiceDesiredState(s
 	}
 	brokerEndpoint := eventDrivenIngestionResource.Status.BrokerEndpoint
 
-	service := model.DimseIngestionDeployment(cr, brokerEndpoint)
+	wadoExtEndpoint, wadoIntEndpoint := GetWadoEndpoints(context.Background(), i.Client, eventDrivenIngestionResource.Name)
+
+	service := model.DimseIngestionDeployment(cr, brokerEndpoint, wadoExtEndpoint, wadoIntEndpoint)
 	if state.DimseIngestionDeployment == nil {
 		return common.GenericCreateAction{
 			Ref: service,
@@ -98,7 +100,7 @@ func (i *DimseIngestionServiceReconciler) GetDimseIngestionServiceDesiredState(s
 	}
 
 	return common.GenericUpdateAction{
-		Ref: model.DimseIngestionDeploymentReconciled(cr, state.DimseIngestionDeployment, brokerEndpoint),
+		Ref: model.DimseIngestionDeploymentReconciled(cr, state.DimseIngestionDeployment, brokerEndpoint, wadoExtEndpoint, wadoIntEndpoint),
 		Msg: "Update DIMSE Deployment",
 	}
 }
