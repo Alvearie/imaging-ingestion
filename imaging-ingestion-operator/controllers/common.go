@@ -36,3 +36,19 @@ func GetEventDrivenIngestionResource(context context.Context, namespacedName typ
 		return resource.DeepCopy(), nil
 	}
 }
+
+func GetWadoEndpoints(context context.Context, client client.Client, eventDrivenIngestionName string) (string, string) {
+	wadoExtEndpoint := ""
+	wadoIntEndpoint := ""
+	webIngestions := &v1alpha1.DicomwebIngestionServiceList{}
+	if err := client.List(context, webIngestions); err == nil {
+		for _, wi := range webIngestions.Items {
+			if wi.Spec.DicomEventDrivenIngestionName == eventDrivenIngestionName {
+				wadoExtEndpoint = wi.Status.WadoServiceExternalEndpoint
+				wadoIntEndpoint = wi.Status.WadoServiceInternalEndpoint
+			}
+		}
+	}
+
+	return wadoExtEndpoint, wadoIntEndpoint
+}

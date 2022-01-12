@@ -15,7 +15,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
-func DimseIngestionDeployment(cr *v1alpha1.DimseIngestionService, sink string) *appsv1.Deployment {
+func DimseIngestionDeployment(cr *v1alpha1.DimseIngestionService, sink, wadoExtEndpoint, wadoIntEndpoint string) *appsv1.Deployment {
 	return &appsv1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      GetDimseIngestionDeploymentName(cr),
@@ -41,7 +41,7 @@ func DimseIngestionDeployment(cr *v1alpha1.DimseIngestionService, sink string) *
 							Name:            "ingestion",
 							Image:           GetImage(cr.Spec.DimseService.Image, common.DimseIngestionImage),
 							ImagePullPolicy: corev1.PullAlways,
-							Env:             GetDimseIngestionDeploymentEnv(cr, sink),
+							Env:             GetDimseIngestionDeploymentEnv(cr, sink, wadoExtEndpoint, wadoIntEndpoint),
 							EnvFrom: []corev1.EnvFromSource{
 								{
 									ConfigMapRef: &corev1.ConfigMapEnvSource{
@@ -111,10 +111,10 @@ func DimseIngestionDeploymentSelector(cr *v1alpha1.DimseIngestionService) client
 	}
 }
 
-func DimseIngestionDeploymentReconciled(cr *v1alpha1.DimseIngestionService, currentState *appsv1.Deployment, sink string) *appsv1.Deployment {
+func DimseIngestionDeploymentReconciled(cr *v1alpha1.DimseIngestionService, currentState *appsv1.Deployment, sink, wadoExtEndpoint, wadoIntEndpoint string) *appsv1.Deployment {
 	reconciled := currentState.DeepCopy()
 	reconciled.Spec.Template.Spec.Containers[0].Image = GetImage(cr.Spec.DimseService.Image, common.DimseIngestionImage)
-	reconciled.Spec.Template.Spec.Containers[0].Env = GetDimseIngestionDeploymentEnv(cr, sink)
+	reconciled.Spec.Template.Spec.Containers[0].Env = GetDimseIngestionDeploymentEnv(cr, sink, wadoExtEndpoint, wadoIntEndpoint)
 	reconciled.Spec.Template.Spec.ImagePullSecrets = cr.Spec.ImagePullSecrets
 
 	return reconciled
@@ -124,7 +124,7 @@ func GetDimseIngestionDeploymentName(cr *v1alpha1.DimseIngestionService) string 
 	return cr.Name + "-dimse"
 }
 
-func GetDimseIngestionDeploymentEnv(cr *v1alpha1.DimseIngestionService, sink string) []corev1.EnvVar {
+func GetDimseIngestionDeploymentEnv(cr *v1alpha1.DimseIngestionService, sink, wadoExtEndpoint, wadoIntEndpoint string) []corev1.EnvVar {
 	env := []corev1.EnvVar{
 		{
 			Name:  "K_SINK",
@@ -139,9 +139,27 @@ func GetDimseIngestionDeploymentEnv(cr *v1alpha1.DimseIngestionService, sink str
 			Value: "/etc/bucket/secret",
 		},
 		{
+			Name:  "PROVIDER_NAME",
+			Value: cr.Spec.ProviderName,
+		},
+		{
 			Name:  "DIMSE_CONFIG_PATH",
 			Value: "/etc/dimse/config",
 		},
+	}
+
+	if wadoExtEndpoint != "" {
+		env = append(env, corev1.EnvVar{
+			Name:  "WADO_EXTERNAL_ENDPOINT",
+			Value: wadoExtEndpoint + "/wado-rs",
+		})
+	}
+
+	if wadoIntEndpoint != "" {
+		env = append(env, corev1.EnvVar{
+			Name:  "WADO_INTERNAL_ENDPOINT",
+			Value: wadoIntEndpoint + "/wado-rs",
+		})
 	}
 
 	if cr.Spec.NatsTokenSecretName != "" {
