@@ -10,6 +10,7 @@ import (
 	"github.com/Alvearie/imaging-ingestion/imaging-ingestion-operator/api/v1alpha1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/util/intstr"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
@@ -25,9 +26,10 @@ func EventBridgeService(cr *v1alpha1.DicomEventBridge) *corev1.Service {
 			},
 			Ports: []corev1.ServicePort{
 				{
-					Name:     "http-bridge",
-					Port:     8080,
-					Protocol: corev1.ProtocolTCP,
+					Name:       "http-bridge",
+					Port:       80,
+					TargetPort: intstr.FromInt(8080),
+					Protocol:   corev1.ProtocolTCP,
 				},
 			},
 		},
