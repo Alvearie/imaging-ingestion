@@ -46,7 +46,7 @@ public class DimseRQProxyHandler implements DimseRQHandler {
     @Override
     public void onDimseRQ(Association as, PresentationContext pc, Dimse dimse, Attributes cmd, PDVInputStream data)
             throws IOException {
-        LOG.info("onDimseRQ");
+        LOG.info(String.format("onDimseRQ %s, %s", as, pc));
 
         try {
             String subject = subjectRoot + "." + subjectChannel.getPublishChannel();
@@ -59,15 +59,26 @@ public class DimseRQProxyHandler implements DimseRQHandler {
             RequestWrapper request = new RequestWrapper(rq, spc, cmd, dataAttributes);
 
             int messageId = cmd.getInt(Tag.MessageID, 0);
+
+            LOG.info(String.format("Publishing message to %s: %d", subject, messageId));
             byte[] bytes = messagePublisher.publish(subject, as, messageId, request.getBytes());
+
+            if (bytes == null || bytes.length == 0) {
+                LOG.error(String.format("No valid RSP received, aborting %s, %s", as, pc));
+                throw new AAbort(AAbort.UL_SERIVE_USER, 0);
+            }
 
             ByteArrayInputStream bis = new ByteArrayInputStream(bytes);
             ObjectInputStream in = null;
             in = new ObjectInputStream(bis);
+
+            LOG.info(String.format("De-serialize RSP %s: %d", subject, messageId));
             Attributes o = (Attributes) in.readObject();
+
+            LOG.info(String.format("Write DIMSE RSP %s", pc));
             as.writeDimseRSP(pc, o);
         } catch (Exception e) {
-            e.printStackTrace();
+            LOG.error(e.getMessage());
             throw new AAbort(AAbort.UL_SERIVE_USER, 0);
         }
     }
