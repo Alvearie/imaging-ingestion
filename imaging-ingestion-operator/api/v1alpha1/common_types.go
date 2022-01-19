@@ -6,6 +6,8 @@ SPDX-License-Identifier: Apache-2.0
 
 package v1alpha1
 
+import corev1 "k8s.io/api/core/v1"
+
 type ServiceSpec struct {
 	// Image
 	// +optional
@@ -27,6 +29,23 @@ type DeploymentSpec struct {
 	// +optional
 	//+operator-sdk:csv:customresourcedefinitions:type=spec
 	Image string `json:"image,omitempty"`
+}
+
+// ImagePullSpec defines the Common Image Pull Spec
+type ImagePullSpec struct {
+	// Image Pull Secrets
+	// +optional
+	//+operator-sdk:csv:customresourcedefinitions:type=spec
+	ImagePullSecrets []corev1.LocalObjectReference `json:"imagePullSecrets,omitempty"`
+
+	// Image pull policy.
+	// One of Always, Never, IfNotPresent.
+	// Defaults to Always if :latest tag is specified, or IfNotPresent otherwise.
+	// Cannot be updated.
+	// More info: https://kubernetes.io/docs/concepts/containers/images#updating-images
+	// +optional
+	//+operator-sdk:csv:customresourcedefinitions:type=spec,xDescriptors="urn:alm:descriptor:com.tectonic.ui:imagePullPolicy"
+	ImagePullPolicy corev1.PullPolicy `json:"imagePullPolicy,omitempty"`
 }
 
 // CommonStatusSpec defines the Common Status Spec

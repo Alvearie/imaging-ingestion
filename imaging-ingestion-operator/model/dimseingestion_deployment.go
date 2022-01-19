@@ -40,7 +40,7 @@ func DimseIngestionDeployment(cr *v1alpha1.DimseIngestionService, sink, wadoExtE
 						{
 							Name:            "ingestion",
 							Image:           GetImage(cr.Spec.DimseService.Image, common.DimseIngestionImage),
-							ImagePullPolicy: corev1.PullAlways,
+							ImagePullPolicy: cr.Spec.ImagePullSpec.ImagePullPolicy,
 							Env:             GetDimseIngestionDeploymentEnv(cr, sink, wadoExtEndpoint, wadoIntEndpoint),
 							EnvFrom: []corev1.EnvFromSource{
 								{
@@ -97,7 +97,7 @@ func DimseIngestionDeployment(cr *v1alpha1.DimseIngestionService, sink, wadoExtE
 							},
 						},
 					},
-					ImagePullSecrets: cr.Spec.ImagePullSecrets,
+					ImagePullSecrets: cr.Spec.ImagePullSpec.ImagePullSecrets,
 				},
 			},
 		},
@@ -114,8 +114,9 @@ func DimseIngestionDeploymentSelector(cr *v1alpha1.DimseIngestionService) client
 func DimseIngestionDeploymentReconciled(cr *v1alpha1.DimseIngestionService, currentState *appsv1.Deployment, sink, wadoExtEndpoint, wadoIntEndpoint string) *appsv1.Deployment {
 	reconciled := currentState.DeepCopy()
 	reconciled.Spec.Template.Spec.Containers[0].Image = GetImage(cr.Spec.DimseService.Image, common.DimseIngestionImage)
+	reconciled.Spec.Template.Spec.Containers[0].ImagePullPolicy = cr.Spec.ImagePullSpec.ImagePullPolicy
 	reconciled.Spec.Template.Spec.Containers[0].Env = GetDimseIngestionDeploymentEnv(cr, sink, wadoExtEndpoint, wadoIntEndpoint)
-	reconciled.Spec.Template.Spec.ImagePullSecrets = cr.Spec.ImagePullSecrets
+	reconciled.Spec.Template.Spec.ImagePullSecrets = cr.Spec.ImagePullSpec.ImagePullSecrets
 
 	return reconciled
 }

@@ -3,6 +3,7 @@ kind: DicomEventBridge
 metadata:
   name: events
 spec:
+  imagePullPolicy: Always
   natsUrl: jetstream.imaging-ingestion.svc.cluster.local:4222
   natsSecure: true
   natsSubjectRoot: events

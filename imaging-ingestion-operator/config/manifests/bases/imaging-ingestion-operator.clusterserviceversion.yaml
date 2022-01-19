@@ -44,6 +44,13 @@ spec:
       - description: Image
         displayName: Image
         path: eventBridge.image
+      - description: 'Image pull policy. One of Always, Never, IfNotPresent. Defaults
+          to Always if :latest tag is specified, or IfNotPresent otherwise. Cannot
+          be updated. More info: https://kubernetes.io/docs/concepts/containers/images#updating-images'
+        displayName: Image Pull Policy
+        path: imagePullPolicy
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:imagePullPolicy
       - description: Image Pull Secrets
         displayName: Image Pull Secrets
         path: imagePullSecrets
@@ -118,6 +125,13 @@ spec:
       - description: Min Replicas
         displayName: Min Replicas
         path: eventProcessor.minReplicas
+      - description: 'Image pull policy. One of Always, Never, IfNotPresent. Defaults
+          to Always if :latest tag is specified, or IfNotPresent otherwise. Cannot
+          be updated. More info: https://kubernetes.io/docs/concepts/containers/images#updating-images'
+        displayName: Image Pull Policy
+        path: imagePullPolicy
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:imagePullPolicy
       - description: Image Pull Secrets
         displayName: Image Pull Secrets
         path: imagePullSecrets
@@ -158,6 +172,13 @@ spec:
       - description: DICOM Event Driven Ingestion Name
         displayName: Dicom Event Driven Ingestion Name
         path: dicomEventDrivenIngestionName
+      - description: 'Image pull policy. One of Always, Never, IfNotPresent. Defaults
+          to Always if :latest tag is specified, or IfNotPresent otherwise. Cannot
+          be updated. More info: https://kubernetes.io/docs/concepts/containers/images#updating-images'
+        displayName: Image Pull Policy
+        path: imagePullPolicy
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:imagePullPolicy
       - description: Image Pull Secrets
         displayName: Image Pull Secrets
         path: imagePullSecrets
@@ -216,6 +237,13 @@ spec:
       - description: DICOM Event Driven Ingestion Name
         displayName: Dicom Event Driven Ingestion Name
         path: dicomEventDrivenIngestionName
+      - description: 'Image pull policy. One of Always, Never, IfNotPresent. Defaults
+          to Always if :latest tag is specified, or IfNotPresent otherwise. Cannot
+          be updated. More info: https://kubernetes.io/docs/concepts/containers/images#updating-images'
+        displayName: Image Pull Policy
+        path: imagePullPolicy
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:imagePullPolicy
       - description: Image Pull Secrets
         displayName: Image Pull Secrets
         path: imagePullSecrets
@@ -271,6 +299,13 @@ spec:
       - description: DICOM Event Driven Ingestion Name
         displayName: Dicom Event Driven Ingestion Name
         path: dicomEventDrivenIngestionName
+      - description: 'Image pull policy. One of Always, Never, IfNotPresent. Defaults
+          to Always if :latest tag is specified, or IfNotPresent otherwise. Cannot
+          be updated. More info: https://kubernetes.io/docs/concepts/containers/images#updating-images'
+        displayName: Image Pull Policy
+        path: imagePullPolicy
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:imagePullPolicy
       - description: Image Pull Secrets
         displayName: Image Pull Secrets
         path: imagePullSecrets
@@ -360,6 +395,13 @@ spec:
       - description: Image
         displayName: Image
         path: dimseService.image
+      - description: 'Image pull policy. One of Always, Never, IfNotPresent. Defaults
+          to Always if :latest tag is specified, or IfNotPresent otherwise. Cannot
+          be updated. More info: https://kubernetes.io/docs/concepts/containers/images#updating-images'
+        displayName: Image Pull Policy
+        path: imagePullPolicy
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:imagePullPolicy
       - description: Image Pull Secrets
         displayName: Image Pull Secrets
         path: imagePullSecrets
@@ -413,6 +455,13 @@ spec:
       - description: Application Entity Title
         displayName: Application Entity Title
         path: applicationEntityTitle
+      - description: 'Image pull policy. One of Always, Never, IfNotPresent. Defaults
+          to Always if :latest tag is specified, or IfNotPresent otherwise. Cannot
+          be updated. More info: https://kubernetes.io/docs/concepts/containers/images#updating-images'
+        displayName: Image Pull Policy
+        path: imagePullPolicy
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:imagePullPolicy
       - description: Image Pull Secrets
         displayName: Image Pull Secrets
         path: imagePullSecrets

@@ -37,7 +37,7 @@ func WadoService(cr *v1alpha1.DicomwebIngestionService, eventProcessorServiceEnd
 							Containers: []corev1.Container{
 								{
 									Image:           GetImage(cr.Spec.WadoService.Image, common.WadoServiceImage),
-									ImagePullPolicy: corev1.PullAlways,
+									ImagePullPolicy: cr.Spec.ImagePullSpec.ImagePullPolicy,
 									Ports: []corev1.ContainerPort{
 										{
 											ContainerPort: 8080,
@@ -76,7 +76,7 @@ func WadoService(cr *v1alpha1.DicomwebIngestionService, eventProcessorServiceEnd
 									},
 								},
 							},
-							ImagePullSecrets: cr.Spec.ImagePullSecrets,
+							ImagePullSecrets: cr.Spec.ImagePullSpec.ImagePullSecrets,
 						},
 						ContainerConcurrency: &cr.Spec.WadoService.Concurrency,
 					},
@@ -101,8 +101,9 @@ func WadoServiceReconciled(cr *v1alpha1.DicomwebIngestionService, currentState *
 	}
 	container := reconciled.Spec.ConfigurationSpec.Template.Spec.PodSpec.Containers[0]
 	container.Image = GetImage(cr.Spec.WadoService.Image, common.WadoServiceImage)
+	container.ImagePullPolicy = cr.Spec.ImagePullSpec.ImagePullPolicy
 	container.Env = GetWadoServiceEnv(cr, container.Env, eventProcessorServiceEndpoint)
-	reconciled.Spec.ConfigurationSpec.Template.Spec.PodSpec.ImagePullSecrets = cr.Spec.ImagePullSecrets
+	reconciled.Spec.ConfigurationSpec.Template.Spec.PodSpec.ImagePullSecrets = cr.Spec.ImagePullSpec.ImagePullSecrets
 	reconciled.Spec.ConfigurationSpec.Template.Spec.ContainerConcurrency = &cr.Spec.WadoService.Concurrency
 
 	return reconciled

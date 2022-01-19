@@ -3,6 +3,7 @@ kind: DimseProxy
 metadata:
   name: ingestion
 spec:
+  imagePullPolicy: Always
   applicationEntityTitle: DCM4CHEE
   targetDimseHost: arc.dcm4chee.svc.cluster.local
   targetDimsePort: 11112

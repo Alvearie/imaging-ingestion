@@ -108,6 +108,9 @@ var _ = Describe("DicomStudyBinding controller tests", func() {
 					DicomEventDrivenIngestionName: eventDrivenIngestionName,
 					BindingSecretName:             bindingSecretName,
 					BindingConfigName:             bindingConfigName,
+					ImagePullSpec: imagingingestionv1alpha1.ImagePullSpec{
+						ImagePullPolicy: corev1.PullAlways,
+					},
 				},
 			}
 			Expect(k8sClient.Create(ctx, obj)).Should(Succeed())
@@ -148,6 +151,7 @@ var _ = Describe("DicomStudyBinding controller tests", func() {
 				}
 				return true
 			}, timeout, interval).Should(BeTrue())
+			Expect(service.Spec.Template.Spec.Containers[0].ImagePullPolicy).Should(Equal(corev1.PullAlways))
 
 			sbLookupKey := types.NamespacedName{Name: model.GetStudyBindingSinkBindingName(binding), Namespace: objectNamespace}
 			sb := &ksourcesv1.SinkBinding{}

@@ -7,7 +7,6 @@ SPDX-License-Identifier: Apache-2.0
 package v1alpha1
 
 import (
-	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -19,10 +18,10 @@ type DicomEventDrivenIngestionSpec struct {
 	// Database Secret Name
 	//+operator-sdk:csv:customresourcedefinitions:type=spec
 	DatabaseSecretName string `json:"databaseSecretName,omitempty"`
-	// Image Pull Secrets
+	// Image Pull Spec
 	// +optional
 	//+operator-sdk:csv:customresourcedefinitions:type=spec
-	ImagePullSecrets []corev1.LocalObjectReference `json:"imagePullSecrets,omitempty"`
+	ImagePullSpec `json:",inline"`
 	// Event Processor Spec
 	//+operator-sdk:csv:customresourcedefinitions:type=spec
 	EventProcessor EventProcessorSpec `json:"eventProcessor,omitempty"`

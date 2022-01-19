@@ -107,6 +107,9 @@ var _ = Describe("DicomInstanceBinding controller tests", func() {
 					DicomEventDrivenIngestionName: eventDrivenIngestionName,
 					BindingSecretName:             bindingSecretName,
 					BindingConfigName:             bindingConfigName,
+					ImagePullSpec: imagingingestionv1alpha1.ImagePullSpec{
+						ImagePullPolicy: corev1.PullAlways,
+					},
 				},
 			}
 			Expect(k8sClient.Create(ctx, obj)).Should(Succeed())
@@ -147,6 +150,7 @@ var _ = Describe("DicomInstanceBinding controller tests", func() {
 				}
 				return true
 			}, timeout, interval).Should(BeTrue())
+			Expect(service.Spec.Template.Spec.Containers[0].ImagePullPolicy).Should(Equal(corev1.PullAlways))
 
 			triggerLookupKey := types.NamespacedName{Name: model.GetInstanceBindingTriggerName(binding), Namespace: objectNamespace}
 			trigger := &keventingv1.Trigger{}

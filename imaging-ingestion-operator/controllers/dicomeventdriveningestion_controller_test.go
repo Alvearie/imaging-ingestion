@@ -66,6 +66,9 @@ var _ = Describe("DicomEventDrivenIngestion controller tests", func() {
 				Spec: imagingingestionv1alpha1.DicomEventDrivenIngestionSpec{
 					DatabaseSecretName: databaseSecretName,
 					DatabaseConfigName: databaseConfigName,
+					ImagePullSpec: imagingingestionv1alpha1.ImagePullSpec{
+						ImagePullPolicy: corev1.PullAlways,
+					},
 				},
 			}
 			Expect(k8sClient.Create(ctx, obj)).Should(Succeed())
@@ -94,6 +97,7 @@ var _ = Describe("DicomEventDrivenIngestion controller tests", func() {
 				}
 				return true
 			}, timeout, interval).Should(BeTrue())
+			Expect(eventProcessor.Spec.Template.Spec.Containers[0].ImagePullPolicy).Should(Equal(corev1.PullAlways))
 
 			eventBrokerLookupKey := types.NamespacedName{Name: model.GetEventBrokerName(core.Name), Namespace: objectNamespace}
 			eventBroker := &keventingv1.Broker{}

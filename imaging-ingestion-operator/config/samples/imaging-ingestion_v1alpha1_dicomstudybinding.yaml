@@ -3,6 +3,7 @@ kind: DicomStudyBinding
 metadata:
   name: fhir
 spec:
+  imagePullPolicy: Always
   bindingConfigName: study-binding-config
   bindingSecretName: study-binding-secret
   dicomEventDrivenIngestionName: core

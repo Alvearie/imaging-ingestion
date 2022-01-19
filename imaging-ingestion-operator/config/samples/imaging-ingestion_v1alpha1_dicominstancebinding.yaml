@@ -3,6 +3,7 @@ kind: DicomInstanceBinding
 metadata:
   name: stow
 spec:
+  imagePullPolicy: Always
   bindingConfigName: instance-binding-config
   bindingSecretName: instance-binding-secret
   dicomEventDrivenIngestionName: core

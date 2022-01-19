@@ -40,7 +40,7 @@ func InstanceBindingService(cr *v1alpha1.DicomInstanceBinding) *kservingv1.Servi
 							Containers: []corev1.Container{
 								{
 									Image:           GetImage(cr.Spec.InstanceBinding.Image, common.InstanceBindingServiceImage),
-									ImagePullPolicy: corev1.PullAlways,
+									ImagePullPolicy: cr.Spec.ImagePullSpec.ImagePullPolicy,
 									Ports: []corev1.ContainerPort{
 										{
 											ContainerPort: 8080,
@@ -74,7 +74,7 @@ func InstanceBindingService(cr *v1alpha1.DicomInstanceBinding) *kservingv1.Servi
 									},
 								},
 							},
-							ImagePullSecrets: cr.Spec.ImagePullSecrets,
+							ImagePullSecrets: cr.Spec.ImagePullSpec.ImagePullSecrets,
 						},
 						ContainerConcurrency: &cr.Spec.InstanceBinding.Concurrency,
 					},
@@ -98,7 +98,8 @@ func InstanceBindingServiceReconciled(cr *v1alpha1.DicomInstanceBinding, current
 		common.MaxScaleAnnotation: strconv.Itoa(int(cr.Spec.InstanceBinding.MaxReplicas)),
 	}
 	reconciled.Spec.ConfigurationSpec.Template.Spec.PodSpec.Containers[0].Image = GetImage(cr.Spec.InstanceBinding.Image, common.InstanceBindingServiceImage)
-	reconciled.Spec.ConfigurationSpec.Template.Spec.PodSpec.ImagePullSecrets = cr.Spec.ImagePullSecrets
+	reconciled.Spec.ConfigurationSpec.Template.Spec.PodSpec.Containers[0].ImagePullPolicy = cr.Spec.ImagePullSpec.ImagePullPolicy
+	reconciled.Spec.ConfigurationSpec.Template.Spec.PodSpec.ImagePullSecrets = cr.Spec.ImagePullSpec.ImagePullSecrets
 	reconciled.Spec.ConfigurationSpec.Template.Spec.ContainerConcurrency = &cr.Spec.InstanceBinding.Concurrency
 
 	return reconciled

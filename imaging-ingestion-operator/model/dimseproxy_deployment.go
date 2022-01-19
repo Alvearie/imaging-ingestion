@@ -40,7 +40,7 @@ func DimseProxyDeployment(cr *v1alpha1.DimseProxy) *appsv1.Deployment {
 						{
 							Name:            "proxy",
 							Image:           GetImage(cr.Spec.Proxy.Image, common.DimseProxyImage),
-							ImagePullPolicy: corev1.PullAlways,
+							ImagePullPolicy: cr.Spec.ImagePullSpec.ImagePullPolicy,
 							Ports: []corev1.ContainerPort{
 								{
 									ContainerPort: 11112,
@@ -76,7 +76,7 @@ func DimseProxyDeployment(cr *v1alpha1.DimseProxy) *appsv1.Deployment {
 							},
 						},
 					},
-					ImagePullSecrets: cr.Spec.ImagePullSecrets,
+					ImagePullSecrets: cr.Spec.ImagePullSpec.ImagePullSecrets,
 				},
 			},
 		},
@@ -93,8 +93,9 @@ func DimseProxyDeploymentSelector(cr *v1alpha1.DimseProxy) client.ObjectKey {
 func DimseProxyDeploymentReconciled(cr *v1alpha1.DimseProxy, currentState *appsv1.Deployment) *appsv1.Deployment {
 	reconciled := currentState.DeepCopy()
 	reconciled.Spec.Template.Spec.Containers[0].Image = GetImage(cr.Spec.Proxy.Image, common.DimseProxyImage)
+	reconciled.Spec.Template.Spec.Containers[0].ImagePullPolicy = cr.Spec.ImagePullSpec.ImagePullPolicy
 	reconciled.Spec.Template.Spec.Containers[0].Env = GetDimseProxyDeploymentEnv(cr)
-	reconciled.Spec.Template.Spec.ImagePullSecrets = cr.Spec.ImagePullSecrets
+	reconciled.Spec.Template.Spec.ImagePullSecrets = cr.Spec.ImagePullSpec.ImagePullSecrets
 
 	return reconciled
 }
