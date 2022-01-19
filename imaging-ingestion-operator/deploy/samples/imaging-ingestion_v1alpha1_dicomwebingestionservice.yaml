@@ -3,6 +3,7 @@ kind: DicomwebIngestionService
 metadata:
   name: ingestion
 spec:
+  imagePullPolicy: Always
   bucketConfigName: imaging-ingestion
   bucketSecretName: imaging-ingestion
   dicomEventDrivenIngestionName: core

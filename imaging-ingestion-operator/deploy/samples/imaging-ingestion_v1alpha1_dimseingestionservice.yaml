@@ -3,6 +3,7 @@ kind: DimseIngestionService
 metadata:
   name: ingestion
 spec:
+  imagePullPolicy: Always
   bucketConfigName: imaging-ingestion
   bucketSecretName: imaging-ingestion
   applicationEntityTitle: DICOM-INGEST

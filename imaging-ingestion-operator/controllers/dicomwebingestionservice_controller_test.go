@@ -109,6 +109,9 @@ var _ = Describe("DicomwebIngestionService controller tests", func() {
 					BucketSecretName:              bucketSecretName,
 					BucketConfigName:              bucketConfigName,
 					ProviderName:                  providerName,
+					ImagePullSpec: imagingingestionv1alpha1.ImagePullSpec{
+						ImagePullPolicy: corev1.PullAlways,
+					},
 				},
 			}
 			Expect(k8sClient.Create(ctx, obj)).Should(Succeed())
@@ -150,6 +153,7 @@ var _ = Describe("DicomwebIngestionService controller tests", func() {
 				}
 				return true
 			}, timeout, interval).Should(BeTrue())
+			Expect(stow.Spec.Template.Spec.Containers[0].ImagePullPolicy).Should(Equal(corev1.PullAlways))
 
 			wadoLookupKey := types.NamespacedName{Name: model.GetWadoServiceName(webIngestion), Namespace: objectNamespace}
 			wado := &kservingv1.Service{}
@@ -161,6 +165,7 @@ var _ = Describe("DicomwebIngestionService controller tests", func() {
 				}
 				return true
 			}, timeout, interval).Should(BeTrue())
+			Expect(wado.Spec.Template.Spec.Containers[0].ImagePullPolicy).Should(Equal(corev1.PullAlways))
 
 			sbLookupKey := types.NamespacedName{Name: model.GetStowSinkBindingName(webIngestion), Namespace: objectNamespace}
 			sb := &ksourcesv1.SinkBinding{}

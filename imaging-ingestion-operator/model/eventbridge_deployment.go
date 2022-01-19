@@ -40,7 +40,7 @@ func EventBridgeDeployment(cr *v1alpha1.DicomEventBridge, core *v1alpha1.DicomEv
 						{
 							Name:            "proxy",
 							Image:           GetImage(cr.Spec.EventBridge.Image, common.EventBridgeImage),
-							ImagePullPolicy: corev1.PullAlways,
+							ImagePullPolicy: cr.Spec.ImagePullSpec.ImagePullPolicy,
 							Ports: []corev1.ContainerPort{
 								{
 									ContainerPort: 8080,
@@ -60,7 +60,7 @@ func EventBridgeDeployment(cr *v1alpha1.DicomEventBridge, core *v1alpha1.DicomEv
 						},
 					},
 					Volumes:          GetEventBridgeDeploymentVolumes(cr),
-					ImagePullSecrets: cr.Spec.ImagePullSecrets,
+					ImagePullSecrets: cr.Spec.ImagePullSpec.ImagePullSecrets,
 				},
 			},
 		},
@@ -77,8 +77,9 @@ func EventBridgeDeploymentSelector(cr *v1alpha1.DicomEventBridge) client.ObjectK
 func EventBridgeDeploymentReconciled(cr *v1alpha1.DicomEventBridge, currentState *appsv1.Deployment, core *v1alpha1.DicomEventDrivenIngestion) *appsv1.Deployment {
 	reconciled := currentState.DeepCopy()
 	reconciled.Spec.Template.Spec.Containers[0].Image = GetImage(cr.Spec.EventBridge.Image, common.EventBridgeImage)
+	reconciled.Spec.Template.Spec.Containers[0].ImagePullPolicy = cr.Spec.ImagePullSpec.ImagePullPolicy
 	reconciled.Spec.Template.Spec.Containers[0].Env = GetEventBridgeDeploymentEnv(cr, core)
-	reconciled.Spec.Template.Spec.ImagePullSecrets = cr.Spec.ImagePullSecrets
+	reconciled.Spec.Template.Spec.ImagePullSecrets = cr.Spec.ImagePullSpec.ImagePullSecrets
 
 	return reconciled
 }

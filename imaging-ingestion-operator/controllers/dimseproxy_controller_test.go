@@ -47,6 +47,9 @@ var _ = Describe("DimseProxy controller tests", func() {
 					Namespace: objectNamespace,
 				},
 				Spec: imagingingestionv1alpha1.DimseProxySpec{
+					ImagePullSpec: imagingingestionv1alpha1.ImagePullSpec{
+						ImagePullPolicy: corev1.PullAlways,
+					},
 					ApplicationEntityTitle: applicationEntityTitle,
 					TargetDimseHost:        targetDimseHost,
 					TargetDimsePort:        targetDimsePort,
@@ -66,6 +69,7 @@ var _ = Describe("DimseProxy controller tests", func() {
 				return true
 			}, timeout, interval).Should(BeTrue())
 
+			Expect(proxy.Spec.ImagePullSpec.ImagePullPolicy).Should(Equal(corev1.PullAlways))
 			Expect(proxy.Spec.ApplicationEntityTitle).Should(Equal(applicationEntityTitle))
 			Expect(proxy.Spec.TargetDimseHost).Should(Equal(targetDimseHost))
 			Expect(proxy.Spec.TargetDimsePort).Should(Equal(targetDimsePort))
@@ -103,6 +107,7 @@ var _ = Describe("DimseProxy controller tests", func() {
 				}
 				return true
 			}, timeout, interval).Should(BeTrue())
+			Expect(deployment.Spec.Template.Spec.Containers[0].ImagePullPolicy).Should(Equal(corev1.PullAlways))
 
 			svcLookupKey := types.NamespacedName{Name: model.GetDimseProxyServiceName(proxy), Namespace: objectNamespace}
 			svc := &corev1.Service{}

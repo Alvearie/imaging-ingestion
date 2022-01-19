@@ -3,6 +3,7 @@ kind: DicomEventDrivenIngestion
 metadata:
   name: core
 spec:
+  imagePullPolicy: Always
   databaseConfigName: db-config
   databaseSecretName: db-secret
   eventProcessor:

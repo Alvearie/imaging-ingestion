@@ -37,7 +37,7 @@ func StowService(cr *v1alpha1.DicomwebIngestionService) *kservingv1.Service {
 							Containers: []corev1.Container{
 								{
 									Image:           GetImage(cr.Spec.StowService.Image, common.StowServiceImage),
-									ImagePullPolicy: corev1.PullAlways,
+									ImagePullPolicy: cr.Spec.ImagePullSpec.ImagePullPolicy,
 									Ports: []corev1.ContainerPort{
 										{
 											ContainerPort: 8080,
@@ -76,7 +76,7 @@ func StowService(cr *v1alpha1.DicomwebIngestionService) *kservingv1.Service {
 									},
 								},
 							},
-							ImagePullSecrets: cr.Spec.ImagePullSecrets,
+							ImagePullSecrets: cr.Spec.ImagePullSpec.ImagePullSecrets,
 						},
 						ContainerConcurrency: &cr.Spec.StowService.Concurrency,
 					},
@@ -101,8 +101,9 @@ func StowServiceReconciled(cr *v1alpha1.DicomwebIngestionService, currentState *
 	}
 	container := reconciled.Spec.ConfigurationSpec.Template.Spec.PodSpec.Containers[0]
 	container.Image = GetImage(cr.Spec.StowService.Image, common.StowServiceImage)
+	container.ImagePullPolicy = cr.Spec.ImagePullSpec.ImagePullPolicy
 	container.Env = GetStowServiceEnv(cr, container.Env)
-	reconciled.Spec.ConfigurationSpec.Template.Spec.PodSpec.ImagePullSecrets = cr.Spec.ImagePullSecrets
+	reconciled.Spec.ConfigurationSpec.Template.Spec.PodSpec.ImagePullSecrets = cr.Spec.ImagePullSpec.ImagePullSecrets
 	reconciled.Spec.ConfigurationSpec.Template.Spec.ContainerConcurrency = &cr.Spec.StowService.Concurrency
 
 	return reconciled

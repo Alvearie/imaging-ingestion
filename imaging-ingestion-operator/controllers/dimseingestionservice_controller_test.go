@@ -113,6 +113,9 @@ var _ = Describe("DimseIngestionService controller tests", func() {
 					BucketConfigName:              bucketConfigName,
 					ApplicationEntityTitle:        applicationEntityTitle,
 					NatsURL:                       natsURL,
+					ImagePullSpec: imagingingestionv1alpha1.ImagePullSpec{
+						ImagePullPolicy: corev1.PullAlways,
+					},
 				},
 			}
 			Expect(k8sClient.Create(ctx, obj)).Should(Succeed())
@@ -177,6 +180,7 @@ var _ = Describe("DimseIngestionService controller tests", func() {
 				}
 				return true
 			}, timeout, interval).Should(BeTrue())
+			Expect(deployment.Spec.Template.Spec.Containers[0].ImagePullPolicy).Should(Equal(corev1.PullAlways))
 
 			Eventually(func() bool {
 				err := k8sClient.Get(ctx, dimseIngestionLookupKey, dimseIngestion)

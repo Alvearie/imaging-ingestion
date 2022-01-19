@@ -7,16 +7,15 @@ SPDX-License-Identifier: Apache-2.0
 package v1alpha1
 
 import (
-	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 // DimseProxySpec defines the desired state of DimseProxy
 type DimseProxySpec struct {
-	// Image Pull Secrets
+	// Image Pull Spec
 	// +optional
 	//+operator-sdk:csv:customresourcedefinitions:type=spec
-	ImagePullSecrets []corev1.LocalObjectReference `json:"imagePullSecrets,omitempty"`
+	ImagePullSpec `json:",inline"`
 	// Application Entity Title
 	//+operator-sdk:csv:customresourcedefinitions:type=spec
 	ApplicationEntityTitle string `json:"applicationEntityTitle,omitempty"`

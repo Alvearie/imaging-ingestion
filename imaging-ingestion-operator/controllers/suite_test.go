@@ -145,7 +145,7 @@ var _ = BeforeSuite(func() {
 		Expect(err).ToNot(HaveOccurred())
 	}()
 
-}, 60)
+}, 300)
 
 var _ = AfterSuite(func() {
 	cancel()

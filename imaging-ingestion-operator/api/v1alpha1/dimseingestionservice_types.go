@@ -7,16 +7,15 @@ SPDX-License-Identifier: Apache-2.0
 package v1alpha1
 
 import (
-	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 // DimseIngestionServiceSpec defines the desired state of DimseIngestionService
 type DimseIngestionServiceSpec struct {
-	// Image Pull Secrets
+	// Image Pull Spec
 	// +optional
 	//+operator-sdk:csv:customresourcedefinitions:type=spec
-	ImagePullSecrets []corev1.LocalObjectReference `json:"imagePullSecrets,omitempty"`
+	ImagePullSpec `json:",inline"`
 	// DICOM Event Driven Ingestion Name
 	//+operator-sdk:csv:customresourcedefinitions:type=spec
 	DicomEventDrivenIngestionName string `json:"dicomEventDrivenIngestionName"`

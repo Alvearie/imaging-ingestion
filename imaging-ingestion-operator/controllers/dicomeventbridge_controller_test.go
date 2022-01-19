@@ -95,6 +95,9 @@ var _ = Describe("DicomEventBridge controller tests", func() {
 					Role:                          string(common.BridgeRoleHub),
 					NatsURL:                       natsURL,
 					DicomEventDrivenIngestionName: eventDrivenIngestionName,
+					ImagePullSpec: v1alpha1.ImagePullSpec{
+						ImagePullPolicy: corev1.PullAlways,
+					},
 				},
 			}
 			Expect(k8sClient.Create(ctx, obj)).Should(Succeed())
@@ -144,6 +147,7 @@ var _ = Describe("DicomEventBridge controller tests", func() {
 				}
 				return true
 			}, timeout, interval).Should(BeTrue())
+			Expect(deployment.Spec.Template.Spec.Containers[0].ImagePullPolicy).Should(Equal(corev1.PullAlways))
 
 			svcLookupKey := types.NamespacedName{Name: model.GetEventBridgeServiceName(bridge), Namespace: objectNamespace}
 			svc := &corev1.Service{}
