@@ -24,12 +24,14 @@ import org.alvearie.imaging.ingestion.event.Element;
 import org.alvearie.imaging.ingestion.event.Events;
 import org.alvearie.imaging.ingestion.event.ImageStoredEvent;
 import org.dcm4che3.data.Tag;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.hibernate.exception.ConstraintViolationException;
 import org.jboss.logging.Logger;
 
 import io.quarkus.funqy.Context;
 import io.quarkus.funqy.Funq;
 import io.quarkus.funqy.knative.events.CloudEvent;
+import io.quarkus.funqy.knative.events.CloudEventBuilder;
 import io.quarkus.funqy.knative.events.CloudEventMapping;
 
 /**
@@ -38,13 +40,17 @@ import io.quarkus.funqy.knative.events.CloudEventMapping;
 public class EventProcessorFunction {
     private static final Logger log = Logger.getLogger(EventProcessorFunction.class);
 
+    @ConfigProperty(name = "event.source")
+    String eventSource;
+
     @Inject
     StudyManager studyManager;
 
     @Funq
-    @CloudEventMapping(trigger = Events.ImageStoredEvent, responseSource = Events.EventSource, responseType = Events.DicomAvailableEvent)
-    public String imageStoredEventChain(ImageStoredEvent data, @Context CloudEvent event) {
-        log.info("Received event: " + event.id());
+    @CloudEventMapping(trigger = Events.ImageStoredEvent, responseType = Events.DicomAvailableEvent)
+    public CloudEvent<String> imageStoredEventChain(ImageStoredEvent data,
+            @Context CloudEvent<ImageStoredEvent> event) {
+        log.info(String.format("Event received - id: %s, source: %s", event.id(), event.source()));
 
         String resource = null;
         try {
@@ -54,8 +60,13 @@ public class EventProcessorFunction {
             log.error(e.getMessage(), e);
         }
 
-        log.info("Event processed: " + event.id());
-        return resource;
+        log.info(String.format("Event processed - id: %s, source: %s", event.id(), event.source()));
+
+        CloudEvent<String> result = CloudEventBuilder.create().specVersion(Events.EventSpecVersion).source(eventSource)
+                .build(resource);
+        log.info(String.format("Result event - %s", result));
+
+        return result;
     }
 
     @Transactional

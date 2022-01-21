@@ -47,7 +47,7 @@ public class SimpleStoreServiceTest {
         storeService.store(ctx, data);
 
         Mockito.verify(persistenceService, Mockito.times(1)).putObject(ctx);
-        Mockito.verify(eventClient, Mockito.times(1)).sendEvent(Mockito.anyString(), Mockito.anyString(),
+        Mockito.verify(eventClient, Mockito.times(1)).sendEvent(Mockito.anyString(), Mockito.anyString(), Mockito.any(),
                 Mockito.any());
     }
 }

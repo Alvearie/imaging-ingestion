@@ -7,6 +7,8 @@ SPDX-License-Identifier: Apache-2.0
 package model
 
 import (
+	"fmt"
+
 	"github.com/Alvearie/imaging-ingestion/imaging-ingestion-operator/api/v1alpha1"
 	"github.com/Alvearie/imaging-ingestion/imaging-ingestion-operator/common"
 	appsv1 "k8s.io/api/apps/v1"
@@ -146,6 +148,10 @@ func GetDimseIngestionDeploymentEnv(cr *v1alpha1.DimseIngestionService, sink, wa
 		{
 			Name:  "DIMSE_CONFIG_PATH",
 			Value: "/etc/dimse/config",
+		},
+		{
+			Name:  "EVENT_SOURCE",
+			Value: fmt.Sprintf("%s.%s.svc.cluster.local", GetDimseIngestionDeploymentName(cr), cr.Namespace),
 		},
 	}
 

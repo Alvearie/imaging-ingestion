@@ -7,6 +7,7 @@ SPDX-License-Identifier: Apache-2.0
 package model
 
 import (
+	"fmt"
 	"strconv"
 
 	"github.com/Alvearie/imaging-ingestion/imaging-ingestion-operator/api/v1alpha1"
@@ -134,6 +135,10 @@ func GetStowServiceEnv(cr *v1alpha1.DicomwebIngestionService, existing []corev1.
 		{
 			Name:  "WADO_EXTERNAL_ENDPOINT",
 			Value: cr.Status.WadoServiceExternalEndpoint + "/wado-rs",
+		},
+		{
+			Name:  "EVENT_SOURCE",
+			Value: fmt.Sprintf("%s.%s.svc.cluster.local", GetStowServiceName(cr), cr.Namespace),
 		},
 	}
 	env = MergeEnvs(existing, env)

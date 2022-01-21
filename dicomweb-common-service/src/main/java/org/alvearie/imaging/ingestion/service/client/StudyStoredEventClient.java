@@ -20,10 +20,10 @@ import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 @RegisterRestClient
 @ApplicationScoped
 @ClientHeaderParam(name = "Ce-Specversion", value = Events.EventSpecVersion)
-@ClientHeaderParam(name = "Ce-Source", value = Events.EventSource)
 public interface StudyStoredEventClient {
     @POST
     @Path("")
     @Produces("application/json")
-    void sendEvent(@HeaderParam("Ce-Id") String eventId, @HeaderParam("Ce-Type") String eventType, ImageStoredEvent e);
+    void sendEvent(@HeaderParam("Ce-Id") String eventId, @HeaderParam("Ce-Type") String eventType, ImageStoredEvent e,
+            @HeaderParam("Ce-Source") String eventSource);
 }

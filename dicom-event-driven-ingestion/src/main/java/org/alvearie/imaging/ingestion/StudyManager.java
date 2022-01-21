@@ -32,6 +32,9 @@ public class StudyManager {
     @ConfigProperty(name = "imaging.ingestion.study.aggregation.timeoutSeconds")
     Integer timeout;
 
+    @ConfigProperty(name = "event.source")
+    String eventSource;
+
     @Inject
     @RestClient
     StudyRevisionEventClient eventClient;
@@ -53,7 +56,8 @@ public class StudyManager {
                 if (event != null) {
                     log.info("Sending StudyRevisionEvent: " + e.getKey());
                     try {
-                        eventClient.sendEvent(UUID.randomUUID().toString(), Events.StudyRevisionEvent, event);
+                        eventClient.sendEvent(UUID.randomUUID().toString(), Events.StudyRevisionEvent, event,
+                                eventSource);
                     } catch (Exception ex) {
                         log.error("Error sending event", ex);
                         log.info(event);

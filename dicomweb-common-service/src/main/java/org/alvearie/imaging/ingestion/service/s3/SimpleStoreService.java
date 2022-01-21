@@ -46,6 +46,9 @@ public class SimpleStoreService implements StoreService {
     @ConfigProperty(name = "wado.external.endpoint", defaultValue = "")
     String wadoExternalEndpoint;
 
+    @ConfigProperty(name = "event.source")
+    String eventSource;
+
     StoreConfiguration config;
     private PersistenceService persistenceService;
 
@@ -76,7 +79,7 @@ public class SimpleStoreService implements StoreService {
             transcoder.setIncludeFileMetaInformation(true);
             transcoder.transcode(new TranscoderHandler(ctx));
             persistenceService.putObject(ctx);
-            eventClient.sendEvent(UUID.randomUUID().toString(), Events.ImageStoredEvent, buildEvent(ctx));
+            eventClient.sendEvent(UUID.randomUUID().toString(), Events.ImageStoredEvent, buildEvent(ctx), eventSource);
         } catch (Throwable e) {
             LOG.warn("Failed to store received object:\n", e);
             throw new DicomServiceException(Status.ProcessingFailure, e);
