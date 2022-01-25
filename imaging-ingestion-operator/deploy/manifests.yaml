@@ -1277,7 +1277,7 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: metadata.namespace
-        image: alvearie/imaging-ingestion-operator:0.0.2
+        image: alvearie/imaging-ingestion-operator:0.0.3
         imagePullPolicy: Always
         livenessProbe:
           httpGet:
