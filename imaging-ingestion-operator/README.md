@@ -12,6 +12,7 @@ Each of the subcomponents of imaging ingestion are represented as individual *Ku
 |------------------|---------|-----------|
 | 0.0.1            | v0.16.0 - v0.22.1      | v4.5 |
 | 0.0.2            | v0.19.0 - v0.26.1      | v4.6, v4.7, v4.8, v4.9 |
+| 0.0.3            | v0.19.0 - v0.26.1      | v4.6, v4.7, v4.8, v4.9 |
 
 **Option 1: Using OperatorHub.io**
 

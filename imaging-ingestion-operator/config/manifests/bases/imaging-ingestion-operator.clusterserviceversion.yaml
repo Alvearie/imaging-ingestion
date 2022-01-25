@@ -5,7 +5,7 @@ metadata:
     alm-examples: '[]'
     capabilities: Basic Install
     categories: Integration & Delivery
-    containerImage: alvearie/imaging-ingestion-operator:0.0.2
+    containerImage: alvearie/imaging-ingestion-operator:0.0.3
     createdAt: "2021-04-08T15:29:55Z"
     description: The Alvearie Imaging Ingestion provides a collection of components
       for extending enterprise medical imaging informatics systems to Kubernetes.
@@ -577,5 +577,5 @@ spec:
   provider:
     name: Alvearie
     url: https://alvearie.github.io
-  replaces: imaging-ingestion-operator.v0.0.1
+  replaces: imaging-ingestion-operator.v0.0.2
   version: 0.0.0
