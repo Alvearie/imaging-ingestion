@@ -20,11 +20,10 @@ import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 @RegisterRestClient
 @ApplicationScoped
 @ClientHeaderParam(name = "Ce-Specversion", value = Events.EventSpecVersion)
-@ClientHeaderParam(name = "Ce-Source", value = Events.EventSource)
 public interface StudyRevisionEventClient {
     @POST
     @Path("")
     @Produces("application/json")
     void sendEvent(@HeaderParam("Ce-Id") String eventId, @HeaderParam("Ce-Type") String eventType,
-            StudyRevisionEvent event);
+            StudyRevisionEvent event, @HeaderParam("Ce-Source") String eventSource);
 }

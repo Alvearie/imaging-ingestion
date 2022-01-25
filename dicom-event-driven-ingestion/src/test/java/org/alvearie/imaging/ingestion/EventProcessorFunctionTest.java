@@ -40,12 +40,12 @@ public class EventProcessorFunctionTest {
     public void testImageStoredEventChain() {
         ImageStoredEvent data = createData();
 
-        CloudEvent event = Mockito.mock(CloudEvent.class);
+        CloudEvent<ImageStoredEvent> event = Mockito.mock(CloudEvent.class);
 
-        String resource = processor.imageStoredEventChain(data, event);
-        Assertions.assertNotNull(resource);
+        CloudEvent<String> result = processor.imageStoredEventChain(data, event);
+        Assertions.assertNotNull(result);
         Assertions.assertEquals(String.format("%s/studies/%s/series/%s/instances/%s", "wadoInternalEndpoint", STUDY_ID,
-                SERIES_ID, INSTANCE_ID), resource);
+                SERIES_ID, INSTANCE_ID), result.data());
     }
 
     private ImageStoredEvent createData() {

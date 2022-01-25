@@ -7,6 +7,7 @@ SPDX-License-Identifier: Apache-2.0
 package model
 
 import (
+	"fmt"
 	"strconv"
 
 	"github.com/Alvearie/imaging-ingestion/imaging-ingestion-operator/api/v1alpha1"
@@ -44,6 +45,12 @@ func EventProcessorService(cr *v1alpha1.DicomEventDrivenIngestion) *kservingv1.S
 									Ports: []corev1.ContainerPort{
 										{
 											ContainerPort: 8080,
+										},
+									},
+									Env: []corev1.EnvVar{
+										{
+											Name:  "EVENT_SOURCE",
+											Value: fmt.Sprintf("%s.%s.svc.cluster.local", GetEventProcessorServiceName(cr.Name), cr.Namespace),
 										},
 									},
 									EnvFrom: []corev1.EnvFromSource{
