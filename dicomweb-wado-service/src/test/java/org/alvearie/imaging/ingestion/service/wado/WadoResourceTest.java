@@ -20,7 +20,7 @@ import java.util.List;
 import org.alvearie.imaging.ingestion.model.result.DicomAttribute;
 import org.alvearie.imaging.ingestion.model.result.DicomEntityResult;
 import org.alvearie.imaging.ingestion.model.result.DicomResource;
-import org.alvearie.imaging.ingestion.service.s3.S3Service;
+import org.alvearie.imaging.ingestion.service.s3.StoreService;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.UID;
 import org.dcm4che3.data.VR;
@@ -36,7 +36,7 @@ import io.restassured.response.Response;
 @QuarkusTest
 public class WadoResourceTest {
     @InjectMock
-    S3Service s3Service;
+    StoreService storeService;
 
     private static final String TEST_FILENAME = "../test-data/dicom/file1.dcm";
 
@@ -51,8 +51,8 @@ public class WadoResourceTest {
     }
 
     @Test
-    public void testBasicRender() {
-        Mockito.when(s3Service.getObject(Mockito.anyString())).thenReturn(getObject(TEST_FILENAME));
+    public void testBasicRender() throws IOException {
+        Mockito.when(storeService.retrieve(Mockito.anyString())).thenReturn(getObject(TEST_FILENAME));
         Mockito.when(queryClient.getResults(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(),
                 Mockito.anyString())).thenReturn(getResults(TEST_FILENAME));
         given().log().all(true).get("/wado-rs/studies/123/series/1234/instances/12345/rendered").then().log().headers()
@@ -60,8 +60,8 @@ public class WadoResourceTest {
     }
 
     @Test
-    public void testThumbnail() {
-        Mockito.when(s3Service.getObject(Mockito.anyString())).thenReturn(getObject(TEST_FILENAME));
+    public void testThumbnail() throws IOException {
+        Mockito.when(storeService.retrieve(Mockito.anyString())).thenReturn(getObject(TEST_FILENAME));
         Mockito.when(queryClient.getResults(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(),
                 Mockito.anyString())).thenReturn(getResults(TEST_FILENAME));
         given().log().all(true).get("/wado-rs/studies/123/series/1234/instances/12345/thumbnail").then().log().headers()
@@ -69,8 +69,8 @@ public class WadoResourceTest {
     }
 
     @Test
-    public void testScaledThumbnail() {
-        Mockito.when(s3Service.getObject(Mockito.anyString())).thenReturn(getObject(TEST_FILENAME));
+    public void testScaledThumbnail() throws IOException {
+        Mockito.when(storeService.retrieve(Mockito.anyString())).thenReturn(getObject(TEST_FILENAME));
         Mockito.when(queryClient.getResults(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(),
                 Mockito.anyString())).thenReturn(getResults(TEST_FILENAME));
         given().log().all(true).get("/wado-rs/studies/123/series/1234/instances/12345/thumbnail?viewport=75,100").then()
@@ -78,8 +78,8 @@ public class WadoResourceTest {
     }
 
     @Test
-    public void testBasicViewport() {
-        Mockito.when(s3Service.getObject(Mockito.anyString())).thenReturn(getObject(TEST_FILENAME));
+    public void testBasicViewport() throws IOException {
+        Mockito.when(storeService.retrieve(Mockito.anyString())).thenReturn(getObject(TEST_FILENAME));
         Mockito.when(queryClient.getResults(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(),
                 Mockito.anyString())).thenReturn(getResults(TEST_FILENAME));
         given().log().all(true).get("/wado-rs/studies/123/series/1234/instances/12345/rendered?viewport=200,200").then()
@@ -87,8 +87,8 @@ public class WadoResourceTest {
     }
 
     @Test
-    public void testTopLeftViewportRegion() {
-        Mockito.when(s3Service.getObject(Mockito.anyString())).thenReturn(getObject(TEST_FILENAME));
+    public void testTopLeftViewportRegion() throws IOException {
+        Mockito.when(storeService.retrieve(Mockito.anyString())).thenReturn(getObject(TEST_FILENAME));
         Mockito.when(queryClient.getResults(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(),
                 Mockito.anyString())).thenReturn(getResults(TEST_FILENAME));
         given().log().all(true)
@@ -97,8 +97,8 @@ public class WadoResourceTest {
     }
 
     @Test
-    public void testBottomRightViewportRegion() {
-        Mockito.when(s3Service.getObject(Mockito.anyString())).thenReturn(getObject(TEST_FILENAME));
+    public void testBottomRightViewportRegion() throws IOException {
+        Mockito.when(storeService.retrieve(Mockito.anyString())).thenReturn(getObject(TEST_FILENAME));
         Mockito.when(queryClient.getResults(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(),
                 Mockito.anyString())).thenReturn(getResults(TEST_FILENAME));
         given().log().all(true)
@@ -107,8 +107,8 @@ public class WadoResourceTest {
     }
 
     @Test
-    public void testRetrieveContentEncoding() {
-        Mockito.when(s3Service.getObject(Mockito.anyString())).thenReturn(getObject(TEST_FILENAME));
+    public void testRetrieveContentEncoding() throws IOException {
+        Mockito.when(storeService.retrieve(Mockito.anyString())).thenReturn(getObject(TEST_FILENAME));
         Mockito.when(queryClient.getResults(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(),
                 Mockito.anyString())).thenReturn(getResults(TEST_FILENAME));
         given().log().all(true).header("Accept-Encoding", "gzip")
@@ -117,8 +117,8 @@ public class WadoResourceTest {
     }
 
     @Test
-    public void testMetadataContentEncoding() {
-        Mockito.when(s3Service.getObject(Mockito.anyString())).thenReturn(getObject(TEST_FILENAME));
+    public void testMetadataContentEncoding() throws IOException {
+        Mockito.when(storeService.retrieve(Mockito.anyString())).thenReturn(getObject(TEST_FILENAME));
         Mockito.when(queryClient.getResults(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(),
                 Mockito.anyString())).thenReturn(getResults(TEST_FILENAME));
         given().log().all(true).header("Accept-Encoding", "gzip")
@@ -127,8 +127,8 @@ public class WadoResourceTest {
     }
 
     @Test
-    public void testBulkFrameCache() {
-        Mockito.when(s3Service.getObject(Mockito.anyString())).thenReturn(getObject(TEST_FILENAME));
+    public void testBulkFrameCache() throws IOException {
+        Mockito.when(storeService.retrieve(Mockito.anyString())).thenReturn(getObject(TEST_FILENAME));
         Mockito.when(queryClient.getResults(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(),
                 Mockito.anyString())).thenReturn(getResults(TEST_FILENAME));
         Response response = given().log().all(true).get("/wado-rs/studies/123/series/1234/instances/12345/frames/1");
@@ -140,8 +140,8 @@ public class WadoResourceTest {
     }
 
     @Test
-    public void testMetadataBulkDataURI() {
-        Mockito.when(s3Service.getObject(Mockito.anyString())).thenReturn(getObject(TEST_FILENAME));
+    public void testMetadataBulkDataURI() throws IOException {
+        Mockito.when(storeService.retrieve(Mockito.anyString())).thenReturn(getObject(TEST_FILENAME));
         Mockito.when(queryClient.getResults(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(),
                 Mockito.anyString())).thenReturn(getResults(TEST_FILENAME));
         given().log().all(true).get("/wado-rs/studies/123/series/1234/instances/12345/metadata").then().log().headers()
@@ -150,8 +150,8 @@ public class WadoResourceTest {
     }
 
     @Test
-    public void testMetadataBulkDataURIXML() {
-        Mockito.when(s3Service.getObject(Mockito.anyString())).thenReturn(getObject(TEST_FILENAME));
+    public void testMetadataBulkDataURIXML() throws IOException {
+        Mockito.when(storeService.retrieve(Mockito.anyString())).thenReturn(getObject(TEST_FILENAME));
         Mockito.when(queryClient.getResults(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(),
                 Mockito.anyString())).thenReturn(getResults(TEST_FILENAME));
         Response response = given().log().all(true).header("Accept", MediaTypes.MULTIPART_RELATED_APPLICATION_DICOM_XML)

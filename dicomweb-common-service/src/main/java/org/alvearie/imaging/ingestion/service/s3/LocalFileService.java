@@ -26,7 +26,7 @@ public class LocalFileService extends PersistenceService {
     @Override
     ByteArrayOutputStream getObject(String objectKey) throws IOException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        File storedFile = Paths.get(config.getLocalStoragePath(), config.getBucketName(), objectKey).toFile();
+        File storedFile = Paths.get(config.getLocalStoragePath(), objectKey).toFile();
         if (storedFile.exists() && storedFile.canRead()) {
             FileInputStream fis = new FileInputStream(storedFile);
             try {
@@ -49,6 +49,7 @@ public class LocalFileService extends PersistenceService {
         ctx.setObjectName(key);
 
         File bucketDir = Paths.get(config.getLocalStoragePath(), config.getBucketName()).toFile();
+        // Create the folder in the container
         if (!bucketDir.exists()) {
             bucketDir.mkdir();
         }

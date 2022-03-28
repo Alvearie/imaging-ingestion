@@ -26,11 +26,11 @@ public class SimpleStoreServiceTest {
     @Inject
     SimpleStoreService storeService;
 
-    @InjectMock
+    @Inject
     StoreConfiguration storeConfiguration;
 
     @InjectMock
-    S3Service persistenceService;
+    LocalFileService persistenceService;
 
     @InjectMock
     @RestClient
