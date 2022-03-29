@@ -68,7 +68,6 @@ public class AzureBlobService extends PersistenceService {
 
         // Do we create up front or in code above here?
         blobContainerClient = blobServiceClient.getBlobContainerClient(config.getAzureContainerName());
-
     }
 
 }

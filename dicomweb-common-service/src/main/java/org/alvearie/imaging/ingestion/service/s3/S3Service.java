@@ -35,7 +35,6 @@ import software.amazon.awssdk.services.s3.model.PutObjectResponse;
 public class S3Service extends PersistenceService {
     private static final Logger LOG = Logger.getLogger(S3Service.class);
 
-    @Inject
     S3Client s3;
 
     @Override

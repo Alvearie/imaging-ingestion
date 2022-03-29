@@ -19,7 +19,7 @@ dependencies {
     implementation "org.dcm4che:dcm4che-core:${dcm4cheVersion}"
     implementation "org.dcm4che:dcm4che-net:${dcm4cheVersion}"
     implementation "org.dcm4che:dcm4che-imageio:${dcm4cheVersion}"
-    implementation 'com.azure:azure-storage-blob'
+    implementation 'org.apache.camel.quarkus:camel-quarkus-azure-storage-blob'
 
     testImplementation 'io.quarkus:quarkus-junit5'
     testImplementation 'io.quarkus:quarkus-junit5-mockito'
