@@ -52,9 +52,10 @@ public class AzureBlobService extends PersistenceService {
 
         ctx.setObjectName(objectKey);
 
-        LOG.infof("Put %s to blob store", objectKey);
+        LOG.infof("Beginning storage of %s to blob store", objectKey);
         BlobClient blobClient = blobContainerClient.getBlobClient(objectKey);
         blobClient.uploadFromFile(ctx.getFilePath());
+        LOG.infof("Completed storage of %s to blob store", objectKey);
     }
 
     @PostConstruct
