@@ -5,6 +5,7 @@
  */
 package org.alvearie.imaging.ingestion.service.s3;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -60,18 +61,26 @@ public class SimpleStoreService implements StoreService {
     public SimpleStoreService(StoreConfiguration config, Instance<PersistenceService> availablePersistenceServices) {
         this.config = config;
         LOG.info("Determining Storage Configuration");
-        if (config.isLocalStorage()) {
-            LOG.warn("Binding Local PersistenceService");
+        if (config.getStorageType() == StoreConfiguration.StorageType.EPHEMERAL) {
+            LOG.warn("Binding Ephemeral PersistenceService");
             persistenceService = availablePersistenceServices.select(LocalFileService.class).get();
-        } else {
+        } else if (config.getStorageType() == StoreConfiguration.StorageType.S3) {
             LOG.info("Binding S3 PersistenceService");
             persistenceService = availablePersistenceServices.select(S3Service.class).get();
+        } else if (config.getStorageType() == StoreConfiguration.StorageType.AZURE_BLOB) {
+            LOG.info("Binding Azure Blob PersistenceService");
+            persistenceService = availablePersistenceServices.select(AzureBlobService.class).get();
         }
     }
 
     @Override
     public void store(StoreContext ctx, InputStream data) throws IOException {
         writeToStorage(ctx, data);
+    }
+    
+    @Override
+    public ByteArrayOutputStream retrieve(String objectKey) throws IOException {
+        return persistenceService.getObject(objectKey);
     }
 
     private void writeToStorage(StoreContext ctx, InputStream data) throws DicomServiceException {

@@ -16,7 +16,6 @@ import java.security.NoSuchAlgorithmException;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
 
 import org.jboss.logging.Logger;
 
@@ -35,7 +34,6 @@ import software.amazon.awssdk.services.s3.model.PutObjectResponse;
 public class S3Service extends PersistenceService {
     private static final Logger LOG = Logger.getLogger(S3Service.class);
 
-    @Inject
     S3Client s3;
 
     @Override

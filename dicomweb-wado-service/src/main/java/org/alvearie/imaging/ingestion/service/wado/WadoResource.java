@@ -35,7 +35,7 @@ import javax.xml.transform.stream.StreamResult;
 
 import org.alvearie.imaging.ingestion.model.result.DicomAttribute;
 import org.alvearie.imaging.ingestion.model.result.DicomEntityResult;
-import org.alvearie.imaging.ingestion.service.s3.S3Service;
+import org.alvearie.imaging.ingestion.service.s3.StoreService;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.BulkData;
 import org.dcm4che3.data.Tag;
@@ -75,8 +75,8 @@ public class WadoResource {
     private Request req;
 
     @Inject
-    S3Service s3Service;
-
+    StoreService storeService;
+    
     int[] frameList;
     Date lastModified;
     boolean clientUseCache = false;
@@ -204,23 +204,27 @@ public class WadoResource {
 
             @Override
             public Object buildResponse(WadoResource service, List<DicomEntityResult> results, AsyncResponse ar) {
-
-                Date lastModified = null;
-                MultipartRelatedOutput output = new MultipartRelatedOutput();
-
-                for (DicomEntityResult rslt : results) {
-                    if (lastModified == null || lastModified.toInstant().isBefore(rslt.getLastModified().toInstant())) {
-                        lastModified = Date.from(rslt.getLastModified().toInstant());
+                try {
+                    Date lastModified = null;
+                    MultipartRelatedOutput output = new MultipartRelatedOutput();
+    
+                    for (DicomEntityResult rslt : results) {
+                        if (lastModified == null || lastModified.toInstant().isBefore(rslt.getLastModified().toInstant())) {
+                            lastModified = Date.from(rslt.getLastModified().toInstant());
+                        }
+                        String tsuid = service.getTransferSyntaxUID(rslt);
+                        if (tsuid == null) {
+                            tsuid = UID.ExplicitVRLittleEndian;
+                        }
+                        output.addPart(service.getDicom(rslt.getResource().getObjectName()),
+                                MediaTypes.forTransferSyntax(tsuid));
                     }
-                    String tsuid = service.getTransferSyntaxUID(rslt);
-                    if (tsuid == null) {
-                        tsuid = UID.ExplicitVRLittleEndian;
-                    }
-                    output.addPart(service.getDicom(rslt.getResource().getObjectName()),
-                            MediaTypes.forTransferSyntax(tsuid));
+                    service.lastModified = lastModified;
+                    return output;
+                } catch (IOException e) {
+                    LOG.error(e);
                 }
-                service.lastModified = lastModified;
-                return output;
+                return null;
             }
         },
 
@@ -400,13 +404,13 @@ public class WadoResource {
         return frames;
     }
 
-    private Object getDicom(String objectKey) {
-        ByteArrayOutputStream baos = s3Service.getObject(objectKey);
+    private Object getDicom(String objectKey) throws IOException {
+        ByteArrayOutputStream baos = storeService.retrieve(objectKey);
         return baos.toByteArray();
     }
 
-    private ByteArrayOutputStream getDicomStream(String objectKey) {
-        return s3Service.getObject(objectKey);
+    private ByteArrayOutputStream getDicomStream(String objectKey) throws IOException {
+        return storeService.retrieve(objectKey);
     }
 
     private Attributes loadMetadata(String objectKey) throws IOException {

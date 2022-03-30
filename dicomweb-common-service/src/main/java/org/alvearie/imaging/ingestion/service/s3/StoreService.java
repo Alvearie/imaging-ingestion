@@ -5,9 +5,12 @@
  */
 package org.alvearie.imaging.ingestion.service.s3;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
 public interface StoreService {
     void store(StoreContext ctx, InputStream data) throws IOException;
+    
+    ByteArrayOutputStream retrieve(String objectKey) throws IOException;
 }
