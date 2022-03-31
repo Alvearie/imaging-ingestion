@@ -15,7 +15,9 @@ dependencies {
     implementation enforcedPlatform("${quarkusPlatformGroupId}:${quarkusPlatformArtifactId}:${quarkusPlatformVersion}")
     implementation 'io.quarkus:quarkus-container-image-docker'
     implementation 'io.quarkus:quarkus-resteasy'
-    implementation 'io.quarkus:quarkus-rest-client'
+    implementation('io.quarkus:quarkus-rest-client') {
+        exclude group: 'commons-logging', module: 'commons-logging'
+    }
     implementation 'io.quarkus:quarkus-undertow'
     implementation 'io.quarkus:quarkus-arc'
     implementation 'io.quarkus:quarkus-resteasy-multipart'
