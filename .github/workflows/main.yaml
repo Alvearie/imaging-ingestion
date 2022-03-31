@@ -50,6 +50,7 @@ jobs:
     - name: Build Images with Gradle on Pull Request
       if: ${{ github.event_name == 'pull_request' }}
       run: |
+        ./gradlew -Pquarkus.package.type=native :dicomweb-wado-service:clean :dicomweb-wado-service:build
         ./gradlew build
         ./gradlew -Dquarkus.datasource.db-kind=db2 :dicom-event-driven-ingestion:clean :dicom-event-driven-ingestion:build
     - name: Build Operator
