@@ -12,12 +12,13 @@ dependencies {
     implementation project(':cloud-events')
 
     implementation enforcedPlatform("${quarkusPlatformGroupId}:${quarkusPlatformArtifactId}:${quarkusPlatformVersion}")
+    implementation enforcedPlatform("${quarkusPlatformGroupId}:quarkus-camel-bom:${quarkusPlatformVersion}")
 
     implementation 'io.quarkus:quarkus-rest-client'
     implementation 'io.quarkus:quarkus-amazon-s3'
     implementation 'software.amazon.awssdk:s3:2.15.62'
     implementation 'org.apache.camel.quarkus:camel-quarkus-azure-storage-blob'
-    
+
     implementation "org.dcm4che:dcm4che-core:${dcm4cheVersion}"
     implementation "org.dcm4che:dcm4che-net:${dcm4cheVersion}"
     implementation "org.dcm4che:dcm4che-imageio:${dcm4cheVersion}"

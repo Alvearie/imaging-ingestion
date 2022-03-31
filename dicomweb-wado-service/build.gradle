@@ -23,7 +23,7 @@ dependencies {
     implementation 'io.quarkus:quarkus-amazon-s3'
     implementation 'io.quarkus:quarkus-jsonp'
 
-    implementation 'software.amazon.awssdk:apache-client'
+    implementation 'software.amazon.awssdk:apache-client:2.17.159'
 
     implementation "org.dcm4che:dcm4che-imageio:${dcm4cheVersion}"
     implementation "org.dcm4che:dcm4che-json:${dcm4cheVersion}"

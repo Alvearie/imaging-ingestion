@@ -12,8 +12,8 @@ dependencies {
     implementation project(':dicom-search-model')
     implementation project(':dicomweb-common-service')
     implementation project(':dicom-dimse-common')
-    
-    
+
+
     implementation enforcedPlatform("${quarkusPlatformGroupId}:${quarkusPlatformArtifactId}:${quarkusPlatformVersion}")
     implementation 'io.quarkus:quarkus-container-image-docker'
     implementation 'io.quarkus:quarkus-arc'
@@ -21,10 +21,10 @@ dependencies {
     implementation 'io.quarkus:quarkus-amazon-s3'
     implementation 'io.quarkus:quarkus-rest-client'
     implementation 'io.quarkus:quarkus-resteasy-jackson'
-    implementation 'software.amazon.awssdk:apache-client'
-    
+    implementation 'software.amazon.awssdk:apache-client:2.17.159'
+
     implementation "org.dcm4che:dcm4che-net:${dcm4cheVersion}"
-    
+
     testImplementation 'io.quarkus:quarkus-junit5'
     testImplementation 'io.quarkus:quarkus-junit5-mockito'
 }
