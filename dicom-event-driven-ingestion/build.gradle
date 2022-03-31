@@ -8,6 +8,10 @@ plugins {
     id 'io.quarkus'
 }
 
+configurations.all {
+    exclude group: 'commons-logging', module: 'commons-logging'
+}
+
 dependencies {
     implementation project(':cloud-events')
     implementation project(':dicom-persistence-model')
@@ -19,9 +23,7 @@ dependencies {
     implementation 'io.quarkus:quarkus-resteasy'
     implementation 'io.quarkus:quarkus-resteasy-jackson'
     implementation 'io.quarkus:quarkus-undertow'
-    implementation('io.quarkus:quarkus-rest-client') {
-        exclude group: 'commons-logging', module: 'commons-logging'
-    }
+    implementation 'io.quarkus:quarkus-rest-client'
     implementation 'io.quarkus:quarkus-hibernate-orm-panache'
     implementation 'io.quarkus:quarkus-jdbc-postgresql'
     implementation 'io.quarkus:quarkus-jdbc-db2'

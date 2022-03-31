@@ -8,6 +8,10 @@ plugins {
     id 'io.quarkus'
 }
 
+configurations.all {
+    exclude group: 'commons-logging', module: 'commons-logging'
+}
+
 dependencies {
     implementation project(':dicomweb-common-service')
 
@@ -16,9 +20,7 @@ dependencies {
     implementation 'io.quarkus:quarkus-resteasy'
     implementation 'io.quarkus:quarkus-amazon-s3'
     implementation 'io.quarkus:quarkus-undertow'
-    implementation('io.quarkus:quarkus-rest-client') {
-        exclude group: 'commons-logging', module: 'commons-logging'
-    }
+    implementation 'io.quarkus:quarkus-rest-client'
     implementation 'io.quarkus:quarkus-resteasy-jackson'
     implementation 'software.amazon.awssdk:apache-client:2.17.159'
 

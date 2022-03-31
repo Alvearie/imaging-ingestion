@@ -8,15 +8,17 @@ plugins {
     id 'io.quarkus'
 }
 
+configurations.all {
+    exclude group: 'commons-logging', module: 'commons-logging'
+}
+
 dependencies {
     implementation project(':cloud-events')
 
     implementation enforcedPlatform("${quarkusPlatformGroupId}:${quarkusPlatformArtifactId}:${quarkusPlatformVersion}")
     implementation enforcedPlatform("${quarkusPlatformGroupId}:quarkus-camel-bom:${quarkusPlatformVersion}")
 
-    implementation('io.quarkus:quarkus-rest-client') {
-        exclude group: 'commons-logging', module: 'commons-logging'
-    }
+    implementation 'io.quarkus:quarkus-rest-client'
     implementation 'io.quarkus:quarkus-amazon-s3'
     implementation 'software.amazon.awssdk:s3:2.15.62'
     implementation 'org.apache.camel.quarkus:camel-quarkus-azure-storage-blob'
