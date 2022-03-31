@@ -34,12 +34,15 @@ public class AzureBlobService extends PersistenceService {
     @Override
     ByteArrayOutputStream getObject(String objectKey) throws IOException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        
-        BlockBlobClient blobClient = blobContainerClient.getBlobClient(objectKey).getBlockBlobClient();
-        blobClient.downloadStream(baos);
-        
-        // Do we need to close the stream before we return?
-        baos.close();
+        try {
+            LOG.infof("Beginning retrieval of %s from blob store", objectKey);
+            BlockBlobClient blobClient = blobContainerClient.getBlobClient(objectKey).getBlockBlobClient();
+            blobClient.downloadStream(baos);
+            LOG.infof("Completed retrieval of %s from blob store", objectKey);
+        } finally {
+            baos.close();
+            LOG.infof("Failed retrieving of %s from blob store", objectKey);
+        }
         return baos;
     }
 
@@ -54,7 +57,7 @@ public class AzureBlobService extends PersistenceService {
 
         LOG.infof("Beginning storage of %s to blob store", objectKey);
         BlobClient blobClient = blobContainerClient.getBlobClient(objectKey);
-        blobClient.uploadFromFile(ctx.getFilePath());
+        blobClient.uploadFromFile(ctx.getFilePath(), true);
         LOG.infof("Completed storage of %s to blob store", objectKey);
     }
 
@@ -66,8 +69,6 @@ public class AzureBlobService extends PersistenceService {
 
         BlobServiceClient blobServiceClient = new BlobServiceClientBuilder().endpoint(endpoint).credential(credential)
                 .buildClient();
-
-        // Do we create up front or in code above here?
         blobContainerClient = blobServiceClient.getBlobContainerClient(config.getAzureContainerName());
     }
 
