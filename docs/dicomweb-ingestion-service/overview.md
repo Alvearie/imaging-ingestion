@@ -17,13 +17,16 @@ Provides the STOW-RS implementation.  When the STOW-RS service is pushed DICOM o
 Provides the QIDO-RS and WADO-RS implementations.  When DICOM is stored in the storage space, the *DICOMweb Ingestion Service* has no record of where that data is placed or it's DICOM study context.  The *Ingestion Query Endpoint* provides the binding to the 
 *DICOM Event Driven Ingestion* for searching for raw DICOM resources within the storage space.   
 
+## DICOM Storage
+  There is support for persistent storage to either an S3 bucket or an Azure Blob container.
+
 ## Deployment  
   The *DICOMweb Ingestion Service* is intended to be consumed within a *Kubernetes* cluster with *Knative Serving* and *Knative Eventing*.  The provided [operator](../operator/overview.md) provides a single *Custom Resource Definition* for creating and managing instances of the *DICOMweb Ingestion Service* subcomponent.  The provided operator will deploy the *DICOMweb Ingestion Service* as two *Knative* service configurations with an ingress to each service.  There are also Cluster Local addresses provided for accessing the services from within the local *Kubernetes* cluster.  The provided *Custom Resource* exposes the elastic behavior of the services with the ability to specify concurrency and both upper and lower replica counts for scaling.  The operator performs all of the wiring of the *KSINK Endpoint* to the event broker and the *Ingestion Query Endpoint* to the *DICOM Event Driven Ingestion Service*.
 
 
 **S3 Bucket Endpoint Details**
 
-Create a *ConfigMap* with the S3 service address and the object bucket to use.
+When using S3 as the storage provider, create a *ConfigMap* with the S3 service address and the object bucket to use.
 
 ```yaml
 kind: ConfigMap
@@ -36,12 +39,11 @@ data:
   BUCKET_PORT: '80'
   BUCKET_REGION: region1
   BUCKET_SUBREGION: ''
-
 ```
 
 **S3 Bucket Credentials**
 
-Create a *Opague Secret* with the API key and access token for accessing the provided object bucket.
+When using S3 as the storage provider, create a *Opague Secret* with the base64 encoded API key and access token for accessing the provided object bucket.
 
 ```yaml
 kind: Secret
@@ -54,6 +56,34 @@ data:
 type: Opaque
 ```
 
+**Azure Blob Container Endpoint Details**
+
+When using Azure Blob containers as the storage provider, create a *ConfigMap* with the Azure Storage Account and the container to use.
+
+```yaml
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: img-ingest-azure
+data:
+  AZURE_STORAGE_CONNECTION_STRING: https://storageAccountName.blob.core.windows.net
+  AZURE_CONTAINER_NAME: client-gateway1
+```
+
+**Azure Blob Container Credentials**
+
+When using Azure Blob containers as the storage provider, create a *Opague Secret* with the base64 encoded Storage Account name and access key.
+```yaml
+kind: Secret
+apiVersion: v1
+metadata:
+  namespace: tenant1
+  name: img-ingest-azure
+data:
+  AZURE_STORAGE_ACCOUNT_NAME: xxxxxx=
+  AZURE_STORAGE_ACCOUNT_KEY: yyyyyyyyy==
+type: Opaque
+```
  
  **Custom Resource**
 
@@ -65,9 +95,9 @@ kind: DicomwebIngestionService
 metadata:
   name: img-ingest
 spec:
-  # Reference to the ConfigMap with the S3 endpoint details
+  # Reference to the ConfigMap with the S3 or Azure Blob endpoint details
   bucketConfigName: img-ingest-s3
-  # Reference to the Secret with the S3 credentials
+  # Reference to the Secret with the S3 or Azure Blob credentials
   bucketSecretName: img-ingest-s3
   # Reference to the event broker that was created with the DicomEventDrivenIngestion custom resource
   dicomEventDrivenIngestionName: core

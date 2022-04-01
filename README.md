@@ -35,12 +35,6 @@ The imaging ingestion component is currently comprised of six (6) subcomponents:
   
  The *DICOM Instance Binding* and *DICOM Study Binding* components are intended to enable consistent deployment and management of a number of different implementations.  Implementations may range from DICOMweb, to FHIRv4, to DIMSE, to proprietary.  Our development [roadmap](docs/roadmap.md) provides details on planned support for all medical imaging standard protocols.
 
-## Development Roadmap
-  Development Roadmap is available [here](docs/roadmap.md).  Community feedback is welcome! 
-  
-  - Getting started with [contribution](CONTRIBUTING.md), including how to build from source.
-  - Open an [issue](https://github.com/Alvearie/imaging-ingestion/issues).
-
 
 ## Deployment Dependencies
   The preferred deployment has the following deployment dependencies beyond *Kubernetes* core.  There a number of ways in which these dependencies can be added to the cluster; depending upon the target platform.  The preferred approach is to use *Kubernetes* operators whenever possible. 
@@ -52,7 +46,7 @@ The imaging ingestion component is currently comprised of six (6) subcomponents:
 | [Istio](https://istio.io)| Service mesh for Knative and service security overlay| [Istio Operator](https://github.com/istio/istio/tree/master/operator) |OpenShift Service Mesh |  yes | |
 |[Knative Serving and Eventing](https://knative.dev/docs/serving)| Serving elastic scalable microservices and Event-first interaction patterns between microservices | [Knative Operator](https://github.com/knative/operator) | OpenShift Serverless Operator | yes | | 
 |[PostgreSQL](https://www.postgresql.org)| Default backing store for imaging manifest data | [Crunchy Data PostgreSQL Operator ](https://github.com/CrunchyData/postgres-operator) | certified | yes | |
-|Any S3 compliant object storage| DICOM storage spaces| [MinIO](https://github.com/minio/minio-operator) | OpenShift Container Storage |  yes |  |
+|Any S3 compliant object storage | DICOM storage spaces| [MinIO](https://github.com/minio/minio-operator) | OpenShift Container Storage |  yes |  |
 |[NATS](https://nats.io)| Messaging DIMSE to/from the enterprise imaging security zone and *Kubernetes*.  **This is optional and only needed for DIMSE support**.| [NATS Operator](https://github.com/nats-io/nats-operator) |Not certified |  no | [example](examples/nats/README.md) |
 
 
