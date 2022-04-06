@@ -12,11 +12,14 @@ dependencies {
     implementation project(':dicom-dimse-common')
 
     implementation enforcedPlatform("${quarkusPlatformGroupId}:${quarkusPlatformArtifactId}:${quarkusPlatformVersion}")
+    implementation enforcedPlatform("${quarkusPlatformGroupId}:quarkus-camel-bom:${quarkusPlatformVersion}")
+    
     implementation 'io.quarkus:quarkus-container-image-docker'
     implementation 'io.quarkus:quarkus-arc'
     implementation 'io.quarkus:quarkus-smallrye-context-propagation'
+    
+    implementation 'org.apache.camel.quarkus:camel-quarkus-nats'
 
-    implementation 'io.nats:jnats:2.8.0'
     implementation "org.dcm4che:dcm4che-net:${dcm4cheVersion}"
 
     testImplementation 'io.quarkus:quarkus-junit5'
