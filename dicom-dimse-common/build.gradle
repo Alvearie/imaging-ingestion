@@ -8,6 +8,9 @@ plugins {
 }
 
 dependencies {
+
+    implementation enforcedPlatform("${quarkusPlatformGroupId}:${quarkusPlatformArtifactId}:${quarkusPlatformVersion}")
+
     implementation 'org.eclipse.microprofile.context-propagation:microprofile-context-propagation-api:1.0.1'
     implementation "io.quarkus:quarkus-core:${quarkusPlatformVersion}"
 

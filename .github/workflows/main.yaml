@@ -47,8 +47,6 @@ jobs:
       run: |
         ./gradlew -Pquarkus.package.type=native build
         ./gradlew -Pquarkus.package.type=native -Dquarkus.datasource.db-kind=db2 :dicom-event-driven-ingestion:clean :dicom-event-driven-ingestion:build
-        ./gradlew -PquarkusPluginVersion=2.4.2.Final -PquarkusPlatformGroupId=io.quarkus -PquarkusPlatformArtifactId=quarkus-universe-bom -PquarkusPlatformVersion=2.4.2.Final -Dquarkus.package.type=native :dicom-dimse-proxy:clean :dicom-dimse-proxy:build
-        ./gradlew :dicom-dimse-service:clean :dicom-dimse-service:build
     - name: Build Images with Gradle on Pull Request
       if: ${{ github.event_name == 'pull_request' }}
       run: |
