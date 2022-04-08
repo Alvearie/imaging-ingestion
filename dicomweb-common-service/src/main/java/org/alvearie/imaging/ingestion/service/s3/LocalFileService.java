@@ -48,7 +48,7 @@ public class LocalFileService extends PersistenceService {
 
         ctx.setObjectName(key);
 
-        File bucketDir = Paths.get(config.getLocalStoragePath(), config.getBucketName()).toFile();
+        File bucketDir = Paths.get(config.getLocalStoragePath()).toFile();
         // Create the folder in the container
         if (!bucketDir.exists()) {
             bucketDir.mkdir();

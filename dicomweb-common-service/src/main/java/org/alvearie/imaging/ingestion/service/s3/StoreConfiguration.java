@@ -24,14 +24,16 @@ public class StoreConfiguration {
 
     @ConfigProperty(name = "bucket.secret.path")
     String bucketSecretPath;
-    
-    public enum StorageType {EPHEMERAL, S3, AZURE_BLOB};
-    
+
+    public enum StorageType {
+        EPHEMERAL, S3, AZURE_BLOB
+    };
+
     private static final String DEFAULT_EPHEMERAL_STORAGE_PATH = "/data";
 
     // Local storage
     private String localStoragePath;
-    
+
     // S3
     private String awsAcessKeyID;
     private String awsSecretAccessKey;
@@ -39,13 +41,13 @@ public class StoreConfiguration {
     private String bucketPort;
     private String bucketRegion;
     private String bucketName;
-    
+
     // Azure Blob
     private String azureConnectionString;
     private String azureStorageAccountName;
     private String azureStorageAccountKey;
     private String azureContainerName;
-    
+
     private StorageType configuredStorage;
 
     @PostConstruct
@@ -68,12 +70,12 @@ public class StoreConfiguration {
             } else {
                 configuredStorage = StorageType.EPHEMERAL;
                 this.localStoragePath = readConfigFromFile(bucketConfigPath, "LOCAL_STORAGE_PATH");
-                if (localStoragePath != null) {
+                if (localStoragePath == null) {
                     this.localStoragePath = DEFAULT_EPHEMERAL_STORAGE_PATH;
                 }
             }
-        } 
-            
+        }
+
     }
 
     private String readConfigFromFile(String base, String name) throws IOException {
@@ -82,11 +84,11 @@ public class StoreConfiguration {
         try {
             value = Files.readString(Paths.get(base, name));
         } catch (IOException e) {
-           // ignore, no value or unreadable value, will set as an empty string 
+            // ignore, no value or unreadable value, will set as an empty string
         }
         return value == null || value.isEmpty() ? null : value.trim();
     }
-    
+
     public StorageType getStorageType() {
         return configuredStorage;
     }
@@ -118,19 +120,19 @@ public class StoreConfiguration {
     public String getBucketName() {
         return bucketName;
     }
-    
+
     public String getAzureConnectionString() {
         return azureConnectionString;
     }
-    
+
     public String getAzureStorageAccountName() {
         return azureStorageAccountName;
     }
-    
+
     public String getAzureStorageAccountKey() {
         return azureStorageAccountKey;
     }
-    
+
     public String getAzureContainerName() {
         return azureContainerName;
     }
