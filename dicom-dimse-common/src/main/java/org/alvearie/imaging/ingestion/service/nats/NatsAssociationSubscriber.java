@@ -14,6 +14,7 @@ import org.alvearie.imaging.ingestion.service.dimse.CEchoHandler;
 import org.alvearie.imaging.ingestion.service.dimse.DimseCommandRegistry;
 import org.alvearie.imaging.ingestion.service.nats.Constants.NatsSubjectChannel;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.eclipse.microprofile.context.ManagedExecutor;
 import org.jboss.logging.Logger;
 
 import io.nats.client.Connection;
@@ -42,6 +43,9 @@ public class NatsAssociationSubscriber {
     @Inject
     NatsConnectionFactory natsConnectionFactory;
 
+    @Inject
+    ManagedExecutor executor;
+
     private Dispatcher dispatcher;
     private String subject;
 
@@ -60,15 +64,20 @@ public class NatsAssociationSubscriber {
     }
 
     private void onMessage(Connection connection, Message msg) {
-        String serialNumber = new String(msg.getData());
-        LOG.info(subject + ": onMessage: " + serialNumber);
+        executor.execute(new Runnable() {
+            @Override
+            public void run() {
+                String serialNumber = new String(msg.getData());
+                LOG.info(subject + ": onMessage: " + serialNumber);
 
-        String rootSubject = subjectRoot + "." + subjectChannel.getChannel() + "." + serialNumber;
-        String messageSubject = rootSubject + ".>";
-        NatsMessageSubscriber messageSubscriber = new NatsMessageSubscriber(connection, messageSubject,
-                msg.getReplyTo(), commandRegistry);
-        holder.addSubscriber(rootSubject, messageSubscriber);
-        LOG.info("New message subscriber created for " + messageSubscriber.getSubject());
+                String rootSubject = subjectRoot + "." + subjectChannel.getChannel() + "." + serialNumber;
+                String messageSubject = rootSubject + ".>";
+                NatsMessageSubscriber messageSubscriber = new NatsMessageSubscriber(connection, messageSubject,
+                        msg.getReplyTo(), commandRegistry);
+                holder.addSubscriber(rootSubject, messageSubscriber);
+                LOG.info("New message subscriber created for " + messageSubscriber.getSubject());
+            }
+        });
     }
 
     @PreDestroy
