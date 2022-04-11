@@ -11,6 +11,7 @@ import java.util.UUID;
 
 import javax.inject.Inject;
 
+import org.alvearie.imaging.ingestion.event.DicomAvailableEvent;
 import org.alvearie.imaging.ingestion.event.Element;
 import org.alvearie.imaging.ingestion.event.Image;
 import org.alvearie.imaging.ingestion.event.ImageStoredEvent;
@@ -42,10 +43,10 @@ public class EventProcessorFunctionTest {
 
         CloudEvent<ImageStoredEvent> event = Mockito.mock(CloudEvent.class);
 
-        CloudEvent<String> result = processor.imageStoredEventChain(data, event);
+        CloudEvent<DicomAvailableEvent> result = processor.imageStoredEventChain(data, event);
         Assertions.assertNotNull(result);
         Assertions.assertEquals(String.format("%s/studies/%s/series/%s/instances/%s", "wadoInternalEndpoint", STUDY_ID,
-                SERIES_ID, INSTANCE_ID), result.data());
+                SERIES_ID, INSTANCE_ID), result.data().getEndpoint());
     }
 
     private ImageStoredEvent createData() {

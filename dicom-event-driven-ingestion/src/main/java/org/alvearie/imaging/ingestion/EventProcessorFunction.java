@@ -20,6 +20,7 @@ import org.alvearie.imaging.ingestion.entity.DicomSeriesEntity;
 import org.alvearie.imaging.ingestion.entity.DicomStudyAttributesEntity;
 import org.alvearie.imaging.ingestion.entity.DicomStudyEntity;
 import org.alvearie.imaging.ingestion.entity.ProviderEntity;
+import org.alvearie.imaging.ingestion.event.DicomAvailableEvent;
 import org.alvearie.imaging.ingestion.event.Element;
 import org.alvearie.imaging.ingestion.event.Events;
 import org.alvearie.imaging.ingestion.event.ImageStoredEvent;
@@ -48,23 +49,23 @@ public class EventProcessorFunction {
 
     @Funq
     @CloudEventMapping(trigger = Events.ImageStoredEvent, responseType = Events.DicomAvailableEvent)
-    public CloudEvent<String> imageStoredEventChain(ImageStoredEvent data,
+    public CloudEvent<DicomAvailableEvent> imageStoredEventChain(ImageStoredEvent data,
             @Context CloudEvent<ImageStoredEvent> event) {
         log.info(String.format("Event received - id: %s, source: %s", event.id(), event.source()));
 
-        String resource = null;
+        DicomAvailableEvent resultEvent = null;
         try {
-            resource = process(data);
-            log.info("Resource: " + resource);
+            resultEvent = process(data);
+            log.info("Result Event: " + resultEvent);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
         }
 
         log.info(String.format("Event processed - id: %s, source: %s", event.id(), event.source()));
 
-        CloudEvent<String> result = CloudEventBuilder.create().specVersion(Events.EventSpecVersion).source(eventSource)
-                .build(resource);
-        log.info(String.format("Result event - %s", result));
+        CloudEvent<DicomAvailableEvent> result = CloudEventBuilder.create().specVersion(Events.EventSpecVersion)
+                .source(eventSource).build(resultEvent);
+        log.info(String.format("Result cloud event - %s", result));
 
         return result;
     }
@@ -166,7 +167,7 @@ public class EventProcessorFunction {
         return instance;
     }
 
-    private String process(ImageStoredEvent e) {
+    private DicomAvailableEvent process(ImageStoredEvent e) {
         DicomStudyEntity study = null;
         DicomSeriesEntity series = null;
         DicomInstanceEntity instance = null;
@@ -310,8 +311,13 @@ public class EventProcessorFunction {
 
                 studyManager.markLastUpdated(studyInstanceUID);
 
-                return String.format("%s/studies/%s/series/%s/instances/%s", series.provider.wadoInternalEndpoint,
-                        study.studyInstanceUID, series.seriesInstanceUID, instance.sopInstanceUID);
+                DicomAvailableEvent resultEvent = new DicomAvailableEvent();
+                resultEvent.setEndpoint(
+                        String.format("%s/studies/%s/series/%s/instances/%s", series.provider.wadoInternalEndpoint,
+                                study.studyInstanceUID, series.seriesInstanceUID, instance.sopInstanceUID));
+                resultEvent.setProvider(providerName);
+
+                return resultEvent;
             }
         }
 

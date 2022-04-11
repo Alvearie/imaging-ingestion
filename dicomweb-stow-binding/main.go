@@ -19,6 +19,7 @@ import (
 	"net/textproto"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 
 	cloudevents "github.com/cloudevents/sdk-go/v2"
@@ -32,7 +33,8 @@ const (
 
 // DicomAvailableEvent is the Dicom Available Event struct
 type DicomAvailableEvent struct {
-	URL string `json:",inline"`
+	Provider string `json:"provider"`
+	Endpoint string `json:"endpoint"`
 }
 
 // Receiver is a struct
@@ -40,7 +42,12 @@ type Receiver struct {
 	client        cloudevents.Client
 	StowEndpoint  string `envconfig:"STOW_ENDPOINT"`
 	StowAuthToken string `envconfig:"STOW_AUTH_TOKEN"`
+	Selector      string `envconfig:"SELECTOR"`
 }
+
+var (
+	selectorPatterns = []string{}
+)
 
 func main() {
 	client, err := cloudevents.NewDefaultClient()
@@ -51,22 +58,55 @@ func main() {
 	r := Receiver{client: client}
 	envconfig.MustProcess("", &r)
 
+	initSelectorPatterns(r.Selector)
+
 	fmt.Println("Starting server")
 	if err := client.StartReceiver(context.Background(), r.Receive); err != nil {
 		log.Fatal(err)
 	}
 }
 
+func initSelectorPatterns(selector string) {
+	if selector != "" {
+		parts := strings.Split(selector, ",")
+		for _, p := range parts {
+			p = strings.Trim(p, " ")
+			if len(p) > 0 {
+				selectorPatterns = append(selectorPatterns, p)
+			}
+		}
+	}
+}
+
+func isFilteredEvent(s string) bool {
+	if len(selectorPatterns) == 0 {
+		return false
+	}
+
+	for _, p := range selectorPatterns {
+		match, _ := regexp.MatchString(p, s)
+		if match {
+			return false
+		}
+	}
+	return true
+}
+
 // Receive is invoked whenever we receive an event.
 func (recv *Receiver) Receive(ctx context.Context, event cloudevents.Event) {
-	var dicomReadURL string
-	if err := event.DataAs(&dicomReadURL); err != nil {
+	var dicomAvailableEvent DicomAvailableEvent
+	if err := event.DataAs(&dicomAvailableEvent); err != nil {
 		log.Printf("failed to convert data: %s\n", err)
 		return
 	}
 
-	fmt.Printf("dicomReadURL: %s\n", dicomReadURL)
-	filePath, err := recv.Get(dicomReadURL)
+	if isFilteredEvent(dicomAvailableEvent.Provider) {
+		log.Printf("Filtered event - id: %s, source: %s, provider: %s", event.ID(), event.Source(), dicomAvailableEvent.Provider)
+		return
+	}
+
+	fmt.Printf("dicomReadURL: %s\n", dicomAvailableEvent.Endpoint)
+	filePath, err := recv.Get(dicomAvailableEvent.Endpoint)
 	if err != nil {
 		log.Printf("failed to get dicom image: %s\n", err)
 		return

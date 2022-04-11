@@ -77,6 +77,7 @@ jobs:
         docker push alvearie/dicomweb-stow-service:${{ env.IMAGING_INGESTION_VERSION }}
         docker push alvearie/dicom-dimse-service:${{ env.IMAGING_INGESTION_VERSION }}
         docker push alvearie/dicom-dimse-proxy:${{ env.IMAGING_INGESTION_VERSION }}
+        docker push alvearie/dicom-cstore-binding:${{ env.IMAGING_INGESTION_VERSION }}
         docker push alvearie/nats-event-bridge:${{ env.IMAGING_INGESTION_VERSION }}
         docker push alvearie/imaging-ingestion-operator:${{ env.IMAGING_INGESTION_OPERATOR_VERSION }}
         docker push alvearie/imaging-ingestion-operator-bundle:${{ env.IMAGING_INGESTION_OPERATOR_VERSION }}
