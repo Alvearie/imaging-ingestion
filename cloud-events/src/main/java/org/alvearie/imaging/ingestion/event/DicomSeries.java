@@ -11,9 +11,10 @@ public class DicomSeries {
     private String seriesInstanceUID;
     private Integer number;
     private String modality;
-    private List<DicomSeriesAttribute> attributes;
+    private List<Element> attributes;
     private List<DicomInstance> instances;
     private String endpoint;
+    private String providerName;
 
     public String getSeriesInstanceUID() {
         return seriesInstanceUID;
@@ -31,11 +32,11 @@ public class DicomSeries {
         this.number = number;
     }
 
-    public List<DicomSeriesAttribute> getAttributes() {
+    public List<Element> getAttributes() {
         return attributes;
     }
 
-    public void setAttributes(List<DicomSeriesAttribute> attributes) {
+    public void setAttributes(List<Element> attributes) {
         this.attributes = attributes;
     }
 
@@ -61,5 +62,13 @@ public class DicomSeries {
 
     public void setEndpoint(String endpoint) {
         this.endpoint = endpoint;
+    }
+
+    public String getProviderName() {
+        return providerName;
+    }
+
+    public void setProviderName(String providerName) {
+        this.providerName = providerName;
     }
 }

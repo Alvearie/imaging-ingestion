@@ -24,14 +24,12 @@ import org.alvearie.imaging.ingestion.model.result.DicomResource;
 import org.apache.commons.lang3.StringUtils;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.VR;
-import org.jboss.logging.Logger;
 
 @ApplicationScoped
 public class RetrieveService {
-    private static final Logger LOG = Logger.getLogger(RetrieveService.class);
-
-    public DicomStudyEntity retrieveStudy(String studyUID) {
-        DicomStudyEntity study = DicomStudyEntity.findByStudyInstanceUID(studyUID, false);
+    
+    protected DicomStudyEntity loadStudy(String studyUID, boolean lock) {
+        DicomStudyEntity study = DicomStudyEntity.findByStudyInstanceUID(studyUID, lock);
         if (study != null) {
             if (study.series != null) {
                 for (DicomSeriesEntity series : study.series) {
@@ -52,6 +50,14 @@ public class RetrieveService {
         }
 
         return study;
+    }
+
+    public DicomStudyEntity retrieveStudy(String studyUID) {
+        return loadStudy(studyUID, false);
+    }
+    
+    public DicomStudyEntity lockStudy(String studyUID) {
+        return loadStudy(studyUID, true);
     }
 
     public List<DicomEntityResult> getResults(String studyId, String source) {

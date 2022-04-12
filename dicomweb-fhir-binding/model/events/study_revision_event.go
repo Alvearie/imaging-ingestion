@@ -7,13 +7,16 @@ package events
 
 // StudyRevisionEvent is the Study Revision Event
 type StudyRevisionEvent struct {
-	Study DicomStudy `json:"study"`
+	Revision int                            `json:"revision"`
+	Study DicomStudy                        `json:"study"`
+	ChangeSet RevisionChangeSet             `json:"changeSet"`
 }
 
 // DicomStudy is Dicom Study
 type DicomStudy struct {
-	StudyInstanceUID string        `json:"studyInstanceUID"`
-	Series           []DicomSeries `json:"series"`
+	StudyInstanceUID string                  `json:"studyInstanceUID"`
+	Attributes       []DicomElement          `json:"attributes"`
+	Series           []DicomSeries           `json:"series"`
 }
 
 // DicomSeries is Dicom Series
@@ -21,15 +24,17 @@ type DicomSeries struct {
 	SeriesInstanceUID string                 `json:"seriesInstanceUID"`
 	Number            int                    `json:"number"`
 	Modality          string                 `json:"modality"`
-	Attributes        []DicomSeriesAttribute `json:"attributes"`
+	Attributes        []DicomElement         `json:"attributes"`
 	Instances         []DicomInstance        `json:"instances"`
 	Endpoint          string                 `json:"endpoint"`
+	ProviderName      string                 `json:providerName"`
 }
 
-// DicomSeriesAttribute is Dicom Series Attribute
-type DicomSeriesAttribute struct {
+// DicomElement is Dicom tag element
+type DicomElement struct {
 	Group   int    `json:"group"`
 	Element int    `json:"element"`
+	VR      string `json:"vr"`
 	Value   string `json:"value"`
 }
 
@@ -38,4 +43,11 @@ type DicomInstance struct {
 	SopInstanceUID string `json:"sopInstanceUID"`
 	SopClassUID    string `json:"sopClassUID"`
 	Number         int    `json:"number"`
+}
+
+// RevisionChangeSet is the changes in this revision vs the previous revision
+type RevisionChangeSet struct {
+	Additions     []string   `json:"additions"`
+	Deletions     []string   `json:"deletions"`
+	Modifications []string   `json:"modifications"`
 }

@@ -9,7 +9,9 @@ import java.util.List;
 
 public class DicomStudy {
     private String studyInstanceUID;
+    private List<Element> attributes;
     private List<DicomSeries> series;
+   
 
     public String getStudyInstanceUID() {
         return studyInstanceUID;
@@ -25,5 +27,13 @@ public class DicomStudy {
 
     public void setSeries(List<DicomSeries> series) {
         this.series = series;
+    }
+
+    public List<Element> getAttributes() {
+        return attributes;
+    }
+
+    public void setAttributes(List<Element> attributes) {
+        this.attributes = attributes;
     }
 }
