@@ -140,9 +140,11 @@ public class EventProcessorFunction {
         DicomSeriesEntity series = DicomSeriesEntity.findBySeriesInstanceUID(seriesId, false);
         DicomInstanceEntity instance = DicomInstanceEntity.findBySopInstanceUID(instanceId);
 
+        OffsetDateTime now = OffsetDateTime.now(ZoneOffset.UTC);
         if (instance == null) {
             instance = new DicomInstanceEntity();
             instance.sopInstanceUID = instanceId;
+            instance.initialRevision = series.study.revision;
             series.addInstance(instance);
         } else {
             log.info("Instance exists: " + instanceId);
@@ -151,7 +153,7 @@ public class EventProcessorFunction {
         instance.transferSyntaxUID = transferSyntaxUID;
         instance.number = instanceNumber;
         instance.objectName = objectName;
-        instance.lastModified = OffsetDateTime.now(ZoneOffset.UTC);
+        instance.lastModified = now;
 
         if (!instance.isPersistent()) {
             try {

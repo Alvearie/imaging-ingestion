@@ -42,6 +42,7 @@ public class DicomStudyEntity extends PanacheEntity {
     @Column(name = "study_time")
     public String studyTime;
 
+    @Column(name = "revision")
     public Integer revision;
 
     @Column(name = "revision_time")

@@ -39,6 +39,12 @@ public class DicomInstanceEntity extends PanacheEntity {
 
     @Column(name = "last_modified")
     public OffsetDateTime lastModified;
+    
+    @Column(name="initial_revision")
+    public Integer initialRevision;
+    
+    @Column(name="deleted_revision")
+    public Integer deletedRevision;
 
     public static DicomInstanceEntity findBySopInstanceUID(String id) {
         return find("sopInstanceUID", id).firstResult();
@@ -69,6 +75,7 @@ public class DicomInstanceEntity extends PanacheEntity {
     @Override
     public String toString() {
         return "DicomInstanceEntity [sopInstanceUID=" + sopInstanceUID + ", sopClassUID=" + sopClassUID + ", number="
-                + number + ", objectName=" + objectName + ", lastModified=" + lastModified + ", id=" + id + "]";
+                + number + ", objectName=" + objectName + ", initialRevision=" + initialRevision 
+                + ", deletedRevision=" + deletedRevision + ", lastModified=" + lastModified + ", id=" + id + "]";
     }
 }
