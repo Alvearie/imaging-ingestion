@@ -50,9 +50,6 @@ ENV JAVA_OPTIONS="-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jb
 
 COPY build/*-runner.jar /deployments/app.jar
 
-#Copy the default config
-COPY --chown=1001 build/resources/main/dimse-config/* /etc/config/dimse-default/
-
 EXPOSE 8080
 USER 1001
 

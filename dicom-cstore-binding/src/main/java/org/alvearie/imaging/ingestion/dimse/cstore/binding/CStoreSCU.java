@@ -9,15 +9,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
-import java.time.Duration;
-import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
 
-import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import org.alvearie.imaging.ingestion.service.dimse.DeviceConfiguration;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.UID;
@@ -37,8 +32,6 @@ import org.dcm4che3.util.SafeClose;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.context.ManagedExecutor;
 import org.jboss.logging.Logger;
-
-import io.quarkus.scheduler.Scheduled;
 
 @ApplicationScoped
 public class CStoreSCU {
@@ -62,31 +55,14 @@ public class CStoreSCU {
     @ConfigProperty(name = "dimse.target.device")
     String targetDevice;
 
-    @ConfigProperty(name = "cstore.aggregation.timeoutSeconds")
-    Integer timeout;
-
-    @Inject
-    DeviceConfiguration deviceConfiguration;
-
     @Inject
     ManagedExecutor executor;
-
-    private String[] tsuids;
-    private String[] cuids;
-    private AssociationContext asCtx;
-    private Object lock = new Object();
-
-    @PostConstruct
-    private void init() {
-        tsuids = deviceConfiguration.getImageTsuids().toArray(new String[] {});
-        cuids = deviceConfiguration.getImageCuids().toArray(new String[] {});
-    }
 
     public interface RSPHandlerFactory {
         DimseRSPHandler createDimseRSPHandler(File f);
     }
 
-    private Association openAssociation()
+    private Association openAssociation(String cuid, String ts)
             throws IOException, InterruptedException, IncompatibleConnectionException, GeneralSecurityException {
         Device device = new Device(deviceName);
         Connection conn = new Connection();
@@ -99,7 +75,7 @@ public class CStoreSCU {
         device.setExecutor(executor);
 
         AAssociateRQ rq = new AAssociateRQ();
-        addPresentationContexts(rq);
+        addPresentationContexts(rq, cuid, ts);
 
         rq.setCalledAET(targetAe);
 
@@ -113,9 +89,6 @@ public class CStoreSCU {
     }
 
     private void closeAssociation(Association as) throws IOException, InterruptedException {
-        synchronized (lock) {
-            this.asCtx = null;
-        }
         if (as != null) {
             if (as.isReadyForDataTransfer()) {
                 as.release();
@@ -126,27 +99,13 @@ public class CStoreSCU {
 
     public void cecho()
             throws IOException, InterruptedException, IncompatibleConnectionException, GeneralSecurityException {
-        Association as = openAssociation();
+        Association as = openAssociation(null, null);
         as.cecho().next();
         closeAssociation(as);
     }
 
     public void cstore(String path)
             throws IOException, InterruptedException, IncompatibleConnectionException, GeneralSecurityException {
-
-        final Association as;
-        synchronized (lock) {
-            if (this.asCtx != null && this.asCtx.getAssociation() != null
-                    && this.asCtx.getAssociation().isReadyForDataTransfer()) {
-                LOG.info("Re-using existing association");
-                as = this.asCtx.getAssociation();
-                this.asCtx.markLastUpdated();
-            } else {
-                LOG.info("Creating new association");
-                as = openAssociation();
-                this.asCtx = new AssociationContext(as);
-            }
-        }
 
         File file = new File(path);
 
@@ -178,77 +137,54 @@ public class CStoreSCU {
         LOG.info("Instance UID: " + iuid);
         LOG.info("Transfer Syntax: " + ts);
 
-        FileInputStream fin = new FileInputStream(path);
+        final Association as = openAssociation(cuid, ts);
+
         try {
-            fin.skip(dsPos);
-            InputStreamDataWriter data = new InputStreamDataWriter(fin);
-            as.cstore(cuid, iuid, Priority.NORMAL, data, ts, new RSPHandlerFactory() {
-                @Override
-                public DimseRSPHandler createDimseRSPHandler(File f) {
-                    return new DimseRSPHandler(as.nextMessageID()) {
-                        @Override
-                        public void onDimseRSP(Association as, Attributes cmd, Attributes data) {
-                            super.onDimseRSP(as, cmd, data);
-                            LOG.info("RSP Status for: " + f.getName() + ": " + cmd.getInt(Tag.Status, -1));
-                        }
-                    };
-                }
-            }.createDimseRSPHandler(file));
-        } catch (Exception e) {
-            throw new IOException(e.getMessage());
-        } finally {
-            SafeClose.close(fin);
-        }
-    }
-
-    private void addPresentationContexts(AAssociateRQ rq) {
-        rq.addPresentationContext(new PresentationContext(1, UID.Verification, UID.ImplicitVRLittleEndian));
-        for (String cuid : cuids) {
-            LOG.debug("Adding Presentation Context for " + cuid);
-
-            for (String ts : tsuids) {
-                if (rq.containsPresentationContextFor(cuid, ts)) {
-                    continue;
-                }
-
-                if (!rq.containsPresentationContextFor(cuid)) {
-                    if (!ts.equals(UID.ExplicitVRLittleEndian)) {
-                        rq.addPresentationContext(new PresentationContext(rq.getNumberOfPresentationContexts() * 2 + 1,
-                                cuid, UID.ExplicitVRLittleEndian));
-                    }
-                    if (!ts.equals(UID.ImplicitVRLittleEndian)) {
-                        rq.addPresentationContext(new PresentationContext(rq.getNumberOfPresentationContexts() * 2 + 1,
-                                cuid, UID.ImplicitVRLittleEndian));
-                    }
-                }
-
-                rq.addPresentationContext(
-                        new PresentationContext(rq.getNumberOfPresentationContexts() * 2 + 1, cuid, ts));
-            }
-        }
-    }
-
-    @Scheduled(every = "{cstore.aggregation.schedule}")
-    void schedule() {
-        LOG.debug("Scheduled cleanup triggered");
-        Association as = null;
-        synchronized (lock) {
-            if (this.asCtx != null && this.asCtx.getAssociation() != null && this.asCtx.getLastUpdated() != null) {
-                long durationSeconds = Duration.between(this.asCtx.getLastUpdated(), OffsetDateTime.now(ZoneOffset.UTC))
-                        .toSeconds();
-                if (durationSeconds > timeout) {
-                    as = this.asCtx.getAssociation();
-                }
-            }
-        }
-
-        if (as != null) {
-            LOG.info("Closing association: " + as);
+            FileInputStream fin = new FileInputStream(path);
             try {
-                closeAssociation(as);
+                fin.skip(dsPos);
+                InputStreamDataWriter data = new InputStreamDataWriter(fin);
+                as.cstore(cuid, iuid, Priority.NORMAL, data, ts, new RSPHandlerFactory() {
+                    @Override
+                    public DimseRSPHandler createDimseRSPHandler(File f) {
+                        return new DimseRSPHandler(as.nextMessageID()) {
+                            @Override
+                            public void onDimseRSP(Association as, Attributes cmd, Attributes data) {
+                                super.onDimseRSP(as, cmd, data);
+                                LOG.info("RSP Status for: " + f.getName() + ": " + cmd.getInt(Tag.Status, -1));
+                            }
+                        };
+                    }
+                }.createDimseRSPHandler(file));
             } catch (Exception e) {
-                LOG.error(e.getMessage());
+                throw new IOException(e.getMessage());
+            } finally {
+                SafeClose.close(fin);
             }
+        } finally {
+            closeAssociation(as);
+        }
+    }
+
+    private void addPresentationContexts(AAssociateRQ rq, String cuid, String ts) {
+        rq.addPresentationContext(new PresentationContext(1, UID.Verification, UID.ImplicitVRLittleEndian));
+        if (cuid != null && ts != null) {
+            if (rq.containsPresentationContextFor(cuid, ts)) {
+                return;
+            }
+
+            if (!rq.containsPresentationContextFor(cuid)) {
+                if (!ts.equals(UID.ExplicitVRLittleEndian)) {
+                    rq.addPresentationContext(new PresentationContext(rq.getNumberOfPresentationContexts() * 2 + 1,
+                            cuid, UID.ExplicitVRLittleEndian));
+                }
+                if (!ts.equals(UID.ImplicitVRLittleEndian)) {
+                    rq.addPresentationContext(new PresentationContext(rq.getNumberOfPresentationContexts() * 2 + 1,
+                            cuid, UID.ImplicitVRLittleEndian));
+                }
+            }
+
+            rq.addPresentationContext(new PresentationContext(rq.getNumberOfPresentationContexts() * 2 + 1, cuid, ts));
         }
     }
 }

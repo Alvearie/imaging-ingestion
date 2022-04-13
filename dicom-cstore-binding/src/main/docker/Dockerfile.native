@@ -26,9 +26,6 @@ RUN chown 1001 /work \
     && chown 1001:root /work
 COPY --chown=1001:root build/*-runner /work/application
 
-#Copy the default config
-COPY --chown=1001 build/resources/main/dimse-config/* /etc/config/dimse-default/
-
 EXPOSE 8080
 USER 1001
 
