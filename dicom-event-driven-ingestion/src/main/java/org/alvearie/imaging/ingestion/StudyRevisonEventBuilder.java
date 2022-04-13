@@ -91,7 +91,7 @@ public class StudyRevisonEventBuilder {
                                     String changeReference = String.format("%s/%s", s.getSeriesInstanceUID(), inst.getSopInstanceUID());
                                     if (ie.initialRevision.equals(studyEntity.revision)) {
                                         additions.add(changeReference);
-                                    } else if (studyEntity.revision > 0 && ie.deletedRevision.equals(studyEntity.revision)) {
+                                    } else if (studyEntity.revision > 0 && ie.deletedRevision != null && ie.deletedRevision.equals(studyEntity.revision)) {
                                         deletions.add(changeReference);
                                     } else if (ie.lastModified.isAfter(studyEntity.revisionTime)) {
                                         modifications.add(changeReference);
