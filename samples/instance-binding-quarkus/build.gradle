@@ -9,6 +9,9 @@ repositories {
     maven {
         url = 'https://www.dcm4che.org/maven2/'
     }
+    maven {
+        url = 'https://maven.pkg.github.com/Alvearie/imaging-ingestion/'
+    }
 }
 
 dependencies {
@@ -20,6 +23,7 @@ dependencies {
     implementation 'io.quarkus:quarkus-resteasy-multipart'
     implementation 'io.quarkus:quarkus-arc'
     implementation "org.dcm4che:dcm4che-core:5.23.1"
+    implementation 'org.alvearie.imaging.ingestion:cloud-events:0.0.1-SNAPSHOT'
     testImplementation 'io.quarkus:quarkus-junit5'
     testImplementation 'io.quarkus:quarkus-junit5-mockito'
     testImplementation 'io.rest-assured:rest-assured'

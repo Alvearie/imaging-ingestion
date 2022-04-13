@@ -29,7 +29,8 @@ const (
 
 // DicomAvailableEvent is the Dicom Available Event struct
 type DicomAvailableEvent struct {
-	URL string `json:",inline"`
+	Provider string `json:"provider"`
+	Endpoint string `json:"endpoint"`
 }
 
 // Receiver is a struct
@@ -53,14 +54,14 @@ func main() {
 
 // Receive is invoked whenever we receive an event.
 func (recv *Receiver) Receive(ctx context.Context, event cloudevents.Event) {
-	var dicomReadURL string
-	if err := event.DataAs(&dicomReadURL); err != nil {
+	var dicomAvailableEvent DicomAvailableEvent
+	if err := event.DataAs(&dicomAvailableEvent); err != nil {
 		log.Printf("failed to convert data: %s\n", err)
 		return
 	}
 
-	fmt.Printf("dicomReadURL: %s\n", dicomReadURL)
-	filePath, err := recv.Get(dicomReadURL)
+	fmt.Printf("dicomReadURL: %s\n", dicomAvailableEvent.Endpoint)
+	filePath, err := recv.Get(dicomAvailableEvent.Endpoint)
 	if err != nil {
 		log.Printf("failed to get dicom image: %s\n", err)
 		return
