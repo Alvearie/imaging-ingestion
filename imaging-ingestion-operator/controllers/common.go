@@ -37,13 +37,13 @@ func GetEventDrivenIngestionResource(context context.Context, namespacedName typ
 	}
 }
 
-func GetWadoEndpoints(context context.Context, client client.Client, eventDrivenIngestionName string) (string, string) {
+func GetWadoEndpoints(context context.Context, client client.Client, eventDrivenIngestionName, provider string) (string, string) {
 	wadoExtEndpoint := ""
 	wadoIntEndpoint := ""
 	webIngestions := &v1alpha1.DicomwebIngestionServiceList{}
 	if err := client.List(context, webIngestions); err == nil {
 		for _, wi := range webIngestions.Items {
-			if wi.Spec.DicomEventDrivenIngestionName == eventDrivenIngestionName {
+			if wi.Spec.DicomEventDrivenIngestionName == eventDrivenIngestionName && wi.Spec.ProviderName == provider {
 				wadoExtEndpoint = wi.Status.WadoServiceExternalEndpoint
 				wadoIntEndpoint = wi.Status.WadoServiceInternalEndpoint
 			}
