@@ -89,7 +89,13 @@ func (i *DimseIngestionServiceReconciler) GetDimseIngestionServiceDesiredState(s
 	}
 	brokerEndpoint := eventDrivenIngestionResource.Status.BrokerEndpoint
 
-	wadoExtEndpoint, wadoIntEndpoint := GetWadoEndpoints(context.Background(), i.Client, eventDrivenIngestionResource.Name)
+	wadoExtEndpoint, wadoIntEndpoint := GetWadoEndpoints(context.Background(), i.Client, eventDrivenIngestionResource.Name, cr.Spec.ProviderName)
+	if wadoExtEndpoint == "" || wadoIntEndpoint == "" {
+		return common.GenericErrorAction{
+			Ref: errors.New("Missing DicomwebIngestionService with provider name: " + cr.Spec.ProviderName),
+			Msg: "Missing DicomwebIngestionService with provider name: " + cr.Spec.ProviderName,
+		}
+	}
 
 	service := model.DimseIngestionDeployment(cr, brokerEndpoint, wadoExtEndpoint, wadoIntEndpoint)
 	if state.DimseIngestionDeployment == nil {
