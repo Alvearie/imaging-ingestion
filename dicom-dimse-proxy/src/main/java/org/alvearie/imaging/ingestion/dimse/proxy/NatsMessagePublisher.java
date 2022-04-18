@@ -1,6 +1,6 @@
 /*
  * (C) Copyright IBM Corp. 2021
- * 
+ *
  * SPDX-License-Identifier: Apache-2.0
  */
 package org.alvearie.imaging.ingestion.dimse.proxy;
@@ -30,10 +30,9 @@ public class NatsMessagePublisher {
 
     @ConfigProperty(name = "dimse.nats.chunk.size")
     Integer chunkSize;
-    
+
     @Inject
     NatsConnectionFactory natsConnectionFactory;
-
 
     public byte[] publish(String aet, Association as, int messageId, byte[] data) {
         String subject = String.format("%s.%d.%d", aet, as.getSerialNo(), messageId);
@@ -53,14 +52,13 @@ public class NatsMessagePublisher {
                     LOG.info("Publishing to " + partSubject);
                     connection.publish(partSubject, ar.get(i));
                 }
-                return eof(connection, subject + "." + (ar.size() - 1), ar.get(ar.size() - 1)); 
+                return eof(connection, subject + "." + (ar.size() - 1), ar.get(ar.size() - 1));
             }
-            
+
         } else {
             return new byte[0];
         }
 
-        
     }
 
     private byte[] eof(Connection connection, String subject, byte[] data) {
@@ -69,7 +67,6 @@ public class NatsMessagePublisher {
         LOG.info("Publishing to " + eofSubject);
         LOG.info("EOF data size " + data.length);
 
-        
         Future<Message> reply = connection.request(eofSubject, data);
         try {
             Message msg = reply.get(replyTimeoutSeconds, TimeUnit.SECONDS);
@@ -77,6 +74,8 @@ public class NatsMessagePublisher {
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
             throw new RuntimeException(e.getMessage(), e);
+        } finally {
+            connection.publish(subject + ".RELEASE", null);
         }
     }
 }

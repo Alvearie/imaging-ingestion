@@ -1,6 +1,6 @@
 /*
  * (C) Copyright IBM Corp. 2021
- * 
+ *
  * SPDX-License-Identifier: Apache-2.0
  */
 package org.alvearie.imaging.ingestion.service.nats;
@@ -10,6 +10,7 @@ import java.util.List;
 
 import org.alvearie.imaging.ingestion.service.dimse.DimseCommandRegistry;
 import org.alvearie.imaging.ingestion.service.dimse.RequestWrapper;
+import org.alvearie.imaging.ingestion.service.dimse.SimpleAssociateRQ;
 import org.alvearie.imaging.ingestion.service.dimse.Utils;
 import org.dcm4che3.net.Dimse;
 import org.jboss.logging.Logger;
@@ -26,6 +27,7 @@ public class NatsMessageSubscriber {
     private String subject;
     private DimseCommandRegistry commandRegistry;
     private List<Message> messages = new ArrayList<>();
+    private SimpleAssociateRQ arq;
 
     public NatsMessageSubscriber(Connection connection, String subject, String replyTo,
             DimseCommandRegistry commandRegistry) {
@@ -50,6 +52,14 @@ public class NatsMessageSubscriber {
         if (msg.getSubject().endsWith(".EOF")) {
             LOG.info("EOF received");
             reply(msg);
+        } else if (msg.getSubject().endsWith(".RELEASE")) {
+            LOG.info("RELEASE received");
+            try {
+                LOG.info("Release target association");
+                commandRegistry.onClose(this.arq);
+            } catch (Exception e) {
+                LOG.error("Error releasing target association", e);
+            }
         }
     }
 
@@ -60,10 +70,12 @@ public class NatsMessageSubscriber {
             LOG.info("Message parts: " + messages.size());
 
             RequestWrapper req = new RequestWrapper(Utils.combineData(messages));
-
             Dimse dimse = Utils.getDimse(req.getCmd());
-            byte[] data = commandRegistry.onDimseRQ(dimse, req.getAssociateRQ(), req.getPresentationContext(),
-                    req.getCmd(), req.getData());
+
+            this.arq = req.getAssociateRQ();
+
+            byte[] data = commandRegistry.onDimseRQ(dimse, arq, req.getPresentationContext(), req.getCmd(),
+                    req.getData());
             LOG.info("Replying to " + msg.getReplyTo());
             connection.publish(msg.getReplyTo(), data);
 
