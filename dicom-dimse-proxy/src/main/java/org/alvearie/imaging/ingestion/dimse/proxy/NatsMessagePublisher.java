@@ -61,6 +61,15 @@ public class NatsMessagePublisher {
 
     }
 
+    public void release(String aet, Association as) {
+        Connection connection = natsConnectionFactory.getConnection();
+        if (connection != null) {
+            String subject = String.format("%s.%d.RELEASE", aet, as.getSerialNo());
+            LOG.info("Publishing RELEASE to " + subject);
+            connection.publish(subject, null);
+        }
+    }
+
     private byte[] eof(Connection connection, String subject, byte[] data) {
         String eofSubject = subject + ".EOF";
 
@@ -74,8 +83,6 @@ public class NatsMessagePublisher {
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
             throw new RuntimeException(e.getMessage(), e);
-        } finally {
-            connection.publish(subject + ".RELEASE", null);
         }
     }
 }

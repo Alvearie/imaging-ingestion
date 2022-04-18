@@ -109,6 +109,8 @@ public class DimseRQProxyHandler implements DimseRQHandler {
     private void closeAssociation(Association as) {
         if (as != null) {
             try {
+                messagePublisher.release(subjectRoot + "." + subjectChannel.getPublishChannel(), as);
+
                 if (as.isReadyForDataTransfer()) {
                     as.release();
                 }
