@@ -89,4 +89,9 @@ public class CEchoHandler implements DimseCommandHandler {
             }
         }
     }
+
+    @Override
+    public void onClose(SimpleAssociateRQ arq) throws Exception {
+        // NOOP
+    }
 }

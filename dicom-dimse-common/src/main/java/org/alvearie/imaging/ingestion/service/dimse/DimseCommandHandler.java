@@ -11,4 +11,6 @@ import org.dcm4che3.net.Dimse;
 public interface DimseCommandHandler {
     public byte[] onDimseRQ(Dimse dimse, SimpleAssociateRQ rq, SimplePresentationContext pc, Attributes cmd,
             Attributes data) throws Exception;
+
+    public void onClose(SimpleAssociateRQ arq) throws Exception;
 }

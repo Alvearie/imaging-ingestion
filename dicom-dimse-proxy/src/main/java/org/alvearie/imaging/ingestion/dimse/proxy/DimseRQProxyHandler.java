@@ -94,6 +94,9 @@ public class DimseRQProxyHandler implements DimseRQHandler {
 
     @Override
     public void onClose(Association as) {
+        LOG.info("Closing association: " + as);
+        closeAssociation(as);
+
         String subject = subjectRoot + "." + subjectChannel.getPublishChannel();
         String key = subject + "." + as.getSerialNo();
         LOG.info("Remove association from holder: " + key);
@@ -101,5 +104,17 @@ public class DimseRQProxyHandler implements DimseRQHandler {
 
         LOG.info("Remove subscriber from holder: " + key);
         holder.removeSubscriber(key);
+    }
+
+    private void closeAssociation(Association as) {
+        if (as != null) {
+            try {
+                if (as.isReadyForDataTransfer()) {
+                    as.release();
+                }
+            } catch (Exception e) {
+                LOG.error(e);
+            }
+        }
     }
 }

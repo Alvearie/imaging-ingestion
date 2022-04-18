@@ -109,4 +109,9 @@ public class CStoreHandler implements DimseCommandHandler {
             }
         }
     }
+
+    @Override
+    public void onClose(SimpleAssociateRQ arq) throws Exception {
+        // NOOP
+    }
 }
