@@ -42,6 +42,7 @@ public class InstanceBindingFunction {
         log.info("Received event: " + event.id());
         String file = retrieveDicom(data);
         processDicom(file);
+        cleanup(file);
     }
 
     private String retrieveDicom(DicomAvailableEvent data) throws Exception {
@@ -73,6 +74,17 @@ public class InstanceBindingFunction {
         try (DicomInputStream dis = new DicomInputStream(is)) {
             Attributes attr = dis.readDatasetUntilPixelData();
             log.info(attr);
+        }
+    }
+
+    private void cleanup(String path) {
+        if (path != null) {
+            try {
+                log.info("Deleting temp file: " + path);
+                new File(path).delete();
+            } catch (Exception e) {
+                log.error("Failed to delete temp file: " + path, e);
+            }
         }
     }
 }

@@ -72,6 +72,12 @@ func (recv *Receiver) Receive(ctx context.Context, event cloudevents.Event) {
 		log.Printf("failed to process dicom file: %s\n", err)
 		return
 	}
+
+	err = recv.Cleanup(filePath)
+	if err != nil {
+		log.Printf("failed to cleanup temp file: %s\n", err)
+		return
+	}
 }
 
 // Process will process the dicom image
@@ -146,4 +152,10 @@ func (recv *Receiver) Get(url string) (string, error) {
 
 	fmt.Printf("File copied to %s\n", f.Name())
 	return f.Name(), nil
+}
+
+// Cleanup will delete temp file
+func (recv *Receiver) Cleanup(path string) error {
+	fmt.Printf("Removing temp file: %s\n", path)
+	return os.Remove(path)
 }

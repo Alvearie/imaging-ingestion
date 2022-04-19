@@ -77,7 +77,7 @@ public class SimpleStoreService implements StoreService {
     public void store(StoreContext ctx, InputStream data) throws IOException {
         writeToStorage(ctx, data);
     }
-    
+
     @Override
     public ByteArrayOutputStream retrieve(String objectKey) throws IOException {
         return persistenceService.getObject(objectKey);
@@ -85,10 +85,12 @@ public class SimpleStoreService implements StoreService {
 
     private void writeToStorage(StoreContext ctx, InputStream data) throws DicomServiceException {
         try (Transcoder transcoder = new Transcoder(data)) {
+            TranscoderHandler handler = new TranscoderHandler(ctx);
             transcoder.setIncludeFileMetaInformation(true);
-            transcoder.transcode(new TranscoderHandler(ctx));
+            transcoder.transcode(handler);
             persistenceService.putObject(ctx);
             eventClient.sendEvent(UUID.randomUUID().toString(), Events.ImageStoredEvent, buildEvent(ctx), eventSource);
+            handler.close();
         } catch (Throwable e) {
             LOG.warn("Failed to store received object:\n", e);
             throw new DicomServiceException(Status.ProcessingFailure, e);
@@ -142,6 +144,17 @@ public class SimpleStoreService implements StoreService {
             File file = File.createTempFile("stow", ".tmp");
             storeContext.setFilePath(file.getAbsolutePath());
             return new FileOutputStream(file);
+        }
+
+        public void close() {
+            if (this.storeContext != null && this.storeContext.getFilePath() != null) {
+                try {
+                    LOG.info("Deleting temp file: " + this.storeContext.getFilePath());
+                    new File(this.storeContext.getFilePath()).delete();
+                } catch (Exception e) {
+                    LOG.error("Failed to delete temp file: " + this.storeContext.getFilePath(), e);
+                }
+            }
         }
     }
 
