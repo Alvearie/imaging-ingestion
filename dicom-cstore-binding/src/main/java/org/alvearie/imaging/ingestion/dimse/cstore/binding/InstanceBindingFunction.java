@@ -86,6 +86,7 @@ public class InstanceBindingFunction {
 
         String file = retrieveDicom(data);
         processDicom(file);
+        cleanup(file);
     }
 
     private String retrieveDicom(DicomAvailableEvent data) throws Exception {
@@ -114,5 +115,16 @@ public class InstanceBindingFunction {
 
     private void processDicom(String path) throws Exception {
         storescu.cstore(path);
+    }
+
+    private void cleanup(String path) {
+        if (path != null) {
+            try {
+                log.info("Deleting temp file: " + path);
+                new File(path).delete();
+            } catch (Exception e) {
+                log.error("Failed to delete temp file: " + path, e);
+            }
+        }
     }
 }
