@@ -32,4 +32,6 @@ COPY --chown=1001 build/resources/main/dimse-config/* /etc/config/dimse-default/
 EXPOSE 8080
 USER 1001
 
-CMD ["./application", "-Dquarkus.http.host=0.0.0.0"]
+ENV JVM_OPTS="-Xmn32m -Xmx256m"
+
+CMD ["./application", "$JVM_OPTS", "-Dquarkus.http.host=0.0.0.0"]
