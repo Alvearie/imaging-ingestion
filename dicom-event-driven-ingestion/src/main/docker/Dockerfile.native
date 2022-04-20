@@ -31,4 +31,4 @@ USER 1001
 
 ENV JVM_OPTS="-Xmn32m -Xmx256m"
 
-CMD ["./application", "$JVM_OPTS", "-Dquarkus.http.host=0.0.0.0"]
+CMD ["sh", "-c", "./application $JVM_OPTS -Dquarkus.http.host=0.0.0.0"]
