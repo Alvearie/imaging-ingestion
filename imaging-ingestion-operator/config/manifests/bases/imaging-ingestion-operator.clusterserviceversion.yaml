@@ -135,6 +135,9 @@ spec:
       - description: Image Pull Secrets
         displayName: Image Pull Secrets
         path: imagePullSecrets
+      - description: Revisioning Delay in Seconds
+        displayName: Revisioning Delay
+        path: revisioningDelay
       statusDescriptors:
       - description: Human-readable message indicating details about current operator
           phase or error

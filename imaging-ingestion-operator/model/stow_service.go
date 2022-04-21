@@ -55,6 +55,7 @@ func StowService(cr *v1alpha1.DicomwebIngestionService) *kservingv1.Service {
 											MountPath: "/etc/bucket/secret",
 										},
 									},
+									Resources: GetResourceRequirements(common.DefaultKServiceMemoryRequest, common.DefaultKServiceMemoryLimit),
 								},
 							},
 							Volumes: []corev1.Volume{

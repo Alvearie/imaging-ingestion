@@ -68,6 +68,7 @@ func StudyBindingService(cr *v1alpha1.DicomStudyBinding) *kservingv1.Service {
 											},
 										},
 									},
+									Resources: GetResourceRequirements(common.DefaultKServiceMemoryRequest, common.DefaultKServiceMemoryLimit),
 								},
 							},
 							ImagePullSecrets: cr.Spec.ImagePullSpec.ImagePullSecrets,

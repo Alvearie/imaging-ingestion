@@ -62,6 +62,7 @@ func DimseProxyDeployment(cr *v1alpha1.DimseProxy) *appsv1.Deployment {
 									MountPath: "/etc/dimse/config",
 								},
 							},
+							Resources: GetResourceRequirements(common.DefaultDeploymentMemoryRequest, common.DefaultDeploymentMemoryLimit),
 						},
 					},
 					Volumes: []corev1.Volume{

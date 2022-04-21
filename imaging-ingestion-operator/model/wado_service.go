@@ -54,6 +54,7 @@ func WadoService(cr *v1alpha1.DicomwebIngestionService, eventProcessorServiceEnd
 											MountPath: "/etc/bucket/secret",
 										},
 									},
+									Resources: GetResourceRequirements(common.DefaultKServiceMemoryRequest, common.DefaultKServiceMemoryLimit),
 								},
 							},
 							Volumes: []corev1.Volume{

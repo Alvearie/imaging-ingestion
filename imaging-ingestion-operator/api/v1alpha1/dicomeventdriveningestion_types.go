@@ -25,6 +25,10 @@ type DicomEventDrivenIngestionSpec struct {
 	// Event Processor Spec
 	//+operator-sdk:csv:customresourcedefinitions:type=spec
 	EventProcessor EventProcessorSpec `json:"eventProcessor,omitempty"`
+	// Revisioning Delay in Seconds
+	// +optional
+	//+operator-sdk:csv:customresourcedefinitions:type=spec
+	RevisioningDelay *int `json:"revisioningDelay,omitempty"`
 }
 
 type EventProcessorSpec struct {

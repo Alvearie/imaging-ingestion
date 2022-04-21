@@ -8,6 +8,7 @@ package model
 
 import (
 	v1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/api/resource"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 )
 
@@ -37,6 +38,22 @@ func MergeEnvs(a []v1.EnvVar, b []v1.EnvVar) []v1.EnvVar {
 		}
 	}
 	return a
+}
+
+func GetResourceQuantity(str string) resource.Quantity {
+	v, _ := resource.ParseQuantity(str)
+	return v
+}
+
+func GetResourceRequirements(memRequest, memLimit string) v1.ResourceRequirements {
+	return v1.ResourceRequirements{
+		Requests: v1.ResourceList{
+			v1.ResourceMemory: GetResourceQuantity(memRequest),
+		},
+		Limits: v1.ResourceList{
+			v1.ResourceMemory: GetResourceQuantity(memLimit),
+		},
+	}
 }
 
 func GetDefaultCuids() string {
