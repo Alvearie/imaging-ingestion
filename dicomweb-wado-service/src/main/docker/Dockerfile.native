@@ -29,4 +29,6 @@ COPY --chown=1001:root build/*-runner /work/application
 EXPOSE 8080
 USER 1001
 
-CMD ["./application", "-Dquarkus.http.host=0.0.0.0"]
+ENV JVM_OPTS="-Xmn32m -Xmx256m"
+
+CMD ["sh", "-c", "./application $JVM_OPTS -Dquarkus.http.host=0.0.0.0"]
