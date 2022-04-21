@@ -39,4 +39,9 @@ const (
 
 	BridgeRoleHub  BridgeRole = "hub"
 	BridgeRoleEdge BridgeRole = "edge"
+
+	DefaultKServiceMemoryRequest   = "128Mi"
+	DefaultKServiceMemoryLimit     = "384Mi"
+	DefaultDeploymentMemoryRequest = "64Mi"
+	DefaultDeploymentMemoryLimit   = "384Mi"
 )

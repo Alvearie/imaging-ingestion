@@ -72,6 +72,7 @@ func InstanceBindingService(cr *v1alpha1.DicomInstanceBinding) *kservingv1.Servi
 											},
 										},
 									},
+									Resources: GetResourceRequirements(common.DefaultKServiceMemoryRequest, common.DefaultKServiceMemoryLimit),
 								},
 							},
 							ImagePullSecrets: cr.Spec.ImagePullSpec.ImagePullSecrets,

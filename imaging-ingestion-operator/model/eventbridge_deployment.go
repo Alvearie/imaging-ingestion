@@ -57,6 +57,7 @@ func EventBridgeDeployment(cr *v1alpha1.DicomEventBridge, core *v1alpha1.DicomEv
 								},
 							},
 							VolumeMounts: GetEventBridgeDeploymentVolumeMounts(cr),
+							Resources:    GetResourceRequirements(common.DefaultDeploymentMemoryRequest, common.DefaultDeploymentMemoryLimit),
 						},
 					},
 					Volumes:          GetEventBridgeDeploymentVolumes(cr),

@@ -6,6 +6,7 @@ spec:
   imagePullPolicy: Always
   databaseConfigName: db-config
   databaseSecretName: db-secret
+  revisioningDelay: 30
   eventProcessor:
     concurrency: 0
     maxReplicas: 3

@@ -35,7 +35,8 @@ metadata:
               "maxReplicas": 3,
               "minReplicas": 0
             },
-            "imagePullPolicy": "Always"
+            "imagePullPolicy": "Always",
+            "revisioningDelay": 30
           }
         },
         {
@@ -143,7 +144,7 @@ metadata:
     createdAt: "2021-04-08T15:29:55Z"
     description: The Alvearie Imaging Ingestion provides a collection of components
       for extending enterprise medical imaging informatics systems to Kubernetes.
-    operators.operatorframework.io/builder: operator-sdk-v1.16.0
+    operators.operatorframework.io/builder: operator-sdk-v1.17.0
     operators.operatorframework.io/project_layout: go.kubebuilder.io/v3
     repository: https://github.com/Alvearie/imaging-ingestion
     support: alvearie.slack.com
@@ -271,6 +272,9 @@ spec:
       - description: Image Pull Secrets
         displayName: Image Pull Secrets
         path: imagePullSecrets
+      - description: Revisioning Delay in Seconds
+        displayName: Revisioning Delay
+        path: revisioningDelay
       statusDescriptors:
       - description: Human-readable message indicating details about current operator
           phase or error

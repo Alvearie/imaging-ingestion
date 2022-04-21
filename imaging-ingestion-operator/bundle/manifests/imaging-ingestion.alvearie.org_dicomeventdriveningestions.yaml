@@ -85,6 +85,9 @@ spec:
                       type: string
                   type: object
                 type: array
+              revisioningDelay:
+                description: Revisioning Delay in Seconds
+                type: integer
             type: object
           status:
             description: DicomEventDrivenIngestionStatus defines the observed state

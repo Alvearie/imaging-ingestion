@@ -67,6 +67,7 @@ func DimseIngestionDeployment(cr *v1alpha1.DimseIngestionService, sink, wadoExtE
 									MountPath: "/etc/dimse/config",
 								},
 							},
+							Resources: GetResourceRequirements(common.DefaultDeploymentMemoryRequest, common.DefaultDeploymentMemoryLimit),
 						},
 					},
 					Volumes: []corev1.Volume{

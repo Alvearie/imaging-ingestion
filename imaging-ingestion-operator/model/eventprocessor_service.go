@@ -47,12 +47,7 @@ func EventProcessorService(cr *v1alpha1.DicomEventDrivenIngestion) *kservingv1.S
 											ContainerPort: 8080,
 										},
 									},
-									Env: []corev1.EnvVar{
-										{
-											Name:  "EVENT_SOURCE",
-											Value: fmt.Sprintf("%s.%s.svc.cluster.local", GetEventProcessorServiceName(cr.Name), cr.Namespace),
-										},
-									},
+									Env: GetEventProcessorEnv(cr),
 									EnvFrom: []corev1.EnvFromSource{
 										{
 											ConfigMapRef: &corev1.ConfigMapEnvSource{
@@ -69,6 +64,7 @@ func EventProcessorService(cr *v1alpha1.DicomEventDrivenIngestion) *kservingv1.S
 											},
 										},
 									},
+									Resources: GetResourceRequirements(common.DefaultKServiceMemoryRequest, common.DefaultKServiceMemoryLimit),
 								},
 							},
 							ImagePullSecrets: cr.Spec.ImagePullSpec.ImagePullSecrets,
@@ -104,4 +100,22 @@ func EventProcessorServiceReconciled(cr *v1alpha1.DicomEventDrivenIngestion, cur
 
 func GetEventProcessorServiceName(resourceName string) string {
 	return resourceName + "-event-processor"
+}
+
+func GetEventProcessorEnv(cr *v1alpha1.DicomEventDrivenIngestion) []corev1.EnvVar {
+	envs := []corev1.EnvVar{
+		{
+			Name:  "EVENT_SOURCE",
+			Value: fmt.Sprintf("%s.%s.svc.cluster.local", GetEventProcessorServiceName(cr.Name), cr.Namespace),
+		},
+	}
+
+	if cr.Spec.RevisioningDelay != nil && *cr.Spec.RevisioningDelay > 0 {
+		envs = append(envs, corev1.EnvVar{
+			Name:  "IMAGING_INGESTION_STUDY_AGGREGATION_TIMEOUTSECONDS",
+			Value: fmt.Sprintf("%d", *cr.Spec.RevisioningDelay),
+		})
+	}
+
+	return envs
 }
