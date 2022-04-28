@@ -10,14 +10,14 @@
 The *DICOM Instance Binding* has a single container that is invoked by the event broker on every *DicomAvailableEvent*.  
 
 ## Provided Bindings
-  There is currently only one provided binding container.  The provided container retrieves the subject of the *DicomAvailableEvent* using the cluster local address of the WADO-RS reference to the resource and pushes that resource to a downstream consumer using STOW-RS.
+  There are currently two binding container implementations provided to support either DICOMWeb (STOW-RS) or DIMSE (C-STORE).  The provided containers retrieve the subject of the *DicomAvailableEvent* using the cluster local address of the WADO-RS reference to the resource and push that resource to the downstream consumer.  
   
 ## Deployment
 
 
 **Target Service Endpoint Details**
 
-Create a *ConfigMap* with the service address for DICOM delivery.  Depending upon the binding type, this may have a different data.  This example is valid for the provided STOW-RS binding.
+Create a *ConfigMap* with the service address for DICOM delivery.  Depending upon the binding type, this may have a different data.  Examples for STOW-RS and C-STORE respectively:
 
 ```yaml
 kind: ConfigMap
@@ -26,6 +26,17 @@ metadata:
   name: instance-binding-config
 data:
   STOW_ENDPOINT: 'https://dcm4chee.0a0527d6.nip.io/dcm4chee-arc/aets/DCM4CHEE/rs/studies'
+```
+
+```yaml
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: instance-binding-config
+data:
+  DIMSE_TARGET_HOST: dimse-host
+  DIMSE_TARGET_PORT: "11112"
+  DIMSE_TARGET_AE: DIMSE
 ```
 
 **Target Service Security Details**
@@ -50,6 +61,8 @@ kind: DicomInstanceBinding
 metadata:
   name: stow
 spec:
+  # The default container image is for the STOW-RS, to use C-STORE provide the appropriate image
+  #image: alvearie/dicom-cstore-binding:0.0.1
   # Reference to the target service endpoint details
   bindingConfigName: instance-binding-config
   # Reference to the target service security credentials
