@@ -12,6 +12,8 @@ import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 import java.util.Arrays;
 import java.util.Optional;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 
 import javax.annotation.PreDestroy;
 import javax.enterprise.context.ApplicationScoped;
@@ -105,6 +107,10 @@ public class DimseServer {
             serviceRegistry.addDicomService(findscp);
             serviceRegistry.addDicomService(storescp);
             device.setDimseRQHandler(serviceRegistry);
+            ScheduledExecutorService scheduledExecutorService =
+                    Executors.newSingleThreadScheduledExecutor();
+                device.setScheduledExecutor(scheduledExecutorService);
+
 
             start();
         } catch (RuntimeException re) {
