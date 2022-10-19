@@ -9,6 +9,7 @@ import java.util.List;
 
 public class DicomStudy {
     private String studyInstanceUID;
+    private String studyDate;
     private List<Element> attributes;
     private List<DicomSeries> series;
    
@@ -19,6 +20,14 @@ public class DicomStudy {
 
     public void setStudyInstanceUID(String studyInstanceUID) {
         this.studyInstanceUID = studyInstanceUID;
+    }
+
+    public String getStudyDate() {
+        return studyDate;
+    }
+
+    public void setStudyDate(String studyDate) {
+        this.studyDate = studyDate;
     }
 
     public List<DicomSeries> getSeries() {
