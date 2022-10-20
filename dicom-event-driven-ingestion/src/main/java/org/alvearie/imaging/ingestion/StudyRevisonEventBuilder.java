@@ -53,6 +53,7 @@ public class StudyRevisonEventBuilder {
             List<String> modifications = new ArrayList<>();
             DicomStudy study = new DicomStudy();
             study.setStudyInstanceUID(studyEntity.studyInstanceUID);
+            study.setStudyDate(studyEntity.studyDate);
             if (studyEntity.attributes != null) {
                 List<Element> attributes = new ArrayList<>();
                 for (DicomStudyAttributesEntity studyAttribute : studyEntity.attributes) {
