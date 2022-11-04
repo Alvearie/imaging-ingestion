@@ -1,6 +1,6 @@
 # Alvearie Imaging Ingestion
   The Imaging Ingestion component brings a number of capabilities to the Alvearie ecosystem.  It provides all of the necessary capability to extend the reach of existing enterprise medical Imaging systems to a modern hybrid cloud.  This component leverages a number of *Cloud Native Computing Foundation* (CNCF) projects to cloud-enable standards-based medical imaging application interfaces such as DICOM Message Service Element (DIMSE) and DICOMweb.  Being composed of a number of flexible subcomponents, it is possible to extend enterprise imaging systems to the cloud with custom, fit for purpose deployments.  This is possible at speed, low cost, and little or zero integration effort.  
-  
+ test
 Some potential usages:
 
   - Perform lightweight secure bridging of DICOM from the enterprise imaging zone to a cloud availability zone.
