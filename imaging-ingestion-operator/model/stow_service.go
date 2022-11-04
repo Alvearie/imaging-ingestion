@@ -141,6 +141,10 @@ func GetStowServiceEnv(cr *v1alpha1.DicomwebIngestionService, existing []corev1.
 			Name:  "EVENT_SOURCE",
 			Value: fmt.Sprintf("%s.%s.svc.cluster.local", GetStowServiceName(cr), cr.Namespace),
 		},
+		{
+			Name:  "QUARKUS_SHUTDOWN_TIMEOUT",
+			Value: "15S",
+		},
 	}
 	env = MergeEnvs(existing, env)
 
