@@ -136,6 +136,10 @@ func GetWadoServiceEnv(cr *v1alpha1.DicomwebIngestionService, existing []corev1.
 			Name:  "QUARKUS_SHUTDOWN_TIMEOUT",
 			Value: "15S",
 		},
+		{
+			Name:  "QUARKUS_HTTP_IDLE_TIMEOUT",
+			Value: "45S",
+		},
 	}
 	env = MergeEnvs(existing, env)
 
