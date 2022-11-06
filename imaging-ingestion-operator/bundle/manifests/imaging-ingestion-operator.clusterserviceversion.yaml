@@ -87,7 +87,7 @@ metadata:
             "dicomEventDrivenIngestionName": "core",
             "imagePullPolicy": "Always",
             "providerName": "provider",
-            "serviceConfigName": "dicomweb-service-config",
+            "serviceConfigName": "dicomweb-svc-config",
             "stowService": {
               "concurrency": 0,
               "maxReplicas": 3,
