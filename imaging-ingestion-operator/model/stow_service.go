@@ -44,7 +44,8 @@ func StowService(cr *v1alpha1.DicomwebIngestionService) *kservingv1.Service {
 											ContainerPort: 8080,
 										},
 									},
-									Env: GetStowServiceEnv(cr, []corev1.EnvVar{}),
+									Env:     GetStowServiceEnv(cr, []corev1.EnvVar{}),
+									EnvFrom: GetStowServiceEnvFrom(cr),
 									VolumeMounts: []corev1.VolumeMount{
 										{
 											Name:      "bucket-config-volume",
@@ -105,6 +106,7 @@ func StowServiceReconciled(cr *v1alpha1.DicomwebIngestionService, currentState *
 	container.Image = GetImage(cr.Spec.StowService.Image, common.StowServiceImage)
 	container.ImagePullPolicy = cr.Spec.ImagePullSpec.ImagePullPolicy
 	container.Env = GetStowServiceEnv(cr, container.Env)
+	container.EnvFrom = GetStowServiceEnvFrom(cr)
 	reconciled.Spec.ConfigurationSpec.Template.Spec.PodSpec.ImagePullSecrets = cr.Spec.ImagePullSpec.ImagePullSecrets
 	reconciled.Spec.ConfigurationSpec.Template.Spec.ContainerConcurrency = &cr.Spec.StowService.Concurrency
 
@@ -144,5 +146,18 @@ func GetStowServiceEnv(cr *v1alpha1.DicomwebIngestionService, existing []corev1.
 	}
 	env = MergeEnvs(existing, env)
 
+	return env
+}
+
+func GetStowServiceEnvFrom(cr *v1alpha1.DicomwebIngestionService) []corev1.EnvFromSource {
+	env := []corev1.EnvFromSource{
+		{
+			ConfigMapRef: &corev1.ConfigMapEnvSource{
+				LocalObjectReference: corev1.LocalObjectReference{
+					Name: cr.Spec.ServiceConfigName,
+				},
+			},
+		},
+	}
 	return env
 }

@@ -8,6 +8,7 @@ spec:
   bucketSecretName: imaging-ingestion
   dicomEventDrivenIngestionName: core
   providerName: provider
+  serviceConfigName: dicomweb-service-config
   stowService:
     concurrency: 0
     maxReplicas: 3

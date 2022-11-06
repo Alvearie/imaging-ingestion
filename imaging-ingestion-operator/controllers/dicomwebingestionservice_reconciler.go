@@ -20,6 +20,7 @@ func (r *DicomwebIngestionServiceReconciler) GetDesiredState(currentState *Dicom
 	desired := common.DesiredResourceState{}
 	desired = desired.AddAction(r.GetBucketSecretDesiredState(currentState, cr))
 	desired = desired.AddAction(r.GetBucketConfigDesiredState(currentState, cr))
+	desired = desired.AddAction(r.GetServiceConfigDesiredState(currentState, cr))
 	desired = desired.AddAction(r.GetStowServiceDesiredState(currentState, cr))
 	desired = desired.AddAction(r.GetWadoServiceDesiredState(currentState, cr))
 	desired = desired.AddAction(r.GetStowSinkBindingDesiredState(currentState, cr))
@@ -43,6 +44,17 @@ func (i *DicomwebIngestionServiceReconciler) GetBucketConfigDesiredState(state *
 		return common.GenericErrorAction{
 			Ref: errors.New("Missing Bucket Config"),
 			Msg: "Missing Bucket Config",
+		}
+	}
+
+	return nil
+}
+
+func (i *DicomwebIngestionServiceReconciler) GetServiceConfigDesiredState(state *DicomwebIngestionServiceState, cr *v1alpha1.DicomwebIngestionService) common.ControllerAction {
+	if state.BucketConfig == nil {
+		return common.GenericErrorAction{
+			Ref: errors.New("Missing DICOMWeb Service Config"),
+			Msg: "Missing DICOMWeb Service Config",
 		}
 	}
 
