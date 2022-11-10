@@ -71,6 +71,9 @@ spec:
               providerName:
                 description: Provider Name
                 type: string
+              serviceConfigName:
+                description: Service Config Name
+                type: string
               stowService:
                 description: STOW Service Spec
                 properties:

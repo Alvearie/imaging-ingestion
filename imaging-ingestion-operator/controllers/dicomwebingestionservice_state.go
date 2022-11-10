@@ -29,6 +29,7 @@ type DicomwebIngestionServiceState struct {
 
 	BucketSecret    *corev1.Secret
 	BucketConfig    *corev1.ConfigMap
+	ServiceConfig   *corev1.ConfigMap
 	StowService     *kservingv1.Service
 	WadoService     *kservingv1.Service
 	StowSinkBinding *ksourcesv1.SinkBinding
@@ -69,6 +70,11 @@ func (i *DicomwebIngestionServiceState) Read(context context.Context, resource c
 	}
 
 	err = i.readBucketConfigCurrentState(context, cr)
+	if err != nil {
+		return err
+	}
+
+	err = i.readServiceConfigCurrentState(context, cr)
 	if err != nil {
 		return err
 	}
@@ -126,6 +132,26 @@ func (i *DicomwebIngestionServiceState) readBucketConfigCurrentState(context con
 	} else {
 		i.BucketConfig = config.DeepCopy()
 		cr.UpdateStatusSecondaryResources(i.BucketConfig.Kind, i.BucketConfig.Name)
+	}
+
+	return nil
+}
+
+func (i *DicomwebIngestionServiceState) readServiceConfigCurrentState(context context.Context, cr *v1alpha1.DicomwebIngestionService) error {
+	config := model.ServiceConfig()
+	configSelector := model.ServiceConfigSelector(cr.Spec.ServiceConfigName, cr.Namespace)
+
+	err := i.Client.Get(context, configSelector, config)
+	if err != nil {
+		// If the resource type doesn't exist on the cluster or does exist but is not found
+		if meta.IsNoMatchError(err) || apiErrors.IsNotFound(err) {
+			i.ServiceConfig = nil
+		} else {
+			return err
+		}
+	} else {
+		i.ServiceConfig = config.DeepCopy()
+		cr.UpdateStatusSecondaryResources(i.ServiceConfig.Kind, i.ServiceConfig.Name)
 	}
 
 	return nil

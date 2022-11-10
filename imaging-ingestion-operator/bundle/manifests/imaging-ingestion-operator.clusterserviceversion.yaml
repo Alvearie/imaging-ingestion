@@ -87,6 +87,7 @@ metadata:
             "dicomEventDrivenIngestionName": "core",
             "imagePullPolicy": "Always",
             "providerName": "provider",
+            "serviceConfigName": "dicomweb-service-config",
             "stowService": {
               "concurrency": 0,
               "maxReplicas": 3,
@@ -452,6 +453,9 @@ spec:
       - description: Provider Name
         displayName: Provider Name
         path: providerName
+      - description: Service Config Name
+        displayName: Service Config Name
+        path: serviceConfigName
       - description: STOW Service Spec
         displayName: Stow Service
         path: stowService

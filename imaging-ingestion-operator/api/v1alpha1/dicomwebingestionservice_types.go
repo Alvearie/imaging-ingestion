@@ -19,6 +19,9 @@ type DicomwebIngestionServiceSpec struct {
 	// DICOM Event Driven Ingestion Name
 	//+operator-sdk:csv:customresourcedefinitions:type=spec
 	DicomEventDrivenIngestionName string `json:"dicomEventDrivenIngestionName"`
+	// Service Config Name
+	//+operator-sdk:csv:customresourcedefinitions:type=spec
+	ServiceConfigName string `json:"serviceConfigName,omitempty"`
 	// Bucket Config Name
 	//+operator-sdk:csv:customresourcedefinitions:type=spec
 	BucketConfigName string `json:"bucketConfigName,omitempty"`

@@ -43,7 +43,8 @@ func WadoService(cr *v1alpha1.DicomwebIngestionService, eventProcessorServiceEnd
 											ContainerPort: 8080,
 										},
 									},
-									Env: GetWadoServiceEnv(cr, []corev1.EnvVar{}, eventProcessorServiceEndpoint),
+									Env:     GetWadoServiceEnv(cr, []corev1.EnvVar{}, eventProcessorServiceEndpoint),
+									EnvFrom: GetWadoServiceEnvFrom(cr),
 									VolumeMounts: []corev1.VolumeMount{
 										{
 											Name:      "bucket-config-volume",
@@ -104,6 +105,7 @@ func WadoServiceReconciled(cr *v1alpha1.DicomwebIngestionService, currentState *
 	container.Image = GetImage(cr.Spec.WadoService.Image, common.WadoServiceImage)
 	container.ImagePullPolicy = cr.Spec.ImagePullSpec.ImagePullPolicy
 	container.Env = GetWadoServiceEnv(cr, container.Env, eventProcessorServiceEndpoint)
+	container.EnvFrom = GetWadoServiceEnvFrom(cr)
 	reconciled.Spec.ConfigurationSpec.Template.Spec.PodSpec.ImagePullSecrets = cr.Spec.ImagePullSpec.ImagePullSecrets
 	reconciled.Spec.ConfigurationSpec.Template.Spec.ContainerConcurrency = &cr.Spec.WadoService.Concurrency
 
@@ -135,5 +137,18 @@ func GetWadoServiceEnv(cr *v1alpha1.DicomwebIngestionService, existing []corev1.
 	}
 	env = MergeEnvs(existing, env)
 
+	return env
+}
+
+func GetWadoServiceEnvFrom(cr *v1alpha1.DicomwebIngestionService) []corev1.EnvFromSource {
+	env := []corev1.EnvFromSource{
+		{
+			ConfigMapRef: &corev1.ConfigMapEnvSource{
+				LocalObjectReference: corev1.LocalObjectReference{
+					Name: cr.Spec.ServiceConfigName,
+				},
+			},
+		},
+	}
 	return env
 }
